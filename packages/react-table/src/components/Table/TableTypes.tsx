@@ -1,13 +1,11 @@
-import { DropdownItemProps } from '@patternfly/react-core/next';
-import { formatterValueType, ColumnType, RowType, RowKeyType, HeaderType } from './base';
+import { formatterValueType, ColumnType, RowType, RowKeyType, HeaderType } from './base/types';
 import { SortByDirection } from './SortColumn';
-import {
-  DropdownDirection,
-  DropdownPosition
-} from '@patternfly/react-core/dist/esm/components/Dropdown/dropdownConstants';
+import { DropdownItemProps } from '@patternfly/react-core/dist/esm/components/Dropdown';
+import { DropdownDirection, DropdownPosition } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown';
 import * as React from 'react';
 import { CustomActionsToggleProps } from './ActionsColumn';
-import { ButtonProps } from '@patternfly/react-core';
+import { ButtonProps } from '@patternfly/react-core/dist/esm/components/Button';
+import { TooltipProps } from '@patternfly/react-core/dist/esm/components/Tooltip';
 
 export enum TableGridBreakpoint {
   none = '',
@@ -84,7 +82,6 @@ export type OnCheckChange = (
 // Todo: Update type with next breaking change release
 // export type IHeaderRow = ColumnType;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IHeaderRow extends ColumnType {}
 
 export interface IRowData extends IRow {
@@ -134,10 +131,13 @@ export interface IExtra extends IExtraData {
   rowData?: IRowData;
   className?: string;
   ariaLabel?: string;
+  tooltip?: React.ReactNode;
+  tooltipProps?: Omit<TooltipProps, 'content'>;
+  tooltipHasDefaultBehavior?: boolean;
 }
 
 export type IFormatterValueType = formatterValueType & {
-  title?: string | React.ReactNode;
+  title?: React.ReactNode;
   props?: any;
 };
 
@@ -156,11 +156,17 @@ export interface IAction extends Omit<DropdownItemProps, 'title' | 'onClick'>, P
   /** Key of actions menu item */
   itemKey?: string;
   /** Content to display in the actions menu item */
-  title?: string | React.ReactNode;
+  title?: React.ReactNode;
+  /** Render item as aria-disabled option */
+  isAriaDisabled?: boolean;
+  /** Props for adding a tooltip to a menu item. This is used to display tooltip when hovered over the item  */
+  tooltipProps?: TooltipProps;
   /** Click handler for the actions menu item */
   onClick?: (event: React.MouseEvent, rowIndex: number, rowData: IRowData, extraData: IExtraData) => void;
   /** Flag indicating this action should be placed outside the actions menu, beside the toggle */
   isOutsideDropdown?: boolean;
+  /** Flag indicating whether the actions dropdown should close after an item is clicked. */
+  shouldCloseOnClick?: boolean;
 }
 
 export interface ISeparator extends IAction {
@@ -184,7 +190,7 @@ export interface decoratorReturnType {
   textCenter?: boolean;
   component?: string;
   isVisible?: boolean;
-  title?: string | React.ReactNode;
+  title?: React.ReactNode;
   props?: any;
   scope?: string;
   parentId?: number;
@@ -198,7 +204,7 @@ export type IFormatter = (data?: IFormatterValueType, extra?: IExtra) => formatt
 
 export interface ICell {
   /* cell contents */
-  title?: string | React.ReactNode;
+  title?: React.ReactNode;
   /** transformations applied to the header cell */
   transforms?: ITransform[];
   /** transformations applied to the cells within the column's body */
@@ -222,7 +228,7 @@ export interface ICell {
 export type RowCellContent<T = any> = (value?: string, rowIndex?: number, cellIndex?: number, props?: T) => void;
 
 export interface IRowCell<T = any> {
-  title?: string | React.ReactNode | RowCellContent<T>;
+  title?: React.ReactNode | RowCellContent<T>;
   props?: T;
   formatters?: IFormatter[];
 }
@@ -237,7 +243,7 @@ export interface IRow extends RowType {
   cells?: (React.ReactNode | IRowCell)[];
   isOpen?: boolean;
   isEditable?: boolean;
-  isHoverable?: boolean;
+  isClickable?: boolean;
   isRowSelected?: boolean;
   isValid?: boolean;
   /** An array of validation functions to run against every cell for a given row */

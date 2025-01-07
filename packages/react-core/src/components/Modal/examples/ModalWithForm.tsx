@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, ModalVariant, Button, Form, FormGroup, Popover, TextInput } from '@patternfly/react-core';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
+import formStyles from '@patternfly/react-styles/css/components/Form/form';
 
 export const ModalWithForm: React.FunctionComponent = () => {
   const [isModalOpen, setModalOpen] = React.useState(false);
@@ -8,18 +9,18 @@ export const ModalWithForm: React.FunctionComponent = () => {
   const [emailValue, setEmailValue] = React.useState('');
   const [addressValue, setAddressValue] = React.useState('');
 
-  const handleModalToggle = () => {
+  const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent) => {
     setModalOpen(!isModalOpen);
   };
 
-  const handleNameInputChange = (value: string) => {
+  const handleNameInputChange = (_event, value: string) => {
     setNameValue(value);
   };
 
-  const handleEmailInputChange = (value: string) => {
+  const handleEmailInputChange = (_event, value: string) => {
     setEmailValue(value);
   };
-  const handleAddressInputChange = (value: string) => {
+  const handleAddressInputChange = (_event, value: string) => {
     setAddressValue(value);
   };
 
@@ -77,11 +78,11 @@ export const ModalWithForm: React.FunctionComponent = () => {
                 <button
                   type="button"
                   aria-label="More info for name field"
-                  onClick={e => e.preventDefault()}
+                  onClick={(e) => e.preventDefault()}
                   aria-describedby="modal-with-form-form-name"
-                  className="pf-c-form__group-label-help"
+                  className={formStyles.formGroupLabelHelp}
                 >
-                  <HelpIcon noVerticalAlign />
+                  <HelpIcon />
                 </button>
               </Popover>
             }
@@ -126,11 +127,11 @@ export const ModalWithForm: React.FunctionComponent = () => {
                 <button
                   type="button"
                   aria-label="More info for e-mail field"
-                  onClick={e => e.preventDefault()}
+                  onClick={(e) => e.preventDefault()}
                   aria-describedby="modal-with-form-form-email"
-                  className="pf-c-form__group-label-help"
+                  className={formStyles.formGroupLabelHelp}
                 >
-                  <HelpIcon noVerticalAlign />
+                  <HelpIcon />
                 </button>
               </Popover>
             }
@@ -174,11 +175,11 @@ export const ModalWithForm: React.FunctionComponent = () => {
                 <button
                   type="button"
                   aria-label="More info for address field"
-                  onClick={e => e.preventDefault()}
+                  onClick={(e) => e.preventDefault()}
                   aria-describedby="modal-with-form-form-address"
-                  className="pf-c-form__group-label-help"
+                  className={formStyles.formGroupLabelHelp}
                 >
-                  <HelpIcon noVerticalAlign />
+                  <HelpIcon />
                 </button>
               </Popover>
             }

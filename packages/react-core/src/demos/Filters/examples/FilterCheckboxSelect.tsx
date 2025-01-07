@@ -15,7 +15,7 @@ import {
   Badge,
   Pagination
 } from '@patternfly/react-core';
-import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 
 interface Repository {
@@ -50,7 +50,6 @@ const columnNames = {
   location: 'Location'
 };
 
-/* eslint-disable patternfly-react/no-anonymous-functions */
 export const FilterCheckboxSelect: React.FunctionComponent = () => {
   // Set up repo filtering
   const [selections, setSelections] = React.useState<string[]>([]);
@@ -231,7 +230,6 @@ export const FilterCheckboxSelect: React.FunctionComponent = () => {
         popperRef={bulkSelectMenuRef}
         appendTo={bulkSelectContainerRef.current || undefined}
         isVisible={isBulkSelectOpen}
-        popperMatchesTriggerWidth={false}
       />
     </div>
   );
@@ -376,10 +374,10 @@ export const FilterCheckboxSelect: React.FunctionComponent = () => {
   return (
     <React.Fragment>
       {toolbar}
-      <TableComposable aria-label="Selectable table">
+      <Table aria-label="Selectable table">
         <Thead>
           <Tr>
-            <Th />
+            <Th screenReaderText="Row select" />
             <Th width={20}>{columnNames.name}</Th>
             <Th width={10}>{columnNames.threads}</Th>
             <Th width={10}>{columnNames.apps}</Th>
@@ -396,7 +394,7 @@ export const FilterCheckboxSelect: React.FunctionComponent = () => {
                   rowIndex,
                   onSelect: (_event, isSelecting) => onSelectRepo(repo, rowIndex, isSelecting),
                   isSelected: isRepoSelected(repo),
-                  disable: !isRepoSelectable(repo)
+                  isDisabled: !isRepoSelectable(repo)
                 }}
               />
               <Td dataLabel={columnNames.name} modifier="truncate">
@@ -420,7 +418,7 @@ export const FilterCheckboxSelect: React.FunctionComponent = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     </React.Fragment>
   );
 };

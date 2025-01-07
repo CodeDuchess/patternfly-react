@@ -26,7 +26,7 @@ export interface ToolbarExpandableContentProps extends React.HTMLProps<HTMLDivEl
   showClearFiltersButton: boolean;
 }
 
-export class ToolbarExpandableContent extends React.Component<ToolbarExpandableContentProps> {
+class ToolbarExpandableContent extends React.Component<ToolbarExpandableContentProps> {
   static displayName = 'ToolbarExpandableContent';
   static contextType = ToolbarContext;
   context!: React.ContextType<typeof ToolbarContext>;
@@ -37,10 +37,10 @@ export class ToolbarExpandableContent extends React.Component<ToolbarExpandableC
 
   render() {
     const {
+      children,
       className,
       expandableContentRef,
       chipContainerRef,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       isExpanded,
       clearAllFilters,
       clearFiltersButtonText,
@@ -54,8 +54,12 @@ export class ToolbarExpandableContent extends React.Component<ToolbarExpandableC
     };
 
     return (
-      <div className={css(styles.toolbarExpandableContent, className)} ref={expandableContentRef} {...props}>
-        <ToolbarGroup />
+      <div
+        className={css(styles.toolbarExpandableContent, isExpanded && styles.modifiers.expanded, className)}
+        ref={expandableContentRef}
+        {...props}
+      >
+        <ToolbarGroup>{children}</ToolbarGroup>
         {numberOfFilters > 0 && (
           <ToolbarGroup className={styles.modifiers.chipContainer}>
             <ToolbarGroup ref={chipContainerRef} />
@@ -73,3 +77,5 @@ export class ToolbarExpandableContent extends React.Component<ToolbarExpandableC
     );
   }
 }
+
+export { ToolbarExpandableContent };

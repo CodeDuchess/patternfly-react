@@ -1,23 +1,15 @@
-import * as React from 'react';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  IRow,
-  IExtraRowData,
-  IComputedData,
-  TableProps,
-  ICell
-} from '@patternfly/react-table';
+import { ICell, IRow } from '@patternfly/react-table';
+import { Table, TableBody, TableHeader, TableProps, type OnRowClick } from '@patternfly/react-table/deprecated';
+import { Component } from 'react';
 
 interface ITableRowClickDemoState {
   rows: IRow[];
   columns: (ICell | string)[];
 }
 
-export class TableRowClickDemo extends React.Component<TableProps, ITableRowClickDemoState> {
+export class TableRowClickDemo extends Component<TableProps, ITableRowClickDemoState> {
   static displayName = 'TableRowClickDemo';
-  rowClickHandler: (event: React.MouseEvent, row: IRow, rowProps: IExtraRowData, computedData: IComputedData) => void;
+  rowClickHandler: OnRowClick;
   constructor(props: TableProps) {
     super(props);
     this.state = {
@@ -25,22 +17,22 @@ export class TableRowClickDemo extends React.Component<TableProps, ITableRowClic
       rows: [
         {
           cells: ['Repositories one', 'Branches one', 'Pull requests one', 'Workspaces one'],
-          isHoverable: true,
+          isClickable: true,
           isRowSelected: true
         },
         {
           cells: ['Repositories two', 'Branches two', 'Pull requests two', 'Workspaces two'],
-          isHoverable: true,
+          isClickable: true,
           isRowSelected: false
         },
         {
           cells: ['Repositories three', 'Branches three', 'Pull requests three', 'Workspaces three'],
-          isHoverable: true,
+          isClickable: true,
           isRowSelected: false
         }
       ]
     };
-    this.rowClickHandler = (event: React.MouseEvent, row: IRow) => {
+    this.rowClickHandler = (_event, row) => {
       // eslint-disable-next-line no-console
       console.log('handle row click', row);
     };

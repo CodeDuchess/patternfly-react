@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from '@patternfly/react-styles/css/components/Button/button';
 import { css } from '@patternfly/react-styles';
 import { Spinner, spinnerSize } from '../Spinner';
-import { useOUIAProps, OUIAProps } from '../../helpers';
+import { useOUIAProps, OUIAProps } from '../../helpers/OUIA/ouia';
 import { Badge } from '../Badge';
 
 export enum ButtonVariant {
@@ -70,8 +70,8 @@ export interface ButtonProps extends Omit<React.HTMLProps<HTMLButtonElement>, 'r
   type?: 'button' | 'submit' | 'reset';
   /** Adds button variant styles */
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'warning' | 'link' | 'plain' | 'control';
-  /** Sets position of the link icon */
-  iconPosition?: 'left' | 'right';
+  /** Sets position of the icon. Note: "left" and "right" are deprecated. Use "start" and "end" instead */
+  iconPosition?: 'start' | 'end' | 'left' | 'right';
   /** Adds accessible text to the button. */
   'aria-label'?: string;
   /** Icon for the button. Usable by all variants except for plain. */
@@ -108,7 +108,7 @@ const ButtonBase: React.FunctionComponent<ButtonProps> = ({
   isInline = false,
   type = ButtonType.button,
   variant = ButtonVariant.primary,
-  iconPosition = 'left',
+  iconPosition = 'start',
   'aria-label': ariaLabel = null,
   icon = null,
   ouiaId,
@@ -158,7 +158,7 @@ const ButtonBase: React.FunctionComponent<ButtonProps> = ({
         isActive && styles.modifiers.active,
         isInline && variant === ButtonVariant.link && styles.modifiers.inline,
         isDanger && (variant === ButtonVariant.secondary || variant === ButtonVariant.link) && styles.modifiers.danger,
-        isLoading !== null && children !== null && styles.modifiers.progress,
+        isLoading !== null && variant !== ButtonVariant.plain && styles.modifiers.progress,
         isLoading && styles.modifiers.inProgress,
         size === ButtonSize.sm && styles.modifiers.small,
         size === ButtonSize.lg && styles.modifiers.displayLg,
@@ -183,11 +183,11 @@ const ButtonBase: React.FunctionComponent<ButtonProps> = ({
         </span>
       )}
       {variant === ButtonVariant.plain && children === null && icon ? icon : null}
-      {variant !== ButtonVariant.plain && icon && iconPosition === 'left' && (
+      {variant !== ButtonVariant.plain && icon && (iconPosition === 'start' || iconPosition === 'left') && (
         <span className={css(styles.buttonIcon, styles.modifiers.start)}>{icon}</span>
       )}
       {children}
-      {variant !== ButtonVariant.plain && icon && iconPosition === 'right' && (
+      {variant !== ButtonVariant.plain && icon && (iconPosition === 'end' || iconPosition === 'right') && (
         <span className={css(styles.buttonIcon, styles.modifiers.end)}>{icon}</span>
       )}
       {countOptions && (

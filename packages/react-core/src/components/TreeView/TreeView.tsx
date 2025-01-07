@@ -46,6 +46,14 @@ export interface TreeViewProps {
    * internal state.
    */
   allExpanded?: boolean;
+  /** A text string that sets the accessible name of the tree view list. Either this or the aria-labelledby property must
+   * be passed in.
+   */
+  'aria-label'?: string;
+  /** A space separated list of element id's that sets the accessible name of the tree view list. Either
+   * this or the aria-label property must be passed in.
+   */
+  'aria-labelledby'?: string;
   /** Class to add if not passed a parentItem property. */
   className?: string;
   /** Comparison function for determining active items. */
@@ -72,10 +80,19 @@ export interface TreeViewProps {
   icon?: React.ReactNode;
   /** ID of the tree view. */
   id?: string;
+  /** Flag indicating whether multiple nodes can be selected in the tree view. This will also set the
+   * aria-multiselectable attribute on the tree view list which is required to be true when multiple selection is intended.
+   * Can only be applied to the root tree view list.
+   */
+  isMultiSelectable?: boolean;
   /** Callback for item checkbox selection. */
   onCheck?: (event: React.ChangeEvent<HTMLInputElement>, item: TreeViewDataItem, parentItem: TreeViewDataItem) => void;
   /** Callback for item selection. */
   onSelect?: (event: React.MouseEvent, item: TreeViewDataItem, parentItem: TreeViewDataItem) => void;
+  /** Callback for expanding a node with children. */
+  onExpand?: (event: React.MouseEvent, item: TreeViewDataItem, parentItem: TreeViewDataItem) => void;
+  /** Callback for collapsing a node with children. */
+  onCollapse?: (event: React.MouseEvent, item: TreeViewDataItem, parentItem: TreeViewDataItem) => void;
   /** Internal. Parent item of a tree view list item. */
   parentItem?: TreeViewDataItem;
   /** Toolbar to display above the tree view. */
@@ -100,20 +117,31 @@ export const TreeView: React.FunctionComponent<TreeViewProps> = ({
   defaultAllExpanded = false,
   allExpanded,
   icon,
+  isMultiSelectable = false,
   expandedIcon,
   parentItem,
   onSelect,
   onCheck,
+  onExpand,
+  onCollapse,
   toolbar,
   activeItems,
   compareItems = (item, itemToCheck) => item.id === itemToCheck.id,
   className,
   useMemo,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
   ...props
 }: TreeViewProps) => {
   const treeViewList = (
-    <TreeViewList isNested={isNested} toolbar={toolbar}>
-      {data.map(item => (
+    <TreeViewList
+      isNested={isNested}
+      toolbar={toolbar}
+      isMultiSelectable={isMultiSelectable}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledby}
+    >
+      {data.map((item) => (
         <TreeViewListItem
           key={item.id?.toString() || item.name?.toString()}
           name={item.name}
@@ -124,6 +152,8 @@ export const TreeView: React.FunctionComponent<TreeViewProps> = ({
           defaultExpanded={item.defaultExpanded !== undefined ? item.defaultExpanded : defaultAllExpanded}
           onSelect={onSelect}
           onCheck={onCheck}
+          onExpand={onExpand}
+          onCollapse={onCollapse}
           hasCheckbox={item.hasCheckbox !== undefined ? item.hasCheckbox : hasCheckboxes}
           checkProps={item.checkProps}
           hasBadge={item.hasBadge !== undefined ? item.hasBadge : hasBadges}
@@ -153,6 +183,8 @@ export const TreeView: React.FunctionComponent<TreeViewProps> = ({
                 defaultAllExpanded={defaultAllExpanded}
                 onSelect={onSelect}
                 onCheck={onCheck}
+                onExpand={onExpand}
+                onCollapse={onCollapse}
                 activeItems={activeItems}
                 icon={icon}
                 expandedIcon={expandedIcon}

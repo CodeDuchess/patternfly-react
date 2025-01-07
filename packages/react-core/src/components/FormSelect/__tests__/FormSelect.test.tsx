@@ -147,7 +147,7 @@ describe('FormSelect', () => {
 
     const formSelect = screen.getByLabelText('validated FormSelect');
 
-    expect(formSelect).toHaveClass('pf-m-success');
+    expect(formSelect.parentElement).toHaveClass('pf-m-success');
     expect(asFragment()).toMatchSnapshot();
   });
 
@@ -160,7 +160,7 @@ describe('FormSelect', () => {
 
     const formSelect = screen.getByLabelText('validated FormSelect');
 
-    expect(formSelect).toHaveClass('pf-m-warning');
+    expect(formSelect.parentElement).toHaveClass('pf-m-warning');
     expect(asFragment()).toMatchSnapshot();
   });
 
@@ -186,6 +186,6 @@ describe('FormSelect', () => {
     await user.selectOptions(screen.getByLabelText('Some label'), 'Mr');
 
     expect(myMock).toHaveBeenCalled();
-    expect(myMock.mock.calls[0][0]).toEqual('mr');
+    expect(myMock.mock.calls[0][1]).toEqual('mr');
   });
 });

@@ -1,32 +1,29 @@
 # @patternfly/react-code-editor
 
-This package provides a PatternFly wrapper for the Monaco code editor
-
-### Prerequisite
-
-#### Node Environment
-
-This project currently supports Node [Active LTS](https://github.com/nodejs/Release#release-schedule) releases. Please stay current with Node Active LTS when developing patternfly-react.
-
-For example, to develop with Node 8, use the following:
-
-```
-nvm install 8
-nvm use 8
-```
-
-This project also requires a Yarn version of >=1.6.0. The latest version can be installed [here](https://yarnpkg.com/).
+This package provides a PatternFly wrapper for the Monaco code editor, using the `@monaco-editor/react` package.
 
 ### Installing
 
-```
+```sh
 yarn add @patternfly/react-code-editor
 ```
 
 or
 
+```sh
+npm install @patternfly/react-code-editor
 ```
-npm install @patternfly/react-code-editor --save
+
+[!NOTE] For TypeScript type definitions, this package uses the `monaco-editor` package as a peer dependency. So, if you need types and don't already have the `monaco-editor` package installed, you will need to do so:
+
+```sh
+yarn add --dev monaco-editor
+```
+
+or
+
+```sh
+npm install --dev monaco-editor
 ```
 
 ### Usage
@@ -43,26 +40,18 @@ import '@patternfly/react-core/dist/styles/base.css';
 import { CodeEditor } from '@patternfly/react-code-editor';
 ```
 
-Install peer deps
-```json
-"monaco-editor": "^0.21.3",
-"monaco-editor-webpack-plugin": "^2.1.0",
-"react": "^16.8 || ^17 || ^18",
-"react-dom": "^16.8 || ^17 || ^18",
-"react-monaco-editor": "^0.51.0"
-```
-
-To properly install the library `monaco-editor-webpack-plugin` be sure to follow the [plugin instructions](https://github.com/microsoft/monaco-editor/tree/main/webpack-plugin)
-
 #### With create-react-app Projects
+
 If you created your project with `create-react-app` you'll have some extra work to do, or you wont have syntax highlighting. Using the webpack plugin requires updating your webpack config, which `create-react-app` abstracts away. You can `npm eject` your project, but you may not want to do that. To keep your app set up in the `create-react-app` style but to get access to your webpack config you can use `react-app-rewired`.
 
 First, install `react-app-rewired` as a development dependency:
+
 ```sh
 $ npm install -D react-app-rewired
 ```
 
 Next, replace all of the `react-script` references in your `package.json` `scripts` section with `react-app-required`:
+
 ```json
  "scripts": {
     "start": "react-app-rewired start",
@@ -72,32 +61,33 @@ Next, replace all of the `react-script` references in your `package.json` `scrip
   }
 ```
 
-Next, create a `config-overries.js` file at the root of your project and add the following:
-
-```javascript
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-
-module.exports = function override(config, env) {  
-    config.plugins.push(new MonacoWebpackPlugin({
-        languages: ['json', 'yaml', 'shell']
-    }));
-    return config;
-}
-```
-
-Note: You should change the `languages` array based on your needs. 
-
 You can now start your app with `npm start` and syntax highlighting should work.
 
+#### To use monaco-editor as an npm package and avoid using CDN
+
+The `@monaco-editor/react` package is built on the `monaco-editor` package, which will fetch some additional files using CDN by default. To avoid this, include `monaco-editor` as a dependency and insert the following into your code:
+
+```
+import * as monaco from 'monaco-editor';
+import { loader } from '@monaco-editor/react';
+
+loader.config({ monaco });
+```
+
+This may require the additonal `webpack` plugins such as `monaco-editor-webpack-plugin`. To properly install the library `monaco-editor-webpack-plugin` be sure to follow the [plugin instructions](https://github.com/microsoft/monaco-editor/tree/main/webpack-plugin)
+
 #### Enable YAML Syntax Highlighting
-The Monaco editor doesn't ship with full YAML support. You can configure your code editor with `Languages.yaml` but there will be no highlighting, even i you have the webpack plugin working correctly. To enable YAML support you need to do the following:
+
+The Monaco editor doesn't ship with full YAML support. You can configure your code editor with `Languages.yaml` but there will be no highlighting. To enable YAML support you need to do the following:
 
 First, install `monaco-yaml`:
+
 ```shell
 $ npm install --save monaco-yaml
 ```
 
 Next, at the entrypoint of your app enable it:
+
 ```javascript
 import { setDiagnosticsOptions } from 'monaco-yaml';
 
@@ -107,8 +97,16 @@ setDiagnosticsOptions({
   completion: true,
   validate: true,
   format: true,
-  schemas: [],
+  schemas: []
 });
+```
+
+Finally, to allow the `monaco-yaml` autocomplete to function properly with `@monaco-editor/react`, you should configure your YAML schema in a `beforeMount` call with the `monaco-yaml` `configureMonacoYaml` function. This `beforeMount` function should be passed to `CodeEditor` via the `editorProps` property like so:
+
+```
+editorProps: {
+  beforeMount: yourBeforeMountHandler
+}
 ```
 
 The `monaco-yaml` plugin has a lot of options so check out their docs to see what else you may want to add.

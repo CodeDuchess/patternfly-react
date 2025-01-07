@@ -20,21 +20,20 @@ import {
   VictoryStyleObject
 } from 'victory-core';
 import { AxesType, VictoryChart, VictoryChartProps } from 'victory-chart';
-import { ChartContainer } from '../ChartContainer';
-import { ChartLegend, ChartLegendOrientation, ChartLegendPosition } from '../ChartLegend';
-import { ChartCommonStyles, ChartThemeDefinition } from '../ChartTheme';
-import {
-  getChartTheme,
-  getClassName,
-  getComputedLegend,
-  getLabelTextSize,
-  getPaddingForSide,
-  getPatternDefs,
-  getDefaultData,
-  getLegendItemsExtraHeight,
-  useDefaultPatternProps,
-} from "../ChartUtils";
-import { useEffect } from "react";
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartLegend } from '../ChartLegend/ChartLegend';
+import { ChartCommonStyles } from '../ChartTheme/ChartStyles';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getClassName } from '../ChartUtils/chart-helpers';
+import { getLabelTextSize } from '../ChartUtils/chart-label';
+import { getComputedLegend, getLegendItemsExtraHeight, getLegendMaxTextWidth } from '../ChartUtils/chart-legend';
+import { getPaddingForSide } from '../ChartUtils/chart-padding';
+import { getPatternDefs, mergePatternData, useDefaultPatternProps } from '../ChartUtils/chart-patterns';
+import { getChartTheme } from '../ChartUtils/chart-theme-types';
+import { useEffect } from 'react';
+import { ChartLabel } from '../ChartLabel/ChartLabel';
+import { ChartPoint } from '../ChartPoint/ChartPoint';
+import { ChartThemeColor } from '../ChartTheme/ChartThemeColor';
 
 /**
  * Chart is a wrapper component that reconciles the domain for all its children, controls the layout of the chart,
@@ -212,7 +211,6 @@ export interface ChartProps extends VictoryChartProps {
    *
    * @example hasPatterns={ true }
    * @example hasPatterns={[ true, true, false ]}
-   * @beta
    */
   hasPatterns?: boolean | boolean[];
   /**
@@ -290,6 +288,10 @@ export interface ChartProps extends VictoryChartProps {
    */
   legendPosition?: 'bottom' | 'bottom-left' | 'right';
   /**
+   * @beta Text direction of the legend labels.
+   */
+  legendDirection?: 'ltr' | 'rtl';
+  /**
    * The maxDomain prop defines a maximum domain value for a chart. This prop is useful in situations where the maximum
    * domain of a chart is static, while the minimum value depends on data or other variable information. If the domain
    * prop is set in addition to maximumDomain, domain will be used.
@@ -342,7 +344,6 @@ export interface ChartProps extends VictoryChartProps {
    * Note: Not all components are supported; for example, ChartLine, ChartBullet, ChartThreshold, etc.
    *
    * @example patternScale={[ 'url("#pattern1")', 'url("#pattern2")', null ]}
-   * @beta
    */
   patternScale?: string[];
   /**
@@ -473,10 +474,11 @@ export const Chart: React.FunctionComponent<ChartProps> = ({
   children,
   colorScale,
   hasPatterns,
-  legendAllowWrap = false,
+  legendAllowWrap,
   legendComponent = <ChartLegend />,
   legendData,
-  legendPosition = ChartCommonStyles.legend.position as ChartLegendPosition,
+  legendPosition = ChartCommonStyles.legend.position,
+  legendDirection = 'ltr',
   name,
   padding,
   patternScale,
@@ -486,7 +488,7 @@ export const Chart: React.FunctionComponent<ChartProps> = ({
   // destructure last
   theme = getChartTheme(themeColor, showAxis),
   containerComponent = <ChartContainer />,
-  legendOrientation = theme.legend.orientation as ChartLegendOrientation,
+  legendOrientation = theme.legend.orientation as any,
   height = theme.chart.height,
   width = theme.chart.width,
   ...rest
@@ -525,14 +527,35 @@ export const Chart: React.FunctionComponent<ChartProps> = ({
     theme,
     ...containerComponent.props,
     className: getClassName({ className: containerComponent.props.className }), // Override VictoryContainer class name
-    ...(labelComponent && { labelComponent }) // Override label component props
+    ...(labelComponent && { labelComponent }), // Override label component props
+    ...(themeColor === ChartThemeColor.skeleton && { labelComponent: <ChartLabel /> }) // Omit cursor and tooltips
   });
+
+  let legendXOffset = 0;
+  if (legendDirection === 'rtl') {
+    legendXOffset = getLegendMaxTextWidth(legendData, theme);
+  }
 
   const legend = React.cloneElement(legendComponent, {
     data: legendData,
     ...(name && { name: `${name}-${(legendComponent as any).type.displayName}` }),
     orientation: legendOrientation,
     theme,
+    themeColor,
+    ...(legendDirection === 'rtl' && {
+      dataComponent: legendComponent.props.dataComponent ? (
+        React.cloneElement(legendComponent.props.dataComponent, { transform: `translate(${legendXOffset})` })
+      ) : (
+        <ChartPoint transform={`translate(${legendXOffset})`} />
+      )
+    }),
+    ...(legendDirection === 'rtl' && {
+      labelComponent: legendComponent.props.labelComponent ? (
+        React.cloneElement(legendComponent.props.labelComponent, { direction: 'rtl', dx: legendXOffset - 30 })
+      ) : (
+        <ChartLabel direction="rtl" dx={legendXOffset - 30} />
+      )
+    }),
     ...legendComponent.props
   });
 
@@ -548,15 +571,15 @@ export const Chart: React.FunctionComponent<ChartProps> = ({
 
     // Adjust for axis label
     React.Children.toArray(children).map((child: any) => {
-      if (child.type.role === 'axis' && child.props.label && !child.props.dependentAxis) {
+      if (child.type.role === 'axis' && child.props.label && child.props.fixAxisLabelHeight) {
         xAxisLabelHeight = getLabelTextSize({ text: child.props.label, theme }).height + 10;
         legendTitleHeight = 0;
       }
     });
 
-    if (legendPosition === ChartLegendPosition.bottom) {
+    if (legendPosition === 'bottom') {
       dy += xAxisLabelHeight + legendTitleHeight;
-    } else if (legendPosition === ChartLegendPosition.bottomLeft) {
+    } else if (legendPosition === 'bottom-left') {
       dy += xAxisLabelHeight + legendTitleHeight;
       dx = -10;
     }
@@ -577,6 +600,7 @@ export const Chart: React.FunctionComponent<ChartProps> = ({
       padding: defaultPadding,
       position: legendPosition,
       theme,
+      themeColor,
       width,
       ...(defaultPatternScale && { patternScale: defaultPatternScale })
     });
@@ -595,9 +619,10 @@ export const Chart: React.FunctionComponent<ChartProps> = ({
               name: `${name}-${(child as any).type.displayName}-${index}`
             }),
           theme,
+          themeColor,
           ...childProps,
           ...((child as any).type.displayName === 'ChartPie' && {
-            data: getDefaultData(childProps.data, defaultPatternScale)
+            data: mergePatternData(childProps.data, defaultPatternScale)
           }) // Override child props
         });
       }
@@ -607,7 +632,7 @@ export const Chart: React.FunctionComponent<ChartProps> = ({
   // Callback to compliment legendAllowWrap
   const computedLegend = getLegend();
   useEffect(() => {
-    if (typeof legendAllowWrap === 'function') {
+    if (computedLegend?.props && typeof legendAllowWrap === 'function') {
       const extraHeight = getLegendItemsExtraHeight({
         legendData: computedLegend.props.data,
         legendOrientation: computedLegend.props.orientation,

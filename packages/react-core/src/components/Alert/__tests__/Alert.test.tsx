@@ -6,6 +6,8 @@ import { act } from 'react-dom/test-utils';
 import { Alert, AlertVariant } from '../Alert';
 import { AlertContext } from '../AlertContext';
 import { capitalize } from '../../../helpers';
+import cssAlertTitleMaxLines from '@patternfly/react-tokens/dist/esm/c_alert__title_max_lines';
+import styles from '@patternfly/react-styles/css/components/Alert/alert';
 
 jest.mock('../AlertToggleExpandButton', () => ({
   AlertToggleExpandButton: ({ isExpanded, onToggleExpand, ...props }) => (
@@ -34,26 +36,26 @@ test('Renders without children', () => {
   expect(screen.getByTestId('container').firstChild).toBeVisible();
 });
 
-test('Renders with class pf-c-alert on the containing div', () => {
+test(`Renders with class ${styles.alert} on the containing div`, () => {
   render(
     <Alert title="Some title" data-testid="Alert-test-id">
       Some alert
     </Alert>
   );
-  expect(screen.getByTestId('Alert-test-id')).toHaveClass('pf-c-alert');
+  expect(screen.getByTestId('Alert-test-id')).toHaveClass(styles.alert);
 });
 
-test('Renders with class pf-c-alert__title on the div containing the title', () => {
+test(`Renders with class ${styles.alertTitle} on the div containing the title`, () => {
   render(<Alert title="Some title">Some alert</Alert>);
-  expect(screen.getByRole('heading', { name: 'Default alert: Some title' })).toHaveClass('pf-c-alert__title');
+  expect(screen.getByRole('heading', { name: 'Custom alert: Some title' })).toHaveClass(styles.alertTitle);
 });
 
-test('Renders with default hidden text of "Default alert:"', () => {
+test('Renders with Custom hidden text of "Custom alert:"', () => {
   render(<Alert title="Some title">Some alert</Alert>);
-  expect(screen.getByText('Default alert:')).toBeInTheDocument();
+  expect(screen.getByText('Custom alert:')).toBeInTheDocument();
 });
 
-['success', 'danger', 'warning', 'info'].forEach(variant => {
+['success', 'danger', 'warning', 'info'].forEach((variant) => {
   test(`Does not render with class pf-m-${variant} by default`, () => {
     render(
       <Alert title="Some title" data-testid="Alert-test-id">
@@ -176,17 +178,17 @@ test('Renders the title', () => {
 test('Renders the title as an h4 by default', () => {
   render(<Alert title="Some title">Some alert</Alert>);
 
-  expect(screen.getByRole('heading', { level: 4, name: 'Default alert: Some title' })).toBeVisible();
+  expect(screen.getByRole('heading', { level: 4, name: 'Custom alert: Some title' })).toBeVisible();
 });
 
-test('Renders the title as other heading levels when one is passed using titleHeadingLevel', () => {
+test('Renders the title as other heading levels when one is passed using component', () => {
   render(
-    <Alert title="Some title" titleHeadingLevel="h1">
+    <Alert title="Some title" component="h1">
       Some alert
     </Alert>
   );
 
-  expect(screen.getByRole('heading', { level: 1, name: 'Default alert: Some title' })).toBeVisible();
+  expect(screen.getByRole('heading', { level: 1, name: 'Custom alert: Some title' })).toBeVisible();
 });
 
 test('Renders the element passed via the actionClose prop', () => {
@@ -199,14 +201,14 @@ test('Renders the element passed via the actionClose prop', () => {
   expect(screen.getByRole('button', { name: 'Action close' })).toBeVisible();
 });
 
-test('Renders the actionClose element inside pf-c-alert__action', () => {
+test(`Renders the actionClose element inside ${styles.alertAction}`, () => {
   render(
     <Alert title="Some title" actionClose="Action close">
       Some alert
     </Alert>
   );
 
-  expect(screen.getByText('Action close')).toHaveClass('pf-c-alert__action');
+  expect(screen.getByText('Action close')).toHaveClass(styles.alertAction);
 });
 
 test('Provides the actionClose element access to the title via a context', () => {
@@ -239,14 +241,14 @@ test('Renders the element passed via the actionLinks prop', () => {
   expect(screen.getByRole('button', { name: 'Action link' })).toBeVisible();
 });
 
-test('Renders the actionLinks element inside pf-c-alert__action-group', () => {
+test(`Renders the actionLinks element inside ${styles.alertActionGroup}`, () => {
   render(
     <Alert title="Some title" actionLinks="Action link">
       Some alert
     </Alert>
   );
 
-  expect(screen.getByText('Action link')).toHaveClass('pf-c-alert__action-group');
+  expect(screen.getByText('Action link')).toHaveClass(styles.alertActionGroup);
 });
 
 test('Renders children', () => {
@@ -255,10 +257,10 @@ test('Renders children', () => {
   expect(screen.getByText('Some alert')).toBeVisible();
 });
 
-test('Renders children inside pf-c-alert__description', () => {
+test(`Renders children inside ${styles.alertDescription}`, () => {
   render(<Alert title="Some title">Some alert</Alert>);
 
-  expect(screen.getByText('Some alert')).toHaveClass('pf-c-alert__description');
+  expect(screen.getByText('Some alert')).toHaveClass(styles.alertDescription);
 });
 
 test('Renders with the aria label passed via prop', () => {
@@ -378,7 +380,7 @@ test('Removes the alert after a custom time when timeout is passed with a number
 
 test('Does not remove the alert on timeout if the user is focused on the alert', async () => {
   const user = userEvent.setup({
-    advanceTimers: delay => jest.advanceTimersByTime(delay)
+    advanceTimers: (delay) => jest.advanceTimersByTime(delay)
   });
   jest.useFakeTimers();
 
@@ -402,7 +404,7 @@ test('Does not remove the alert on timeout if the user is focused on the alert',
 
 test('Does not remove the alert on timeout if the user is hovered over the alert', async () => {
   const user = userEvent.setup({
-    advanceTimers: delay => jest.advanceTimersByTime(delay)
+    advanceTimers: (delay) => jest.advanceTimersByTime(delay)
   });
   jest.useFakeTimers();
 
@@ -426,7 +428,7 @@ test('Does not remove the alert on timeout if the user is hovered over the alert
 
 test('Removes the alert after the user removes focus from the alert and 3000ms have passed', async () => {
   const user = userEvent.setup({
-    advanceTimers: delay => jest.advanceTimersByTime(delay)
+    advanceTimers: (delay) => jest.advanceTimersByTime(delay)
   });
   jest.useFakeTimers();
 
@@ -459,7 +461,7 @@ test('Removes the alert after the user removes focus from the alert and 3000ms h
 
 test('Removes the alert after the user removes hover from the alert and 3000ms have passed', async () => {
   const user = userEvent.setup({
-    advanceTimers: delay => jest.advanceTimersByTime(delay)
+    advanceTimers: (delay) => jest.advanceTimersByTime(delay)
   });
   jest.useFakeTimers();
 
@@ -492,7 +494,7 @@ test('Removes the alert after the user removes hover from the alert and 3000ms h
 
 test('Removes the alert after the user removes hover from the alert and timeoutAnimation time has passed', async () => {
   const user = userEvent.setup({
-    advanceTimers: delay => jest.advanceTimersByTime(delay)
+    advanceTimers: (delay) => jest.advanceTimersByTime(delay)
   });
   jest.useFakeTimers();
 
@@ -578,7 +580,7 @@ test('Renders titles with the expected truncation styling when truncateTitle is 
   const title = screen.getByRole('heading');
 
   expect(title).toHaveClass('pf-m-truncate');
-  expect(title).toHaveAttribute('style', '--pf-c-alert__title--max-lines: 3;');
+  expect(title).toHaveAttribute('style', `${cssAlertTitleMaxLines.name}: 3;`);
 });
 
 test('Passes customIcon value to AlertIcon', () => {
@@ -609,14 +611,14 @@ test('Renders with class pf-m-expandable when isExpandable = true', () => {
   expect(screen.getByTestId('Alert-test-id')).toHaveClass('pf-m-expandable');
 });
 
-test('Renders AlertToggleExpandButton inside pf-c-alert__toggle', () => {
+test(`Renders AlertToggleExpandButton inside ${styles.alertToggle}`, () => {
   render(
     <Alert isExpandable title="Some title">
       Some alert
     </Alert>
   );
 
-  expect(screen.getByRole('button').parentElement).toHaveClass('pf-c-alert__toggle');
+  expect(screen.getByRole('button').parentElement).toHaveClass(styles.alertToggle);
 });
 
 test('Does not render with class pf-m-expanded when AlertToggleExpandButton has not been clicked', () => {

@@ -1,6 +1,6 @@
 ---
 id: Filters
-section: demos
+section: patterns
 ---
 
 import {
@@ -20,17 +20,19 @@ ToolbarFilter,
 Badge,
 Pagination,
 EmptyState,
-EmptyStateIcon,
-Title,
 EmptyStateBody,
-EmptyStatePrimary,
+EmptyStateHeader,
+EmptyStateFooter,
+EmptyStateIcon,
+EmptyStateActions,
+Title,
 Button,
 Bullseye,
 ToolbarToggleGroup
 } from '@patternfly/react-core';
 import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 
 ## Filtering demos
 

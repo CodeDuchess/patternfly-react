@@ -1,7 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { MultipleFileUploadStatus } from '../MultipleFileUploadStatus';
 import InProgressIcon from '@patternfly/react-icons/dist/esm/icons/in-progress-icon';
+
+jest.mock('../../../helpers/GenerateId/GenerateId');
 
 describe('MultipleFileUploadStatus', () => {
   test('renders with expected class names', () => {

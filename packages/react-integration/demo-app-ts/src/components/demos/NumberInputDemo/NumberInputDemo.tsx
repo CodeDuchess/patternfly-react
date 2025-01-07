@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 export interface NumberInputDemoState {
   value: number;
-  value2: number | null;
+  value2: number;
 }
 
 export class NumberInputDemo extends Component<NumberInputDemoState> {
@@ -14,7 +14,7 @@ export class NumberInputDemo extends Component<NumberInputDemoState> {
 
   state: NumberInputDemoState = {
     value: 0,
-    value2: undefined
+    value2: 0
   };
 
   onMinus = () => {
@@ -69,7 +69,7 @@ export class NumberInputDemo extends Component<NumberInputDemoState> {
     const maxValue = 3;
 
     return (
-      <React.Fragment>
+      <>
         <NumberInput
           id="numberInput1"
           value={value}
@@ -130,7 +130,7 @@ export class NumberInputDemo extends Component<NumberInputDemoState> {
           unit="$"
           unitPosition="before"
         />
-      </React.Fragment>
+      </>
     );
   }
 }

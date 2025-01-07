@@ -3,10 +3,11 @@ import styles from '@patternfly/react-styles/css/components/NumberInput/number-i
 import { css } from '@patternfly/react-styles';
 import MinusIcon from '@patternfly/react-icons/dist/esm/icons/minus-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import { InputGroup } from '../InputGroup';
+import { InputGroup, InputGroupItem } from '../InputGroup';
 import { Button, ButtonProps } from '../Button';
 import { KeyTypes, ValidatedOptions } from '../../helpers';
 import { TextInput } from '../TextInput';
+import cssFormControlWidthChars from '@patternfly/react-tokens/dist/esm/c_number_input_c_form_control_width_chars';
 
 export interface NumberInputProps extends React.HTMLProps<HTMLDivElement> {
   /** Value of the number input */
@@ -66,8 +67,10 @@ const defaultKeyDownHandler = (args: DefaultKeyDownHandlerArgs) => (event: React
   }
 };
 
+const DEFAULT_VALUE = 0;
+
 export const NumberInput: React.FunctionComponent<NumberInputProps> = ({
-  value = 0,
+  value = DEFAULT_VALUE,
   className,
   widthChars,
   isDisabled = false,
@@ -108,7 +111,7 @@ export const NumberInput: React.FunctionComponent<NumberInputProps> = ({
       className={css(styles.numberInput, validated !== 'default' && styles.modifiers.status, className)}
       {...(widthChars && {
         style: {
-          '--pf-c-number-input--c-form-control--width-chars': widthChars,
+          [cssFormControlWidthChars.name]: widthChars,
           ...props.style
         } as React.CSSProperties
       })}
@@ -116,41 +119,47 @@ export const NumberInput: React.FunctionComponent<NumberInputProps> = ({
     >
       {unit && unitPosition === 'before' && numberInputUnit}
       <InputGroup>
-        <Button
-          variant="control"
-          aria-label={minusBtnAriaLabel}
-          isDisabled={isDisabled || value <= min}
-          onClick={evt => onMinus(evt, inputName)}
-          {...minusBtnProps}
-        >
-          <span className={css(styles.numberInputIcon)}>
-            <MinusIcon aria-hidden="true" />
-          </span>
-        </Button>
-        <TextInput
-          {...inputProps}
-          type="number"
-          value={value}
-          name={inputName}
-          aria-label={inputAriaLabel}
-          {...(isDisabled && { isDisabled })}
-          {...(onChange && { onChange: (value, event) => onChange(event) })}
-          onBlur={handleBlur}
-          {...(!onChange && { isReadOnly: true })}
-          onKeyDown={keyDownHandler}
-          validated={validated}
-        />
-        <Button
-          variant="control"
-          aria-label={plusBtnAriaLabel}
-          isDisabled={isDisabled || value >= max}
-          onClick={evt => onPlus(evt, inputName)}
-          {...plusBtnProps}
-        >
-          <span className={css(styles.numberInputIcon)}>
-            <PlusIcon aria-hidden="true" />
-          </span>
-        </Button>
+        <InputGroupItem>
+          <Button
+            variant="control"
+            aria-label={minusBtnAriaLabel}
+            isDisabled={isDisabled || (typeof value === 'number' ? value : DEFAULT_VALUE) <= min}
+            onClick={(evt) => onMinus(evt, inputName)}
+            {...minusBtnProps}
+          >
+            <span className={css(styles.numberInputIcon)}>
+              <MinusIcon aria-hidden="true" />
+            </span>
+          </Button>
+        </InputGroupItem>
+        <InputGroupItem>
+          <TextInput
+            {...inputProps}
+            type="number"
+            value={value}
+            name={inputName}
+            aria-label={inputAriaLabel}
+            {...(isDisabled && { isDisabled })}
+            {...(onChange && { onChange: (event, _value) => onChange(event) })}
+            onBlur={handleBlur}
+            {...(!onChange && { readOnlyVariant: 'default' })}
+            onKeyDown={keyDownHandler}
+            validated={validated}
+          />
+        </InputGroupItem>
+        <InputGroupItem>
+          <Button
+            variant="control"
+            aria-label={plusBtnAriaLabel}
+            isDisabled={isDisabled || (typeof value === 'number' ? value : DEFAULT_VALUE) >= max}
+            onClick={(evt) => onPlus(evt, inputName)}
+            {...plusBtnProps}
+          >
+            <span className={css(styles.numberInputIcon)}>
+              <PlusIcon aria-hidden="true" />
+            </span>
+          </Button>
+        </InputGroupItem>
       </InputGroup>
       {unit && unitPosition === 'after' && numberInputUnit}
     </div>

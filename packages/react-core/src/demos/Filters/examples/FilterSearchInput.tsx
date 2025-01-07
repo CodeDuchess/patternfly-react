@@ -13,14 +13,15 @@ import {
   Popper,
   Pagination,
   EmptyState,
-  EmptyStateIcon,
-  Title,
+  EmptyStateHeader,
+  EmptyStateFooter,
   EmptyStateBody,
-  EmptyStatePrimary,
   Button,
-  Bullseye
+  Bullseye,
+  EmptyStateIcon,
+  EmptyStateActions
 } from '@patternfly/react-core';
-import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
 interface Repository {
@@ -55,7 +56,6 @@ const columnNames = {
   location: 'Location'
 };
 
-/* eslint-disable patternfly-react/no-anonymous-functions */
 export const FilterSearchInput: React.FunctionComponent = () => {
   // Set up repo filtering
   const [searchValue, setSearchValue] = React.useState('');
@@ -239,7 +239,6 @@ export const FilterSearchInput: React.FunctionComponent = () => {
         popperRef={bulkSelectMenuRef}
         appendTo={bulkSelectContainerRef.current || undefined}
         isVisible={isBulkSelectOpen}
-        popperMatchesTriggerWidth={false}
       />
     </div>
   );
@@ -276,31 +275,30 @@ export const FilterSearchInput: React.FunctionComponent = () => {
 
   const emptyState = (
     <EmptyState>
-      <EmptyStateIcon icon={SearchIcon} />
-      <Title size="lg" headingLevel="h4">
-        No results found
-      </Title>
+      <EmptyStateHeader headingLevel="h4" titleText="No results found" icon={<EmptyStateIcon icon={SearchIcon} />} />
       <EmptyStateBody>No results match the filter criteria. Clear all filters and try again.</EmptyStateBody>
-      <EmptyStatePrimary>
-        <Button
-          variant="link"
-          onClick={() => {
-            setSearchValue('');
-          }}
-        >
-          Clear all filters
-        </Button>
-      </EmptyStatePrimary>
+      <EmptyStateFooter>
+        <EmptyStateActions>
+          <Button
+            variant="link"
+            onClick={() => {
+              setSearchValue('');
+            }}
+          >
+            Clear all filters
+          </Button>
+        </EmptyStateActions>
+      </EmptyStateFooter>
     </EmptyState>
   );
 
   return (
     <React.Fragment>
       {toolbar}
-      <TableComposable aria-label="Selectable table">
+      <Table aria-label="Selectable table">
         <Thead>
           <Tr>
-            <Th />
+            <Th screenReaderText="Row select" />
             <Th width={20}>{columnNames.name}</Th>
             <Th width={10}>{columnNames.threads}</Th>
             <Th width={10}>{columnNames.apps}</Th>
@@ -318,7 +316,7 @@ export const FilterSearchInput: React.FunctionComponent = () => {
                     rowIndex,
                     onSelect: (_event, isSelecting) => onSelectRepo(repo, rowIndex, isSelecting),
                     isSelected: isRepoSelected(repo),
-                    disable: !isRepoSelectable(repo)
+                    isDisabled: !isRepoSelectable(repo)
                   }}
                 />
                 <Td dataLabel={columnNames.name} modifier="truncate">
@@ -349,7 +347,7 @@ export const FilterSearchInput: React.FunctionComponent = () => {
             </Tr>
           )}
         </Tbody>
-      </TableComposable>
+      </Table>
     </React.Fragment>
   );
 };

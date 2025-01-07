@@ -4,6 +4,7 @@ cssPrefix: pf-c-table
 section: components
 propComponents: ['Table', 'TableHeader', 'TableBody', 'ISortBy']
 ouia: true
+deprecated: true
 ---
 
 Note: Table lives in its own package at [@patternfly/react-table](https://www.npmjs.com/package/@patternfly/react-table)!
@@ -20,9 +21,18 @@ import LeafIcon from '@patternfly/react-icons/dist/esm/icons/leaf-icon';
 import FolderIcon from '@patternfly/react-icons/dist/esm/icons/folder-icon';
 import FolderOpenIcon from '@patternfly/react-icons/dist/esm/icons/folder-open-icon';
 import SortAmountDownIcon from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
+import { SelectOption as SelectOptionDeprecated } from '@patternfly/react-core/deprecated';
+import {
+Select as NewSelect,
+SelectGroup as NewSelectGroup,
+SelectList as NewSelectList,
+SelectOption as NewSelectOption,
+} from '@patternfly/react-core/dist/esm/components/Select';
 
 import { css } from '@patternfly/react-styles';
 import styles from '@patternfly/react-styles/css/components/Table/table';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import global_primary_color_100 from '@patternfly/react-tokens/dist/esm/global_primary_color_100';
 
 ## Table Columns
 
@@ -37,7 +47,7 @@ cells: (ICell | string)[];
 ```
 interface ICell {
   /* cell contents */
-  title?: string | React.ReactNode;
+  title?: React.ReactNode;
   /** transformations applied to the header cell */
   transforms?: ITransform[];
   /** transformations applied to the cells within the column's body */
@@ -100,7 +110,7 @@ interface IRow extends RowType {
   noPadding?: boolean;
 }
 interface IRowCell {
-  title?: string | React.ReactNode | RowCellContent;
+  title?: React.ReactNode | RowCellContent;
   props?: any;
   formatters?: IFormatter[];
 }
@@ -111,6 +121,7 @@ interface IRowCell {
 ### Basic
 
 ```ts file="LegacyTableBasic.tsx"
+
 ```
 
 ### Custom row wrapper
@@ -141,6 +152,7 @@ interface RowWrapperProps {
 ```
 
 ```ts file="LegacyTableMisc.tsx"
+
 ```
 
 ### Sortable & wrapping column headers
@@ -158,6 +170,7 @@ Note: If you want to add a tooltip/popover to a sortable header, in the `transfo
 The built in display for sorting is not fully responsive, as the column headers will be displayed per row when the screen size is small. The example below showcases how sorting may have a custom control display that can be used for small screen sizes.
 
 ```ts file="LegacyTableSortable.tsx"
+
 ```
 
 ### Sortable - custom control
@@ -165,6 +178,7 @@ The built in display for sorting is not fully responsive, as the column headers 
 Sorting a table may also be controlled with a toolbar. This toolbar item may also be hidden at large screen sizes and only displayed when the screen size is small to support responsive tables.
 
 ```ts file="LegacyTableSortableCustom.tsx"
+
 ```
 
 ### Selectable with checkbox
@@ -185,6 +199,7 @@ of using `td` elements, the cells in that column use `th` elements.
 checking checkboxes will check intermediate rows' checkboxes.
 
 ```ts file="LegacyTableSelectable.tsx"
+
 ```
 
 ### Selectable radio input
@@ -195,13 +210,15 @@ To enable row radio selection, set the `onSelect` callback prop on the Table, an
 To disable selection for a row, set `disableSelection: true` on the row definition.
 
 ```ts file="LegacyTableSelectableRadio.tsx"
+
 ```
 
-### Hoverable rows, selectable rows, and header cell tooltips/popovers
+### Clickable rows, selectable rows, and header cell tooltips/popovers
 
 This selectable rows feature is intended for use when a table is used to present a list of objects in a Primary-detail view.
 
-```ts file="LegacyTableHoverable.tsx"
+```ts file="LegacyTableClickable.tsx"
+
 ```
 
 ### Actions and first cell in body rows as th
@@ -211,6 +228,7 @@ To use actions you can either specify an array of actions and pass that into the
 If actions menus are getting clipped by other items on the page, such as sticky columns or rows, the `Table` can be passed a `actionsMenuAppendTo` prop to adjust where the actions menu is appended.
 
 ```ts file="LegacyTableActions.tsx"
+
 ```
 
 ### Expandable
@@ -221,6 +239,7 @@ The parent row can have an `isOpen` field for managing the expanded state of the
 Also, pass an `onCollapse` event handler via the prop on the Table
 
 ```ts file="LegacyTableExpandable.tsx"
+
 ```
 
 ### Compound expandable
@@ -237,26 +256,31 @@ To build a compound expandable table:
 4. An `onExpand` event handler prop should be passed to the Table.
 
 ```ts file="LegacyTableCompoundExpandable.tsx"
+
 ```
 
 ### With width and breakpoint visibility modifiers
 
 ```ts file="LegacyTableCellWidth.tsx"
+
 ```
 
 ### Controlling text
 
 ```ts file="LegacyTableControllingText.tsx"
+
 ```
 
 ### Modifiers with table text
 
 ```ts file="LegacyTableTextModifiers.tsx"
+
 ```
 
 ### Empty state
 
 ```ts file="LegacyTableEmptyState.tsx"
+
 ```
 
 ### Editable rows
@@ -292,7 +316,7 @@ Example:
 
 ```js
 import React from 'react';
-import { SelectOption } from '@patternfly/react-core';
+import { SelectOption as SelectOptionDeprecated } from '@patternfly/react-core/deprecated';
 import {
   Table,
   TableHeader,
@@ -319,13 +343,13 @@ class EditableRowsTable extends React.Component {
       ],
       rows: [
         {
-          rowEditBtnAriaLabel: idx => `Edit row ${idx}`,
-          rowSaveBtnAriaLabel: idx => `Save edits for row ${idx}`,
-          rowCancelBtnAriaLabel: idx => `Cancel edits for row ${idx}`,
+          rowEditBtnAriaLabel: (idx) => `Edit row ${idx}`,
+          rowSaveBtnAriaLabel: (idx) => `Save edits for row ${idx}`,
+          rowCancelBtnAriaLabel: (idx) => `Cancel edits for row ${idx}`,
           rowEditValidationRules: [
             {
               name: 'required',
-              validator: value => value.trim() !== '',
+              validator: (value) => value.trim() !== '',
               errorText: 'This field is required'
             }
           ],
@@ -389,14 +413,14 @@ class EditableRowsTable extends React.Component {
                   onSelect={this.onSelect}
                   isOpen={props.isSelectOpen}
                   options={props.options.map((option, index) => (
-                    <SelectOption
+                    <SelectOptionDeprecated
                       key={index}
                       value={option.value}
                       id={'uniqueIdRow1Cell4Option' + index}
                       isPlaceholder={option.isPlaceholder}
                     />
                   ))}
-                  onToggle={isOpen => {
+                  onToggle={(event, isOpen) => {
                     this.onToggle(isOpen, rowIndex, cellIndex);
                   }}
                   selections={props.selected}
@@ -486,7 +510,7 @@ class EditableRowsTable extends React.Component {
                   isOpen={props.isSelectOpen}
                   options={props.options.map((option, index) => {
                     return (
-                      <SelectOption
+                      <SelectOptionDeprecated
                         key={index}
                         value={option.value}
                         id={'uniqueIdRow2Cell4Option' + index}
@@ -494,7 +518,7 @@ class EditableRowsTable extends React.Component {
                       />
                     );
                   })}
-                  onToggle={isOpen => {
+                  onToggle={(event, isOpen) => {
                     this.onToggle(isOpen, rowIndex, cellIndex);
                   }}
                   selections={props.selected}
@@ -526,22 +550,22 @@ class EditableRowsTable extends React.Component {
           rowEditValidationRules: [
             {
               name: 'required',
-              validator: value => value.trim() !== '',
+              validator: (value) => value.trim() !== '',
               errorText: 'This field is required'
             },
             {
               name: 'notFoo',
-              validator: value => value.trim().toLowerCase() !== 'foo',
+              validator: (value) => value.trim().toLowerCase() !== 'foo',
               errorText: 'Value cannot be "foo"'
             },
             {
               name: 'minLength',
-              validator: value => value.trim().length >= 7,
+              validator: (value) => value.trim().length >= 7,
               errorText: 'Value must be at least 7 characters'
             },
             {
               name: 'notXyz',
-              validator: value => value.trim().toLowerCase() !== 'xyz',
+              validator: (value) => value.trim().toLowerCase() !== 'xyz',
               errorText: 'Value cannot be xyz'
             }
           ],
@@ -606,14 +630,14 @@ class EditableRowsTable extends React.Component {
                   clearSelection={this.clearSelection}
                   isOpen={props.isSelectOpen}
                   options={props.options.map((option, index) => (
-                    <SelectOption
+                    <SelectOptionDeprecated
                       key={index}
                       value={option.value}
                       id={'uniqueIdRow3Cell4Option' + index}
                       isPlaceholder={option.isPlaceholder}
                     />
                   ))}
-                  onToggle={isOpen => {
+                  onToggle={(event, isOpen) => {
                     this.onToggle(isOpen, rowIndex, cellIndex);
                   }}
                   selections={props.selected}
@@ -671,7 +695,7 @@ class EditableRowsTable extends React.Component {
       });
     };
 
-    this.onSelect = (newValue, evt, rowIndex, cellIndex, isPlaceholder) => {
+    this.onSelect = (_event, newValue, rowIndex, cellIndex, isPlaceholder) => {
       const newRows = Array.from(this.state.rows);
       const newCellProps = newRows[rowIndex].cells[cellIndex].props;
 
@@ -684,6 +708,7 @@ class EditableRowsTable extends React.Component {
         }
 
         let newSelected = Array.from(newCellProps.selected);
+        let newSelectOpen = false;
 
         switch (newCellProps.editableSelectProps.variant) {
           case 'typeaheadmulti':
@@ -691,8 +716,9 @@ class EditableRowsTable extends React.Component {
             if (!newSelected.includes(newValue)) {
               newSelected.push(newValue);
             } else {
-              newSelected = newSelected.filter(el => el !== newValue);
+              newSelected = newSelected.filter((el) => el !== newValue);
             }
+            newSelectOpen = true;
             break;
           }
           default: {
@@ -702,6 +728,7 @@ class EditableRowsTable extends React.Component {
 
         newCellProps.editableValue = newSelected;
         newCellProps.selected = newSelected;
+        newCellProps.isSelectOpen = newSelectOpen;
       }
 
       this.setState({
@@ -709,7 +736,7 @@ class EditableRowsTable extends React.Component {
       });
     };
 
-    this.clearSelection = (rowIndex, cellIndex) => {
+    this.clearSelection = (_event, rowIndex, cellIndex) => {
       const newRows = Array.from(this.state.rows);
       const newCellProps = newRows[rowIndex].cells[cellIndex].props;
       newCellProps.editableValue = [];
@@ -720,6 +747,7 @@ class EditableRowsTable extends React.Component {
     };
 
     this.onToggle = (isOpen, rowIndex, cellIndex) => {
+      console.log('isOpen', isOpen);
       let newRows = Array.from(this.state.rows);
       newRows[rowIndex].cells[cellIndex].props.isSelectOpen = isOpen;
       this.setState({
@@ -759,6 +787,7 @@ When you also pass a sort callback through the `onSort` prop, favorites sorting 
 If you want to exclude favorites from sorting, set `canSortFavorites={false}` on the Table.
 
 ```ts file="LegacyTableFavoritable.tsx"
+
 ```
 
 ### Tree table
@@ -788,6 +817,7 @@ aria-posinset, and aria-setsize as violations. This is an intentional choice at 
 the voice over technologies will recognize the flat table structure as a tree.
 
 ```ts file="LegacyTableTree.tsx"
+
 ```
 
 ### Striped
@@ -795,6 +825,7 @@ the voice over technologies will recognize the flat table structure as a tree.
 To apply striping to a basic table, add the `isStriped` property to `Table`.
 
 ```ts file="LegacyTableStriped.tsx"
+
 ```
 
 ### Striped expandable
@@ -802,6 +833,7 @@ To apply striping to a basic table, add the `isStriped` property to `Table`.
 To apply striping to an expandable table, add the `isStriped` and `isExpandable` properties to `Table`.
 
 ```ts file="LegacyTableStripedExpandable.tsx"
+
 ```
 
 ### Striped custom tr
@@ -809,4 +841,5 @@ To apply striping to an expandable table, add the `isStriped` and `isExpandable`
 To manually control striping, use a custom row wrapper that applies the `pf-m-striped` css class for each desired row.
 
 ```ts file="LegacyTableStripedCustomTr.tsx"
+
 ```

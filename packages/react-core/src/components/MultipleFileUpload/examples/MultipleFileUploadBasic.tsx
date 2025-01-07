@@ -6,7 +6,8 @@ import {
   MultipleFileUploadStatusItem,
   Checkbox,
   HelperText,
-  HelperTextItem
+  HelperTextItem,
+  DropEvent
 } from '@patternfly/react-core';
 import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 
@@ -61,14 +62,15 @@ export const MultipleFileUploadBasic: React.FunctionComponent = () => {
   const updateCurrentFiles = (files: File[]) => {
     if (fileUploadShouldFail) {
       const corruptedFiles = files.map((file) => ({ ...file, lastModified: 'foo' as unknown as number }));
-      setCurrentFiles((prevFiles) => [...prevFiles, ...corruptedFiles]);
+      // eslint-disable-next-line
+      setCurrentFiles((prevFiles) => [...prevFiles, ...corruptedFiles as any]);
     } else {
       setCurrentFiles((prevFiles) => [...prevFiles, ...files]);
     }
   };
 
   // callback that will be called by the react dropzone with the newly dropped file objects
-  const handleFileDrop = (droppedFiles: File[]) => {
+  const handleFileDrop = (_event: DropEvent, droppedFiles: File[]) => {
     // identify what, if any, files are re-uploads of already uploaded files
     const currentFileNames = currentFiles.map((file) => file.name);
     const reUploads = droppedFiles.filter((droppedFile) => currentFileNames.includes(droppedFile.name));

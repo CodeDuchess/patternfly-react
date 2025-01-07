@@ -4,7 +4,7 @@ import { css } from '@patternfly/react-styles';
 import lineClamp from '@patternfly/react-tokens/dist/esm/c_expandable_section_m_truncate__content_LineClamp';
 import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
 import { PickOptional } from '../../helpers/typeUtils';
-import { debounce } from '../../helpers/util';
+import { debounce, getUniqueId } from '../../helpers/util';
 import { getResizeObserver } from '../../helpers/resizeObserver';
 
 export enum ExpandableSectionVariant {
@@ -23,6 +23,12 @@ export interface ExpandableSectionProps extends React.HTMLProps<HTMLDivElement> 
    * property's value should match the contenId property of the expandable section toggle sub-component.
    */
   contentId?: string;
+  /** Id of the toggle of the expandable section, which provides an accessible name to the
+   * expandable section content via the aria-labelledby attribute. When the isDetached property
+   * is also passed in, the value of this property must match the toggleId property of the
+   * expandable section toggle sub-component.
+   */
+  toggleId?: string;
   /** Display size variant. Set to "lg" for disclosure styling. */
   displaySize?: 'default' | 'lg';
   /** Forces active state. */
@@ -38,7 +44,7 @@ export interface ExpandableSectionProps extends React.HTMLProps<HTMLDivElement> 
   /** Callback function to toggle the expandable section. Detached expandable sections should
    * use the onToggle property of the expandable section toggle sub-component.
    */
-  onToggle?: (isExpanded: boolean) => void;
+  onToggle?: (event: React.MouseEvent, isExpanded: boolean) => void;
   /** React node that appears in the attached toggle in place of the toggleText property. */
   toggleContent?: React.ReactNode;
   /** Text that appears in the attached toggle. */
@@ -64,7 +70,7 @@ export interface ExpandableSectionProps extends React.HTMLProps<HTMLDivElement> 
 interface ExpandableSectionState {
   isExpanded: boolean;
   hasToggle: boolean;
-  previousWidth: number;
+  previousWidth?: number;
 }
 
 const setLineClamp = (lines: number, element: HTMLDivElement) => {
@@ -75,13 +81,13 @@ const setLineClamp = (lines: number, element: HTMLDivElement) => {
   element.style.setProperty(lineClamp.name, lines.toString());
 };
 
-export class ExpandableSection extends React.Component<ExpandableSectionProps, ExpandableSectionState> {
+class ExpandableSection extends React.Component<ExpandableSectionProps, ExpandableSectionState> {
   static displayName = 'ExpandableSection';
   constructor(props: ExpandableSectionProps) {
     super(props);
 
     this.state = {
-      isExpanded: props.isExpanded,
+      isExpanded: props.isExpanded || false,
       hasToggle: true,
       previousWidth: undefined
     };
@@ -96,13 +102,12 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
     toggleTextExpanded: '',
     toggleTextCollapsed: '',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onToggle: (isExpanded): void => undefined,
+    onToggle: (event, isExpanded): void => undefined,
     isActive: false,
     isDetached: false,
     displaySize: 'default',
     isWidthLimited: false,
     isIndented: false,
-    contentId: '',
     variant: 'default'
   };
 
@@ -124,6 +129,9 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
   componentDidMount() {
     if (this.props.variant === ExpandableSectionVariant.truncate) {
       const expandableContent = this.expandableContentRef.current;
+      if (!expandableContent) {
+        return;
+      }
       this.setState({ previousWidth: expandableContent.offsetWidth });
       this.observer = getResizeObserver(expandableContent, this.handleResize, false);
 
@@ -138,7 +146,9 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
   componentDidUpdate(prevProps: ExpandableSectionProps) {
     if (
       this.props.variant === ExpandableSectionVariant.truncate &&
-      prevProps.truncateMaxLines !== this.props.truncateMaxLines
+      this.props.truncateMaxLines &&
+      this.expandableContentRef.current &&
+      (prevProps.truncateMaxLines !== this.props.truncateMaxLines || prevProps.children !== this.props.children)
     ) {
       const expandableContent = this.expandableContentRef.current;
       setLineClamp(this.props.truncateMaxLines, expandableContent);
@@ -166,6 +176,9 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
   };
 
   resize = () => {
+    if (!this.expandableContentRef.current) {
+      return;
+    }
     const { offsetWidth } = this.expandableContentRef.current;
     if (this.state.previousWidth !== offsetWidth) {
       this.setState({ previousWidth: offsetWidth });
@@ -177,7 +190,7 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
   render() {
     const {
       onToggle: onToggleProp,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       isActive,
       className,
       toggleText,
@@ -191,19 +204,30 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
       isWidthLimited,
       isIndented,
       contentId,
+      toggleId,
       variant,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       truncateMaxLines,
       ...props
     } = this.props;
+
+    if (isDetached && !toggleId) {
+      /* eslint-disable no-console */
+      console.warn(
+        'ExpandableSection: The toggleId value must be passed in and must match the toggleId of the ExpandableSectionToggle.'
+      );
+    }
+
     let onToggle = onToggleProp;
     let propOrStateIsExpanded = isExpanded;
+    const uniqueContentId = contentId || getUniqueId('expandable-section-content');
+    const uniqueToggleId = toggleId || getUniqueId('expandable-section-toggle');
 
     // uncontrolled
     if (isExpanded === undefined) {
       propOrStateIsExpanded = this.state.isExpanded;
-      onToggle = isOpen => {
-        this.setState({ isExpanded: isOpen }, () => onToggleProp(this.state.isExpanded));
+      onToggle = (event, isOpen) => {
+        this.setState({ isExpanded: isOpen }, () => onToggleProp?.(event, this.state.isExpanded));
       };
     }
 
@@ -219,7 +243,9 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
         className={css(styles.expandableSectionToggle)}
         type="button"
         aria-expanded={propOrStateIsExpanded}
-        onClick={() => onToggle(!propOrStateIsExpanded)}
+        aria-controls={uniqueContentId}
+        id={uniqueToggleId}
+        onClick={(event) => onToggle?.(event, !propOrStateIsExpanded)}
       >
         {variant !== ExpandableSectionVariant.truncate && (
           <span className={css(styles.expandableSectionToggleIcon)}>
@@ -250,7 +276,9 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
           ref={this.expandableContentRef}
           className={css(styles.expandableSectionContent)}
           hidden={variant !== ExpandableSectionVariant.truncate && !propOrStateIsExpanded}
-          id={contentId}
+          id={uniqueContentId}
+          aria-labelledby={uniqueToggleId}
+          role="region"
         >
           {children}
         </div>
@@ -259,3 +287,5 @@ export class ExpandableSection extends React.Component<ExpandableSectionProps, E
     );
   }
 }
+
+export { ExpandableSection };

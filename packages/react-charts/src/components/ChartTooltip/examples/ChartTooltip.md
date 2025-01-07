@@ -47,7 +47,6 @@ This demonstrates how to use a voronoi container to display tooltips.
 ```js
 import React from 'react';
 import { Chart, ChartArea, ChartAxis, ChartGroup, ChartVoronoiContainer } from '@patternfly/react-charts';
-// import '@patternfly/patternfly/patternfly-charts.css'; // Required for mix-blend-mode CSS property
 
 <div style={{ height: '200px', width: '800px' }}>
   <Chart
@@ -297,8 +296,7 @@ This demonstrates how to embed HTML within a tooltip. Combining cursor and voron
 
 ```js
 import React from 'react';
-import { Chart, ChartArea, ChartAxis, ChartCursorFlyout, ChartCursorTooltip, ChartGroup, ChartPoint, ChartThemeColor, createContainer } from '@patternfly/react-charts';
-// import '@patternfly/patternfly/patternfly-charts.css'; // Required for mix-blend-mode CSS property
+import { Chart, ChartArea, ChartAxis, ChartCursorTooltip, ChartGroup, ChartPoint, ChartThemeColor, createContainer } from '@patternfly/react-charts';
 
 class EmbeddedHtml extends React.Component {
   constructor(props) {
@@ -329,12 +327,25 @@ class EmbeddedHtml extends React.Component {
               {text.map((val, index) => (
                 <tr key={`tbody-tr-${index}`} style={this.baseStyles}>
                   <th width="20px">
-                    <svg height="9.74" width="9.74" role="img">
-                      {<ChartPoint x={0} y={0}
-                         style={{ fill: theme.legend.colorScale[index] }}
-                         symbol={legendData[index].symbol ? legendData[index].symbol.type : 'square'}
-                         size={10}
-                      />}
+                    <svg height="9.74" width="9.74">
+                      <g>
+                        <rect
+                          role="presentation"
+                          shapeRendering="auto"
+                          width="9.74"
+                          height="9.74"
+                          style={{ fill: theme.legend.colorScale[index] }}
+                        >
+                          {
+                            <ChartPoint 
+                              x={0}
+                              y={0}
+                              symbol={legendData[index].symbol ? legendData[index].symbol.type : 'square'}
+                              size={5.6}
+                            />
+                          }
+                        </rect>
+                      </g>
                     </svg>
                   </th>
                   <td width="55px">{legendData[index].name}</td>
@@ -348,20 +359,21 @@ class EmbeddedHtml extends React.Component {
     );
 
     return (
-      <div ref={this.containerRef} style={{ height: '225px', width: '650px' }}>
+      <div style={{ height: '225px', width: '650px' }}>
         <Chart
           ariaDesc="Average number of pets - possibly more information to summarize the data in the chart."
           ariaTitle="Embedded html example chart title"
           containerComponent={
             <CursorVoronoiContainer
               cursorDimension="x"
-              labels={({ datum }) => `${datum.y}`}
+              labels={({ datum }) => `${datum.y !== null ? datum.y : 'no data'}`}
               labelComponent={
                 <ChartCursorTooltip
-                  centerOffset={{x: ({ center, flyoutWidth, width, offset = flyoutWidth / 2 + 10 }) => width > center.x + flyoutWidth + 10 ? offset : -offset}}
-                  flyout={<ChartCursorFlyout />}
+                  // The offset and flyout component are not necessary here, but included for completeness
+                  // centerOffset={{x: ({ center, flyoutWidth, width, offset = flyoutWidth / 2 + 10 }) => width > center.x + flyoutWidth + 10 ? offset : -offset}}
+                  // flyoutComponent={<ChartCursorFlyout />}
                   flyoutHeight={110}
-                  flyoutWidth={125}
+                  flyoutWidth={({ datum }) => datum.y === null ? 160 : 125 }
                   labelComponent={<HtmlLegendContent legendData={legendData} title={(datum) => datum.x} />}
                 />
               }
@@ -392,7 +404,8 @@ class EmbeddedHtml extends React.Component {
                 { name: 'Cats', x: '2015', y: 3 },
                 { name: 'Cats', x: '2016', y: 4 },
                 { name: 'Cats', x: '2017', y: 8 },
-                { name: 'Cats', x: '2018', y: 6 }
+                { name: 'Cats', x: '2018', y: 6 },
+                { name: 'Cats', x: '2019', y: null }
               ]}
               interpolation="monotoneX"
             />
@@ -594,9 +607,34 @@ import { Chart, ChartAxis, ChartBar, ChartStack, ChartThemeColor, ChartTooltip }
 </div>
 ```
 
+### Fixed tooltip
+This demonstrates how to adjust the tooltip position and label radius
+```js
+import React from 'react';
+import { ChartDonut, ChartTooltip } from '@patternfly/react-charts';
+
+<div style={{ height: '150px', width: '150px' }}>
+  <ChartDonut
+    ariaDesc="Average number of pets"
+    ariaTitle="Donut chart example"
+    constrainToVisibleArea
+    data={[{ x: 'Cats', y: 35 }, { x: 'Dogs', y: 55 }, { x: 'Birds', y: 10 }]}
+    height={150}
+    labelComponent={<ChartTooltip center={{ x: 75, y: 0 }} />}
+    labelRadius={46}
+    labels={({ datum }) => `${datum.x}: ${datum.y}%`}
+    name="chart5"
+    subTitle="Pets"
+    title="100"
+    themeColor={ChartThemeColor.cyan}
+    width={150}
+  />
+</div>
+```
+
 ### Legend
 
-This demonstrates an approach for applying tooltips to a legend using a custom label component.
+This demonstrates an approach for applying tooltips to a legend using a custom legend label component.
 
 ```js
 import React from 'react';

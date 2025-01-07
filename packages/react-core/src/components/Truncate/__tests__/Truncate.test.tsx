@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Truncate } from '../Truncate';
+import styles from '@patternfly/react-styles/css/components/Truncate/truncate';
 
 jest.mock('../../Tooltip', () => ({
   Tooltip: ({ content, position, children, ...props }) => (
@@ -12,27 +13,22 @@ jest.mock('../../Tooltip', () => ({
   )
 }));
 
-test('renders with class pf-c-truncate', () => {
-  render(
-    <Truncate
-      content={''}
-      aria-label='test-id'
-    />
-  );
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn()
+}));
+
+test(`renders with class ${styles.truncate}`, () => {
+  render(<Truncate content={''} aria-label="test-id" />);
 
   const test = screen.getByLabelText('test-id');
 
-  expect(test).toHaveClass('pf-c-truncate');
+  expect(test).toHaveClass(styles.truncate);
 });
 
 test('renders with custom class name passed via prop', () => {
-  render(
-    <Truncate
-      content={''}
-      aria-label='test-id'
-      className='custom-classname'
-    />
-  );
+  render(<Truncate content={''} aria-label="test-id" className="custom-classname" />);
 
   const test = screen.getByLabelText('test-id');
 
@@ -40,12 +36,7 @@ test('renders with custom class name passed via prop', () => {
 });
 
 test('renders truncate with empty content', () => {
-  render(
-    <Truncate
-      content={''}
-      aria-label='test-id'
-    />
-  );
+  render(<Truncate content={''} aria-label="test-id" />);
 
   const test = screen.getByLabelText('test-id');
 
@@ -53,29 +44,20 @@ test('renders truncate with empty content', () => {
 });
 
 test('renders truncate with content', () => {
-  render(
-    <Truncate
-      content={'Test'}
-      aria-label='test-id'
-    />
-  );
+  render(<Truncate content={'Test'} aria-label="test-id" />);
 
   const test = screen.getByLabelText('test-id');
 
   expect(test).toHaveTextContent('Test');
 });
 
-test('only renders pf-c-truncate__start with default position', () => {
-  render(
-    <Truncate
-      content={'Testing truncate content'}
-    />
-  );
+test(`only renders ${styles.truncateStart} with default position`, () => {
+  render(<Truncate content={'Testing truncate content'} />);
 
   const start = screen.getByText('Testing truncate content');
 
-  expect(start).toHaveClass('pf-c-truncate__start');
-  expect(start).not.toHaveClass('pf-c-truncate__end');
+  expect(start).toHaveClass(styles.truncateStart);
+  expect(start).not.toHaveClass(styles.truncateEnd);
 });
 
 test('renders default truncation', () => {
@@ -105,11 +87,11 @@ test('renders middle truncation', () => {
 
   const start = screen.getByText('Vestibulum interdum risus et enim faucibus, sit amet molestie est ac');
 
-  expect(start).toHaveClass('pf-c-truncate__start');
+  expect(start).toHaveClass(styles.truncateStart);
 
   const end = screen.getByText('cumsan.');
 
-  expect(end).toHaveClass('pf-c-truncate__end');
+  expect(end).toHaveClass(styles.truncateEnd);
 });
 
 test('renders different content when trailingNumChars is passed with middle truncate', () => {
@@ -117,39 +99,29 @@ test('renders different content when trailingNumChars is passed with middle trun
     <Truncate
       content={'Vestibulum interdum risus et enim faucibus, sit amet molestie est accumsan.'}
       trailingNumChars={3}
-      position='middle'
+      position="middle"
     />
   );
 
   const start = screen.getByText('Vestibulum interdum risus et enim faucibus, sit amet molestie est accums');
 
-  expect(start).toHaveClass('pf-c-truncate__start');
+  expect(start).toHaveClass(styles.truncateStart);
 
   const end = screen.getByText('an.');
 
-  expect(end).toHaveClass('pf-c-truncate__end');
+  expect(end).toHaveClass(styles.truncateEnd);
 });
 
 test('renders tooltip position', () => {
-  render(
-    <Truncate
-      content={''}
-      tooltipPosition='top'
-    />
-  );
+  render(<Truncate content={''} tooltipPosition="top" />);
 
   const input = screen.getByText('position: top');
-  
+
   expect(input).toBeVisible();
 });
 
 test('renders tooltip content', () => {
-  render(
-    <Truncate
-      content={'Another Tooltip'}
-      tooltipPosition='top'
-    />
-  );
+  render(<Truncate content={'Another Tooltip'} tooltipPosition="top" />);
 
   const input = screen.getByText('Test Another Tooltip');
 
@@ -157,13 +129,7 @@ test('renders tooltip content', () => {
 });
 
 test('renders with inherited element props spread to the component', () => {
-  render(
-    <Truncate
-      content={'Test'}
-      data-testid="test-id"
-      aria-label="labelling-id"
-    />
-  );
+  render(<Truncate content={'Test'} data-testid="test-id" aria-label="labelling-id" />);
 
   expect(screen.getByTestId('test-id')).toHaveAccessibleName('labelling-id');
 });

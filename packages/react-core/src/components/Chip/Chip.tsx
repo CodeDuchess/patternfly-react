@@ -6,8 +6,11 @@ import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
 import styles from '@patternfly/react-styles/css/components/Chip/chip';
 import { GenerateId } from '../../helpers/GenerateId/GenerateId';
 import { getOUIAProps, OUIAProps, getDefaultOUIAId } from '../../helpers';
+import cssChipTextMaxWidth from '@patternfly/react-tokens/dist/esm/c_chip__text_MaxWidth';
 
 export interface ChipProps extends React.HTMLProps<HTMLDivElement>, OUIAProps {
+  /** Badge to add to the chip. The badge will be rendered after the chip text. */
+  badge?: React.ReactNode;
   /** Content rendered inside the chip text */
   children?: React.ReactNode;
   /** Aria Label for close button */
@@ -50,7 +53,7 @@ interface ChipState {
   ouiaStateId: string;
 }
 
-export class Chip extends React.Component<ChipProps, ChipState> {
+class Chip extends React.Component<ChipProps, ChipState> {
   static displayName = 'Chip';
   constructor(props: ChipProps) {
     super(props);
@@ -67,7 +70,7 @@ export class Chip extends React.Component<ChipProps, ChipState> {
     isOverflowChip: false,
     isReadOnly: false,
     tooltipPosition: 'top' as 'auto' | 'top' | 'bottom' | 'left' | 'right',
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     onClick: (_e: React.MouseEvent) => undefined as any,
     component: 'div' as React.ReactNode
   };
@@ -78,12 +81,24 @@ export class Chip extends React.Component<ChipProps, ChipState> {
     });
   }
 
+  componentDidUpdate(_prevProps: ChipProps, prevState: ChipState) {
+    const nextIsTooltipVisible = Boolean(
+      this.span.current && this.span.current.offsetWidth < this.span.current.scrollWidth
+    );
+    if (prevState.isTooltipVisible !== nextIsTooltipVisible) {
+      this.setState({
+        isTooltipVisible: nextIsTooltipVisible
+      });
+    }
+  }
+
   setChipStyle = () => ({
-    '--pf-c-chip__text--MaxWidth': this.props.textMaxWidth
+    [cssChipTextMaxWidth.name]: this.props.textMaxWidth
   });
 
   renderOverflowChip = () => {
     const {
+      badge,
       children,
       className,
       onClick,
@@ -116,6 +131,7 @@ export class Chip extends React.Component<ChipProps, ChipState> {
       >
         <span className={css(styles.chipContent)}>
           <span className={css(styles.chipText)}>{children}</span>
+          {badge && badge}
         </span>
       </Component>
     );
@@ -123,6 +139,7 @@ export class Chip extends React.Component<ChipProps, ChipState> {
 
   renderInnerChip(id: string) {
     const {
+      badge,
       children,
       className,
       onClick,
@@ -132,14 +149,17 @@ export class Chip extends React.Component<ChipProps, ChipState> {
       isOverflowChip,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       tooltipPosition,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      id: idProp,
       component,
       ouiaId,
+      textMaxWidth,
       ...props
     } = this.props;
     const Component = component as any;
     return (
       <Component
-        {...(this.props.textMaxWidth && {
+        {...(textMaxWidth && {
           style: this.setChipStyle()
         })}
         className={css(styles.chip, className)}
@@ -151,13 +171,14 @@ export class Chip extends React.Component<ChipProps, ChipState> {
           <span ref={this.span} className={css(styles.chipText)} id={id}>
             {children}
           </span>
+          {badge && badge}
         </span>
         {!isReadOnly && (
           <span className={css(styles.chipActions)}>
             <Button
               onClick={onClick}
               variant="plain"
-              aria-label={closeBtnAriaLabel}  
+              aria-label={closeBtnAriaLabel}
               id={`remove_${id}`}
               aria-labelledby={`remove_${id} ${id}`}
               ouiaId={ouiaId || closeBtnAriaLabel}
@@ -186,8 +207,10 @@ export class Chip extends React.Component<ChipProps, ChipState> {
     const { isOverflowChip } = this.props;
     return (
       <GenerateId>
-        {randomId => (isOverflowChip ? this.renderOverflowChip() : this.renderChip(this.props.id || randomId))}
+        {(randomId) => (isOverflowChip ? this.renderOverflowChip() : this.renderChip(this.props.id || randomId))}
       </GenerateId>
     );
   }
 }
+
+export { Chip };

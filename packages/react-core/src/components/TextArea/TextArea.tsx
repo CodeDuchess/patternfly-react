@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { HTMLProps } from 'react';
 import styles from '@patternfly/react-styles/css/components/FormControl/form-control';
-import heightToken from '@patternfly/react-tokens/dist/esm/c_form_control_textarea_Height';
 import { css } from '@patternfly/react-styles';
 import { capitalize, ValidatedOptions, canUseDOM } from '../../helpers';
+import { FormControlIcon } from '../FormControl/FormControlIcon';
 
 export enum TextAreResizeOrientation {
   horizontal = 'horizontal',
@@ -23,12 +23,8 @@ export interface TextAreaProps extends Omit<HTMLProps<HTMLTextAreaElement>, 'onC
   isRequired?: boolean;
   /** Flag to show if the text area is disabled. */
   isDisabled?: boolean;
-  /** @deprecated Use readOnlyVariant instead. Flag to show if the text area is read only. */
-  isReadOnly?: boolean;
   /** Read only variant. */
   readOnlyVariant?: 'default' | 'plain';
-  /** Use the external file instead of a data URI */
-  isIconSprite?: boolean;
   /** Flag to modify height based on contents. */
   autoResize?: boolean;
   /** Value to indicate if the text area is modified to show that validation state.
@@ -39,7 +35,7 @@ export interface TextAreaProps extends Omit<HTMLProps<HTMLTextAreaElement>, 'onC
   /** Value of the text area. */
   value?: string | number;
   /** A callback for when the text area value changes. */
-  onChange?: (value: string, event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => void;
   /** Sets the orientation to limit the resize to */
   resizeOrientation?: 'horizontal' | 'vertical' | 'both';
   /** Custom flag to show that the text area requires an associated id or aria-label. */
@@ -48,14 +44,13 @@ export interface TextAreaProps extends Omit<HTMLProps<HTMLTextAreaElement>, 'onC
   innerRef?: React.RefObject<any>;
 }
 
-export class TextAreaBase extends React.Component<TextAreaProps> {
+class TextAreaBase extends React.Component<TextAreaProps> {
   static displayName = 'TextArea';
   static defaultProps: TextAreaProps = {
     innerRef: React.createRef<HTMLTextAreaElement>(),
     className: '',
     isRequired: false,
     isDisabled: false,
-    isIconSprite: false,
     validated: 'default',
     resizeOrientation: 'both',
     'aria-label': null as string
@@ -64,7 +59,8 @@ export class TextAreaBase extends React.Component<TextAreaProps> {
   inputRef = React.createRef<HTMLTextAreaElement>();
 
   private setAutoHeight = (field: HTMLTextAreaElement) => {
-    field.style.setProperty(heightToken.name, 'inherit');
+    const parent = field.parentElement;
+    parent.style.setProperty('height', 'inherit');
     const computed = window.getComputedStyle(field);
     // Calculate the height
     const height =
@@ -73,7 +69,7 @@ export class TextAreaBase extends React.Component<TextAreaProps> {
       field.scrollHeight +
       parseInt(computed.getPropertyValue('padding-bottom')) +
       parseInt(computed.getPropertyValue('border-bottom-width'));
-    field.style.setProperty(heightToken.name, `${height}px`);
+    parent.style.setProperty('height', `${height}px`);
   };
 
   constructor(props: TextAreaProps) {
@@ -99,7 +95,7 @@ export class TextAreaBase extends React.Component<TextAreaProps> {
       this.setAutoHeight(field);
     }
     if (this.props.onChange) {
-      this.props.onChange(field.value, event);
+      this.props.onChange(event, field.value);
     }
   };
 
@@ -110,8 +106,6 @@ export class TextAreaBase extends React.Component<TextAreaProps> {
       validated,
       isRequired,
       isDisabled,
-      isIconSprite,
-      isReadOnly,
       readOnlyVariant,
       resizeOrientation,
       innerRef,
@@ -120,29 +114,46 @@ export class TextAreaBase extends React.Component<TextAreaProps> {
       autoResize,
       onChange,
       /* eslint-enable @typescript-eslint/no-unused-vars */
+      onBlur,
+      onFocus,
       ...props
     } = this.props;
-    const orientation = `resize${capitalize(resizeOrientation)}` as 'resizeVertical' | 'resizeHorizontal';
+    const orientation = `resize${capitalize(resizeOrientation)}` as
+      | 'resizeVertical'
+      | 'resizeHorizontal'
+      | 'resizeBoth';
+    const hasStatusIcon = ['success', 'error', 'warning'].includes(validated);
+
     return (
-      <textarea
+      <span
         className={css(
           styles.formControl,
-          isIconSprite && styles.modifiers.iconSprite,
+          readOnlyVariant && styles.modifiers.readonly,
           readOnlyVariant === 'plain' && styles.modifiers.plain,
-          className,
-          resizeOrientation !== TextAreResizeOrientation.both && styles.modifiers[orientation],
-          validated === ValidatedOptions.success && styles.modifiers.success,
-          validated === ValidatedOptions.warning && styles.modifiers.warning
+          resizeOrientation && styles.modifiers[orientation],
+          isDisabled && styles.modifiers.disabled,
+          hasStatusIcon && styles.modifiers[validated as 'success' | 'warning' | 'error'],
+          className
         )}
-        onChange={this.handleChange}
-        {...(typeof this.props.defaultValue !== 'string' && { value })}
-        aria-invalid={validated === ValidatedOptions.error}
-        required={isRequired}
-        disabled={isDisabled || disabled}
-        readOnly={!!readOnlyVariant || isReadOnly}
-        ref={innerRef || this.inputRef}
-        {...props}
-      />
+      >
+        <textarea
+          onChange={this.handleChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          {...(typeof this.props.defaultValue !== 'string' && { value })}
+          aria-invalid={validated === ValidatedOptions.error}
+          required={isRequired}
+          disabled={isDisabled || disabled}
+          readOnly={!!readOnlyVariant}
+          ref={innerRef || this.inputRef}
+          {...props}
+        />
+        {hasStatusIcon && (
+          <span className={css(styles.formControlUtilities)}>
+            <FormControlIcon status={validated as 'success' | 'error' | 'warning'} />
+          </span>
+        )}
+      </span>
     );
   }
 }

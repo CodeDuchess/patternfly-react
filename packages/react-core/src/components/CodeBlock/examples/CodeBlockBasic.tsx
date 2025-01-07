@@ -14,7 +14,7 @@ export const BasicCodeBlock: React.FunctionComponent = () => {
     setCopied(true);
   };
 
-  const code = `apiVersion: helm.openshift.io/v1beta1/
+  const code = String.raw`apiVersion: helm.openshift.io/v1beta1/
 kind: HelmChartRepository
 metadata:
 name: azure-sample-repo0oooo00ooo
@@ -29,7 +29,7 @@ url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docs`;
           id="basic-copy-button"
           textId="code-content"
           aria-label="Copy to clipboard"
-          onClick={e => onClick(e, code)}
+          onClick={(e) => onClick(e, code)}
           exitDelay={copied ? 1500 : 600}
           maxWidth="110px"
           variant="plain"

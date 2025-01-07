@@ -4,12 +4,12 @@ import { Nav, NavItem, NavList } from '@patternfly/react-core';
 export const NavDefault: React.FunctionComponent = () => {
   const [activeItem, setActiveItem] = React.useState(0);
 
-  const onSelect = (result: { itemId: number | string }) => {
+  const onSelect = (_event: React.FormEvent<HTMLInputElement>, result: { itemId: number | string }) => {
     setActiveItem(result.itemId as number);
   };
 
   return (
-    <Nav onSelect={onSelect} aria-label="Default global">
+    <Nav onSelect={onSelect} aria-label="Default global" ouiaId="DefaultNav">
       <NavList>
         <NavItem preventDefault id="nav-default-link1" to="#nav-default-link1" itemId={0} isActive={activeItem === 0}>
           Default Link 1

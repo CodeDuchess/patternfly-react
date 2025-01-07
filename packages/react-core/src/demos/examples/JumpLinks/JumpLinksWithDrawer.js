@@ -17,9 +17,32 @@ import {
   SidebarContent,
   SidebarPanel,
   TextContent,
-  getResizeObserver
+  getResizeObserver,
+  DrawerContext
 } from '@patternfly/react-core';
-import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
+import mastheadStyles from '@patternfly/react-styles/css/components/Masthead/masthead';
+
+const JumpLinksWrapper = ({ offsetHeight, headings }) => {
+  const { drawerContentRef } = React.useContext(DrawerContext);
+
+  return (
+    <JumpLinks
+      isVertical={true}
+      label="Jump to section"
+      scrollableRef={drawerContentRef}
+      offset={offsetHeight}
+      expandable={{ default: 'expandable', md: 'nonExpandable' }}
+    >
+      {headings.map((heading) => (
+        <JumpLinksItem key={heading} href={`#jump-links-drawer-jump-links-${heading.toLowerCase()}`}>
+          {`${heading} section`}
+          <JumpLinksList></JumpLinksList>
+        </JumpLinksItem>
+      ))}
+    </JumpLinks>
+  );
+};
 
 export const JumpLinksWithDrawer = () => {
   const headings = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
@@ -29,7 +52,7 @@ export const JumpLinksWithDrawer = () => {
   const drawerRef = React.useRef();
 
   React.useEffect(() => {
-    const masthead = document.getElementsByClassName('pf-c-masthead')[0];
+    const masthead = document.getElementsByClassName(mastheadStyles.masthead)[0];
     const drawerToggleSection = document.getElementById('drawer-toggle');
 
     getResizeObserver(
@@ -65,25 +88,12 @@ export const JumpLinksWithDrawer = () => {
   return (
     <DashboardWrapper breadcrumb={null} mainContainerId="scrollable-element">
       <Drawer isExpanded={isExpanded}>
-        <DrawerContent panelContent={panelContent} id="jump-links-drawer-drawer-scrollable-container">
+        <DrawerContent panelContent={panelContent}>
           <DrawerContentBody>
             <Sidebar>
               <SidebarPanel variant="sticky">
                 <PageSection variant={PageSectionVariants.light}>
-                  <JumpLinks
-                    isVertical={true}
-                    label="Jump to section"
-                    scrollableSelector="#jump-links-drawer-drawer-scrollable-container"
-                    offset={offsetHeight}
-                    expandable={{ default: 'expandable', md: 'nonExpandable' }}
-                  >
-                    {headings.map(heading => (
-                      <JumpLinksItem key={heading} href={`#jump-links-drawer-jump-links-${heading.toLowerCase()}`}>
-                        {`${heading} section`}
-                        <JumpLinksList></JumpLinksList>
-                      </JumpLinksItem>
-                    ))}
-                  </JumpLinks>
+                  <JumpLinksWrapper offsetHeight={offsetHeight} headings={headings} />
                 </PageSection>
               </SidebarPanel>
               <SidebarContent>
@@ -92,7 +102,7 @@ export const JumpLinksWithDrawer = () => {
                 </PageSection>
                 <PageSection variant={PageSectionVariants.light}>
                   <TextContent>
-                    {headings.map(heading => (
+                    {headings.map((heading) => (
                       <div key={heading} style={{ maxWidth: '800px', marginBottom: '32px' }}>
                         <h2 id={`jump-links-drawer-jump-links-${heading.toLowerCase()}`} tabIndex={-1}>
                           {`${heading} section`}

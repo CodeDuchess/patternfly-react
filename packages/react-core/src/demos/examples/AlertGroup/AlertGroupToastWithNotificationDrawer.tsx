@@ -1,12 +1,10 @@
 import React, { useEffect } from 'react';
 import {
   Button,
-  Dropdown,
-  DropdownItem,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
-  KebabToggle,
   NotificationBadge,
   NotificationBadgeVariant,
   NotificationDrawer,
@@ -20,24 +18,28 @@ import {
   PageSectionVariants,
   TextContent,
   Text,
-  Title,
-  DropdownPosition,
   EmptyStateVariant,
   NumberInput,
   Alert,
   AlertProps,
   AlertGroup,
-  AlertActionCloseButton
+  AlertActionCloseButton,
+  ToolbarItem,
+  Dropdown,
+  DropdownList,
+  DropdownItem,
+  MenuToggle,
+  MenuToggleElement
 } from '@patternfly/react-core';
-
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-import DashboardWrapper from '../DashboardWrapper';
-import DashboardHeader from '../DashboardHeader';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import { DashboardHeader } from '@patternfly/react-core/dist/js/demos/DashboardHeader';
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
 
 interface NotificationProps {
   title: string;
   srTitle: string;
-  variant: 'default' | 'success' | 'danger' | 'warning' | 'info';
+  variant: 'custom' | 'success' | 'danger' | 'warning' | 'info';
   key: React.Key;
   timestamp: string;
   description: string;
@@ -69,13 +71,13 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
     const key = getUniqueId();
     const timestamp = getTimeCreated();
 
-    setNotifications(prevNotifications => [
+    setNotifications((prevNotifications) => [
       { title, srTitle, variant, key, timestamp, description, isNotificationRead: false },
       ...prevNotifications
     ]);
 
     if (!isDrawerExpanded) {
-      setAlerts(prevAlerts => [
+      setAlerts((prevAlerts) => [
         <Alert
           variant={variant}
           title={title}
@@ -96,7 +98,7 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
   };
 
   const removeNotification = (key: React.Key) => {
-    setNotifications(prevNotifications => prevNotifications.filter(notification => notification.key !== key));
+    setNotifications((prevNotifications) => prevNotifications.filter((notification) => notification.key !== key));
   };
 
   const removeAllNotifications = () => {
@@ -104,28 +106,29 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
   };
 
   const isNotificationRead = (key: React.Key) =>
-    notifications.find(notification => notification.key === key)?.isNotificationRead;
+    notifications.find((notification) => notification.key === key)?.isNotificationRead;
 
   const markNotificationRead = (key: React.Key) => {
-    setNotifications(prevNotifications =>
-      prevNotifications.map(notification =>
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
         notification.key === key ? { ...notification, isNotificationRead: true } : notification
       )
     );
   };
 
   const markAllNotificationsRead = () => {
-    setNotifications(prevNotifications =>
-      prevNotifications.map(notification => ({ ...notification, isNotificationRead: true }))
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) => ({ ...notification, isNotificationRead: true }))
     );
   };
 
   const getUnreadNotificationsNumber = () =>
-    notifications.filter(notification => notification.isNotificationRead === false).length;
+    notifications.filter((notification) => notification.isNotificationRead === false).length;
 
   const containsUnreadAlertNotification = () =>
-    notifications.filter(notification => notification.isNotificationRead === false && notification.variant === 'danger')
-      .length > 0;
+    notifications.filter(
+      (notification) => notification.isNotificationRead === false && notification.variant === 'danger'
+    ).length > 0;
 
   const getNotificationBadgeVariant = () => {
     if (getUnreadNotificationsNumber() === 0) {
@@ -142,8 +145,8 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
     setDrawerExpanded(!isDrawerExpanded);
   };
 
-  const onDropdownToggle = (id: React.Key, isActive: boolean) => {
-    if (isActive) {
+  const onDropdownToggle = (id: React.Key) => {
+    if (id && openDropdownKey !== id) {
       setOpenDropdownKey(id);
       return;
     }
@@ -176,7 +179,7 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
   };
 
   const removeAlert = (key: React.Key) => {
-    setAlerts(prevAlerts => prevAlerts.filter(alert => alert.props.id !== key.toString()));
+    setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.props.id !== key.toString()));
   };
 
   const removeAllAlerts = () => {
@@ -205,53 +208,62 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
   const alertButtonStyle = { marginRight: '8px', marginTop: '8px' };
 
   const notificationBadge = (
-    <NotificationBadge
-      variant={getNotificationBadgeVariant()}
-      onClick={onNotificationBadgeClick}
-      aria-label="Notifications"
-    ></NotificationBadge>
+    <ToolbarItem>
+      <NotificationBadge
+        variant={getNotificationBadgeVariant()}
+        onClick={onNotificationBadgeClick}
+        aria-label="Notifications"
+      ></NotificationBadge>
+    </ToolbarItem>
   );
 
-  const notificationDrawerActions = [
-    <DropdownItem key="markAllRead" onClick={markAllNotificationsRead} component="button">
-      Mark all read
-    </DropdownItem>,
-    <DropdownItem key="clearAll" onClick={removeAllNotifications} component="button">
-      Clear all
-    </DropdownItem>
-  ];
-
+  const notificationDrawerActions = (
+    <>
+      <DropdownItem key="markAllRead" onClick={markAllNotificationsRead}>
+        Mark all read
+      </DropdownItem>
+      <DropdownItem key="clearAll" onClick={removeAllNotifications}>
+        Clear all
+      </DropdownItem>
+    </>
+  );
   const notificationDrawerDropdownItems = (key: React.Key) => [
-    <DropdownItem key="markRead" component="button" onClick={() => markNotificationRead(key)}>
+    <DropdownItem key={`markRead-${key}`} onClick={() => markNotificationRead(key)}>
       Mark as read
     </DropdownItem>,
-    <DropdownItem key="action" component="button" onClick={() => removeNotification(key)}>
+    <DropdownItem key={`clear-${key}`} onClick={() => removeNotification(key)}>
       Clear
     </DropdownItem>
   ];
 
   const notificationDrawer = (
     <NotificationDrawer>
-      <NotificationDrawerHeader count={getUnreadNotificationsNumber()} onClose={() => setDrawerExpanded(false)}>
+      <NotificationDrawerHeader count={getUnreadNotificationsNumber()} onClose={(_event) => setDrawerExpanded(false)}>
         <Dropdown
-          onSelect={onDropdownSelect}
-          toggle={
-            <KebabToggle
-              onToggle={(_event: any, isActive: boolean) => onDropdownToggle('dropdown-toggle-id-0', isActive)}
-              id="dropdown-toggle-id-0"
-            />
-          }
-          isOpen={openDropdownKey === 'dropdown-toggle-id-0'}
-          isPlain
-          dropdownItems={notificationDrawerActions}
           id="notification-drawer-0"
-          position={DropdownPosition.right}
-        />
+          isOpen={openDropdownKey === 'dropdown-toggle-id-0'}
+          onSelect={onDropdownSelect}
+          popperProps={{ position: 'right' }}
+          onOpenChange={(isOpen: boolean) => !isOpen && setOpenDropdownKey(null)}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              ref={toggleRef}
+              isExpanded={openDropdownKey === 'dropdown-toggle-id-0'}
+              variant="plain"
+              onClick={() => onDropdownToggle('dropdown-toggle-id-0')}
+              aria-label="Notification drawer actions"
+            >
+              <EllipsisVIcon aria-hidden="true" />
+            </MenuToggle>
+          )}
+        >
+          <DropdownList>{notificationDrawerActions}</DropdownList>
+        </Dropdown>
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
         {notifications.length !== 0 && (
           <NotificationDrawerList>
-            {notifications.map(({ key, variant, title, srTitle, description, timestamp }) => (
+            {notifications.map(({ key, variant, title, srTitle, description, timestamp }, index) => (
               <NotificationDrawerListItem
                 key={key}
                 variant={variant}
@@ -260,19 +272,25 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
               >
                 <NotificationDrawerListItemHeader variant={variant} title={title} srTitle={srTitle}>
                   <Dropdown
-                    position={DropdownPosition.right}
-                    onSelect={onDropdownSelect}
-                    toggle={
-                      <KebabToggle
-                        onToggle={(_event: any, isActive: boolean) => onDropdownToggle(key, isActive)}
-                        id={key.toString()}
-                      />
-                    }
-                    isOpen={openDropdownKey === key}
-                    isPlain
-                    dropdownItems={notificationDrawerDropdownItems(key)}
                     id={key.toString()}
-                  />
+                    isOpen={openDropdownKey === key}
+                    onSelect={onDropdownSelect}
+                    popperProps={{ position: 'right' }}
+                    onOpenChange={(isOpen: boolean) => !isOpen && setOpenDropdownKey(null)}
+                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        isExpanded={openDropdownKey === key}
+                        variant="plain"
+                        onClick={() => onDropdownToggle(key)}
+                        aria-label={`Notification ${index + 1} actions`}
+                      >
+                        <EllipsisVIcon aria-hidden="true" />
+                      </MenuToggle>
+                    )}
+                  >
+                    <DropdownList>{notificationDrawerDropdownItems(key)}</DropdownList>
+                  </Dropdown>
                 </NotificationDrawerListItemHeader>
                 <NotificationDrawerListItemBody timestamp={timestamp}> {description} </NotificationDrawerListItemBody>
               </NotificationDrawerListItem>
@@ -281,10 +299,11 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
         )}
         {notifications.length === 0 && (
           <EmptyState variant={EmptyStateVariant.full}>
-            <EmptyStateIcon icon={SearchIcon} />
-            <Title headingLevel="h2" size="lg">
-              No notifications found
-            </Title>
+            <EmptyStateHeader
+              headingLevel="h2"
+              titleText="No notifications found"
+              icon={<EmptyStateIcon icon={SearchIcon} />}
+            />
             <EmptyStateBody>There are currently no notifications.</EmptyStateBody>
           </EmptyState>
         )}
@@ -326,8 +345,8 @@ export const AlertGroupToastWithNotificationDrawer: React.FunctionComponent = ()
         <Button variant="secondary" onClick={() => addNewNotification('warning')} style={alertButtonStyle}>
           Add toast warning alert
         </Button>
-        <Button variant="secondary" onClick={() => addNewNotification('default')} style={alertButtonStyle}>
-          Add toast default alert
+        <Button variant="secondary" onClick={() => addNewNotification('custom')} style={alertButtonStyle}>
+          Add toast custom alert
         </Button>
       </PageSection>
 

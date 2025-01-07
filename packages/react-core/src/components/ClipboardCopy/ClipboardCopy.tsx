@@ -10,8 +10,22 @@ import { ClipboardCopyToggle } from './ClipboardCopyToggle';
 import { ClipboardCopyExpanded } from './ClipboardCopyExpanded';
 import { getOUIAProps, OUIAProps } from '../../helpers';
 
-export const clipboardCopyFunc = (event: React.ClipboardEvent<HTMLDivElement>, text?: React.ReactNode) => {
-  navigator.clipboard.writeText(text.toString());
+export const clipboardCopyFunc = (_event: React.ClipboardEvent<HTMLDivElement>, text?: React.ReactNode) => {
+  try {
+    navigator.clipboard.writeText(text.toString());
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "Clipboard API not found, this copy function will not work. This is likely because you're using an",
+      "unsupported browser or you're not using HTTPS. \n\nIf you're a developer building an application which needs",
+      "to support copying to the clipboard without the clipboard API, you'll have to create your own copy",
+      'function and pass it to the ClipboardCopy component as the onCopy prop. For more information see',
+      'https://developer.mozilla.org/en-US/docs/Web/API/Navigator/clipboard'
+    );
+
+    // eslint-disable-next-line no-console
+    console.error(error);
+  }
 };
 
 export enum ClipboardCopyVariant {
@@ -21,9 +35,10 @@ export enum ClipboardCopyVariant {
 }
 
 export interface ClipboardCopyState {
-  text: string | number;
+  text: string;
   expanded: boolean;
   copied: boolean;
+  textWhenExpanded: string;
 }
 
 export interface ClipboardCopyProps extends Omit<React.HTMLProps<HTMLDivElement>, 'onChange'>, OUIAProps {
@@ -69,13 +84,13 @@ export interface ClipboardCopyProps extends Omit<React.HTMLProps<HTMLDivElement>
   exitDelay?: number;
   /** Delay in ms before the tooltip appears. */
   entryDelay?: number;
-  /** A function that is triggered on clicking the copy button. */
+  /** A function that is triggered on clicking the copy button. This will replace the existing clipboard copy functionality entirely. */
   onCopy?: (event: React.ClipboardEvent<HTMLDivElement>, text?: React.ReactNode) => void;
   /** A function that is triggered on changing the text. */
-  onChange?: (event: React.FormEvent, text?: string | number) => void;
+  onChange?: (event: React.FormEvent, text?: string) => void;
   /** The text which is copied. */
   children: React.ReactNode;
-  /** Additional actions for inline clipboard copy. Should be wrapped with ClipboardCopyAction. */
+  /** Additional actions for inline-compact clipboard copy. Should be wrapped with ClipboardCopyAction. */
   additionalActions?: React.ReactNode;
   /** Value to overwrite the randomly generated data-ouia-component-id.*/
   ouiaId?: number | string;
@@ -83,17 +98,17 @@ export interface ClipboardCopyProps extends Omit<React.HTMLProps<HTMLDivElement>
   ouiaSafe?: boolean;
 }
 
-export class ClipboardCopy extends React.Component<ClipboardCopyProps, ClipboardCopyState> {
+class ClipboardCopy extends React.Component<ClipboardCopyProps, ClipboardCopyState> {
   static displayName = 'ClipboardCopy';
   timer = null as number;
   constructor(props: ClipboardCopyProps) {
     super(props);
+    const text = Array.isArray(this.props.children) ? this.props.children.join('') : (this.props.children as string);
     this.state = {
-      text: Array.isArray(this.props.children)
-        ? this.props.children.join('')
-        : (this.props.children as string | number),
+      text,
       expanded: this.props.isExpanded,
-      copied: false
+      copied: false,
+      textWhenExpanded: text
     };
   }
 
@@ -119,7 +134,8 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentDidUpdate = (prevProps: ClipboardCopyProps, prevState: ClipboardCopyState) => {
     if (prevProps.children !== this.props.children) {
-      this.setState({ text: this.props.children as string | number });
+      const newText = this.props.children as string;
+      this.setState({ text: newText, textWhenExpanded: newText });
     }
   };
 
@@ -129,15 +145,19 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   expandContent = (_event: React.MouseEvent<Element, MouseEvent>) => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       expanded: !prevState.expanded
     }));
   };
 
-  updateText = (text: string | number, event: React.FormEvent) => {
+  updateText = (event: React.FormEvent, text: string) => {
     this.setState({ text });
+    this.props.onChange(event, text);
+  };
+
+  updateTextWhenExpanded = (event: React.FormEvent, text: string) => {
+    this.setState({ textWhenExpanded: text });
     this.props.onChange(event, text);
   };
 
@@ -183,7 +203,7 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
       >
         {variant === 'inline-compact' && (
           <GenerateId prefix="">
-            {id => (
+            {(id) => (
               <React.Fragment>
                 {!isCode && (
                   <span className={css(styles.clipboardCopyText)} id={`${textIdPrefix}${id}`}>
@@ -223,13 +243,20 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
         )}
         {variant !== 'inline-compact' && (
           <GenerateId prefix="">
-            {id => (
+            {(id) => (
               <React.Fragment>
                 <div className={css(styles.clipboardCopyGroup)}>
                   {variant === 'expansion' && (
                     <ClipboardCopyToggle
                       isExpanded={this.state.expanded}
-                      onClick={this.expandContent}
+                      onClick={(_event) => {
+                        this.expandContent(_event);
+                        if (this.state.expanded) {
+                          this.setState({ text: this.state.textWhenExpanded });
+                        } else {
+                          this.setState({ textWhenExpanded: this.state.text });
+                        }
+                      }}
                       id={`${toggleIdPrefix}${id}`}
                       textId={`${textIdPrefix}${id}`}
                       contentId={`${contentIdPrefix}${id}`}
@@ -237,11 +264,12 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
                     />
                   )}
                   <TextInput
-                    isReadOnly={isReadOnly || this.state.expanded}
+                    readOnlyVariant={isReadOnly || this.state.expanded ? 'default' : undefined}
                     onChange={this.updateText}
-                    value={this.state.text as string | number}
+                    value={this.state.expanded ? this.state.textWhenExpanded : this.state.text}
                     id={`text-input-${id}`}
                     aria-label={textAriaLabel}
+                    {...(isCode && { dir: 'ltr' })}
                   />
                   <ClipboardCopyButton
                     exitDelay={exitDelay}
@@ -252,7 +280,7 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
                     textId={`text-input-${id}`}
                     aria-label={hoverTip}
                     onClick={(event: any) => {
-                      onCopy(event, this.state.text);
+                      onCopy(event, this.state.expanded ? this.state.textWhenExpanded : this.state.text);
                       this.setState({ copied: true });
                     }}
                     onTooltipHidden={() => this.setState({ copied: false })}
@@ -265,7 +293,7 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
                     isReadOnly={isReadOnly}
                     isCode={isCode}
                     id={`content-${id}`}
-                    onChange={(event, text) => this.updateText(text, event)}
+                    onChange={this.updateTextWhenExpanded}
                   >
                     {this.state.text}
                   </ClipboardCopyExpanded>
@@ -278,3 +306,5 @@ export class ClipboardCopy extends React.Component<ClipboardCopyProps, Clipboard
     );
   };
 }
+
+export { ClipboardCopy };

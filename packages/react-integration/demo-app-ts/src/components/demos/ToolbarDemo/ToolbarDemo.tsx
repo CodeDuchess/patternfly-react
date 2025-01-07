@@ -12,21 +12,21 @@ import {
   ToolbarGroup,
   ToolbarProps,
   InputGroup,
-  Select,
-  SelectOption,
-  SelectOptionObject,
-  SelectVariant,
+  InputGroupItem,
+  TextInput,
   Dropdown,
   DropdownItem,
-  DropdownSeparator,
-  KebabToggle,
-  TextInput
+  DropdownList,
+  MenuToggle,
+  Divider
 } from '@patternfly/react-core';
+import { Select, SelectOption, SelectOptionObject, SelectVariant } from '@patternfly/react-core/deprecated';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 import EditIcon from '@patternfly/react-icons/dist/esm/icons/edit-icon';
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon';
 import SyncIcon from '@patternfly/react-icons/dist/esm/icons/sync-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 interface Filter {
   risk: string[];
@@ -62,7 +62,7 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
   }
 
   toggleisOpen = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       isOpen: !prevState.isOpen
     }));
   };
@@ -73,7 +73,7 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
     }));
   };
 
-  onInputChange = (newValue: string) => {
+  onInputChange = (_event: React.FormEvent<HTMLInputElement>, newValue: string) => {
     this.setState({ inputValue: newValue });
   };
 
@@ -84,7 +84,7 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
   ) => {
     const selectedTarget = event.target as HTMLInputElement;
     const checked = selectedTarget.checked;
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const prevSelections = prevState.filters[type];
       return {
         filters: {
@@ -108,7 +108,7 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
   onDelete = (type: string | ToolbarChipGroup = '', id: ToolbarChip | string = '') => {
     if (type) {
       const lowerCaseType = typeof type === 'string' ? type.toLowerCase() : type.name.toLowerCase();
-      this.setState(prevState => {
+      this.setState((prevState) => {
         const newState = Object.assign(prevState);
         newState.filters[lowerCaseType] = newState.filters[lowerCaseType].filter((s: string) => s !== id);
         return {
@@ -128,7 +128,7 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
 
   onDeleteGroup = (category: string) => {
     if (category) {
-      this.setState(prevState => {
+      this.setState((prevState) => {
         prevState.filters[category.toLowerCase() as 'risk' | 'key' | 'status'] = [];
         return {
           filters: prevState.filters
@@ -149,10 +149,10 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
     });
   };
 
-  onKebabToggle = (_event: any, isOpen: boolean) => {
-    this.setState({
-      kebabIsOpen: isOpen
-    });
+  onKebabToggle = () => {
+    this.setState((prevState) => ({
+      kebabIsOpen: !prevState.kebabIsOpen
+    }));
   };
 
   componentDidMount() {
@@ -176,20 +176,24 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
     ];
 
     const toggleGroupItems = (
-      <React.Fragment>
+      <>
         <ToolbarItem id="toolbar-demo-search">
           <InputGroup>
-            <TextInput
-              name="textInput2"
-              id="textInput2"
-              type="search"
-              aria-label="search input example"
-              onChange={this.onInputChange}
-              value={inputValue}
-            />
-            <Button variant={ButtonVariant.tertiary} aria-label="search button for search input">
-              <SearchIcon />
-            </Button>
+            <InputGroupItem>
+              <TextInput
+                name="textInput2"
+                id="textInput2"
+                type="search"
+                aria-label="search input example"
+                onChange={this.onInputChange}
+                value={inputValue}
+              />
+            </InputGroupItem>
+            <InputGroupItem>
+              <Button variant={ButtonVariant.tertiary} aria-label="search button for search input">
+                <SearchIcon />
+              </Button>
+            </InputGroupItem>
           </InputGroup>
         </ToolbarItem>
         <ToolbarGroup variant="filter-group" id="toolbar-demo-filters">
@@ -225,25 +229,21 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
             </Select>
           </ToolbarFilter>
         </ToolbarGroup>
-      </React.Fragment>
+      </>
     );
 
     const dropdownItems = [
       <DropdownItem key="link">Link</DropdownItem>,
-      <DropdownItem key="action" component="button">
-        Action
-      </DropdownItem>,
+      <DropdownItem key="action">Action</DropdownItem>,
       <DropdownItem key="disabled link" isDisabled>
         Disabled Link
       </DropdownItem>,
-      <DropdownItem key="disabled action" isDisabled component="button">
+      <DropdownItem key="disabled action" isDisabled>
         Disabled Action
       </DropdownItem>,
-      <DropdownSeparator key="separator" />,
+      <Divider component="li" key="separator" />,
       <DropdownItem key="separated link">Separated Link</DropdownItem>,
-      <DropdownItem key="separated action" component="button">
-        Separated Action
-      </DropdownItem>
+      <DropdownItem key="separated action">Separated Action</DropdownItem>
     ];
 
     const widths = {
@@ -262,7 +262,7 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
     );
 
     const toolbarItems = (
-      <React.Fragment>
+      <>
         <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl" id="demo-toggle-group">
           {toggleGroupItems}
         </ToolbarToggleGroup>
@@ -285,17 +285,22 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
         </ToolbarGroup>
         <ToolbarItem>
           <Dropdown
-            toggle={<KebabToggle onToggle={this.onKebabToggle} />}
             isOpen={kebabIsOpen}
-            isPlain
-            dropdownItems={dropdownItems}
-          />
+            onOpenChange={(isOpen) => this.setState({ kebabIsOpen: isOpen })}
+            toggle={(toggleRef) => (
+              <MenuToggle variant="plain" ref={toggleRef} onClick={this.onKebabToggle} isExpanded={kebabIsOpen}>
+                <EllipsisVIcon />
+              </MenuToggle>
+            )}
+          >
+            <DropdownList>{dropdownItems}</DropdownList>
+          </Dropdown>
         </ToolbarItem>
-      </React.Fragment>
+      </>
     );
 
     return (
-      <React.Fragment>
+      <>
         <Toolbar
           id="toolbar-filter-demo"
           clearAllFilters={this.onDelete}
@@ -421,11 +426,11 @@ export class ToolbarDemo extends React.Component<ToolbarProps, ToolbarState> {
           clearAllFilters={this.onDelete}
           className="pf-m-toggle-group-container"
           clearFiltersButtonText="Clear filters"
-          numberOfFiltersText={numOfFilters => `Applied filters: ${numOfFilters}`}
+          numberOfFiltersText={(numOfFilters) => `Applied filters: ${numOfFilters}`}
         >
           <ToolbarContent>{toolbarItems}</ToolbarContent>
         </Toolbar>
-      </React.Fragment>
+      </>
     );
   }
 }

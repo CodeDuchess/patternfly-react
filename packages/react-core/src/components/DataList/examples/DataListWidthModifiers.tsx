@@ -9,30 +9,37 @@ import {
   DataListContent,
   DataListItemCells,
   DataListItemRow,
-  Dropdown,
-  DropdownItem,
-  KebabToggle,
-  DropdownPosition,
   Text,
   TextVariants,
-  TextContent
+  TextContent,
+  Dropdown,
+  DropdownList,
+  DropdownItem,
+  MenuToggle,
+  MenuToggleElement
 } from '@patternfly/react-core';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+/* eslint-disable camelcase */
+import global_Color_100 from '@patternfly/react-tokens/dist/esm/global_Color_100';
+import global_BackgroundColor_200 from '@patternfly/react-tokens/dist/esm/global_BackgroundColor_200';
+import global_BorderColor_100 from '@patternfly/react-tokens/dist/esm/global_BorderColor_100';
+import global_BorderWidth_sm from '@patternfly/react-tokens/dist/esm/global_BorderWidth_sm';
 
 export const DataListWidthModifiers: React.FunctionComponent = () => {
   const [show, setShow] = React.useState(true);
   const [isOpen1, setIsOpen1] = React.useState(false);
   const [isOpen2, setIsOpen2] = React.useState(false);
 
-  const onToggle1 = (_event: any, isOpen1: boolean) => {
-    setIsOpen1(isOpen1);
+  const onToggle1 = () => {
+    setIsOpen1(!isOpen1);
   };
 
   const onSelect1 = () => {
     setIsOpen1(!isOpen1);
   };
 
-  const onToggle2 = (_event: any, isOpen2: boolean) => {
-    setIsOpen2(isOpen2);
+  const onToggle2 = () => {
+    setIsOpen2(!isOpen2);
   };
 
   const onSelect2 = () => {
@@ -43,10 +50,9 @@ export const DataListWidthModifiers: React.FunctionComponent = () => {
     display: 'block',
     width: '100%',
     padding: '.25rem .5rem',
-    color: '#004e8a',
-    backgroundColor: '#def3ff',
-    border: '1px solid rgba(0,0,0,.1)',
-    borderRadius: '4px'
+    color: global_Color_100.var,
+    backgroundColor: global_BackgroundColor_200.var,
+    border: `${global_BorderWidth_sm.var} ${global_BorderColor_100.var} solid`
   };
 
   return (
@@ -113,21 +119,42 @@ export const DataListWidthModifiers: React.FunctionComponent = () => {
                 isPlainButtonAction
               >
                 <Dropdown
-                  isPlain
-                  position={DropdownPosition.right}
-                  isOpen={isOpen1}
+                  popperProps={{ position: 'right' }}
                   onSelect={onSelect1}
-                  toggle={<KebabToggle onToggle={onToggle1} />}
-                  dropdownItems={[
-                    <DropdownItem key="link">Link</DropdownItem>,
-                    <DropdownItem key="action" component="button">
-                      Action
-                    </DropdownItem>,
-                    <DropdownItem key="disabled link" isDisabled>
+                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      isExpanded={isOpen1}
+                      onClick={onToggle1}
+                      variant="plain"
+                      aria-label="Data list width modifiers example kebab toggle 1"
+                    >
+                      <EllipsisVIcon aria-hidden="true" />
+                    </MenuToggle>
+                  )}
+                  isOpen={isOpen1}
+                  onOpenChange={(isOpen: boolean) => setIsOpen1(isOpen)}
+                >
+                  <DropdownList>
+                    <DropdownItem key="action">Action</DropdownItem>
+                    {/* Prevent default onClick functionality for example
+                  purposes */}
+                    <DropdownItem key="link" to="#" onClick={(event: any) => event.preventDefault()}>
+                      Link
+                    </DropdownItem>
+                    <DropdownItem key="disabled action" isDisabled>
+                      Disabled Action
+                    </DropdownItem>
+                    <DropdownItem
+                      key="disabled link"
+                      isDisabled
+                      to="#"
+                      onClick={(event: any) => event.preventDefault()}
+                    >
                       Disabled Link
                     </DropdownItem>
-                  ]}
-                />
+                  </DropdownList>
+                </Dropdown>
               </DataListAction>
             </DataListItemRow>
           </DataListItem>
@@ -173,21 +200,42 @@ export const DataListWidthModifiers: React.FunctionComponent = () => {
                 isPlainButtonAction
               >
                 <Dropdown
-                  isPlain
-                  position={DropdownPosition.right}
-                  isOpen={isOpen2}
+                  popperProps={{ position: 'right' }}
                   onSelect={onSelect2}
-                  toggle={<KebabToggle onToggle={onToggle2} />}
-                  dropdownItems={[
-                    <DropdownItem key="link">Link</DropdownItem>,
-                    <DropdownItem key="action" component="button">
-                      Action
-                    </DropdownItem>,
-                    <DropdownItem key="disabled link" isDisabled>
+                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      isExpanded={isOpen2}
+                      onClick={onToggle2}
+                      variant="plain"
+                      aria-label="Data list width modifiers example kebab toggle 2"
+                    >
+                      <EllipsisVIcon aria-hidden="true" />
+                    </MenuToggle>
+                  )}
+                  isOpen={isOpen2}
+                  onOpenChange={(isOpen: boolean) => setIsOpen2(isOpen)}
+                >
+                  <DropdownList>
+                    <DropdownItem key="action2">Action</DropdownItem>
+                    {/* Prevent default onClick functionality for example
+                  purposes */}
+                    <DropdownItem key="link2" to="#" onClick={(event: any) => event.preventDefault()}>
+                      Link
+                    </DropdownItem>
+                    <DropdownItem key="disabled action2" isDisabled>
+                      Disabled Action
+                    </DropdownItem>
+                    <DropdownItem
+                      key="disabled link2"
+                      isDisabled
+                      to="#"
+                      onClick={(event: any) => event.preventDefault()}
+                    >
                       Disabled Link
                     </DropdownItem>
-                  ]}
-                />
+                  </DropdownList>
+                </Dropdown>
               </DataListAction>
             </DataListItemRow>
             <DataListContent aria-label="Primary Content Details" id="width-ex3-expand1" isHidden={!show}>

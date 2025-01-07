@@ -23,7 +23,7 @@ export class SimpleListDemo extends React.Component<any, SimpleListDemoState> {
     const { activeItem } = this.state;
 
     return (
-      <React.Fragment>
+      <>
         <h2>Simple List</h2>
         <SimpleList id="simple-list-demo">
           <SimpleListItem isActive>Item 1</SimpleListItem>
@@ -49,10 +49,10 @@ export class SimpleListDemo extends React.Component<any, SimpleListDemoState> {
         <SimpleList
           id="simple-list-demo-uncontrolled"
           onSelect={(
-            ref: React.RefObject<HTMLButtonElement> | React.RefObject<HTMLAnchorElement>,
+            _ref: React.RefObject<HTMLButtonElement> | React.RefObject<HTMLAnchorElement>,
             props: SimpleListItemProps
           ) => {
-            this.setState({ activeItem: props.itemId });
+            this.setState({ activeItem: props.itemId! });
           }}
           isControlled={false}
         >
@@ -66,7 +66,7 @@ export class SimpleListDemo extends React.Component<any, SimpleListDemoState> {
             Item 3
           </SimpleListItem>
         </SimpleList>
-      </React.Fragment>
+      </>
     );
   }
 }

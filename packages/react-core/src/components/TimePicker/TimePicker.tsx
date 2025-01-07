@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { css } from '@patternfly/react-styles';
 import datePickerStyles from '@patternfly/react-styles/css/components/DatePicker/date-picker';
-import formStyles from '@patternfly/react-styles/css/components/FormControl/form-control';
 import menuStyles from '@patternfly/react-styles/css/components/Menu/menu';
 import { getUniqueId } from '../../helpers';
 import { Popper } from '../../helpers/Popper/Popper';
 import { Menu, MenuContent, MenuList, MenuItem } from '../Menu';
-import { InputGroup } from '../InputGroup';
+import { InputGroup, InputGroupItem } from '../InputGroup';
 import { TextInput, TextInputProps } from '../TextInput';
 import { KeyTypes } from '../../helpers/constants';
 import {
@@ -20,6 +19,9 @@ import {
   isWithinMinMax,
   getSeconds
 } from './TimePickerUtils';
+import { HelperText, HelperTextItem } from '../HelperText';
+import OutlinedClockIcon from '@patternfly/react-icons/dist/esm/icons/outlined-clock-icon';
+import cssDatePickerFormControlWidth from '@patternfly/react-tokens/dist/esm/c_date_picker__input_c_form_control_Width';
 
 export interface TimePickerProps
   extends Omit<React.HTMLProps<HTMLDivElement>, 'onChange' | 'onFocus' | 'onBlur' | 'disabled' | 'ref'> {
@@ -93,7 +95,7 @@ interface TimePickerState {
   maxTimeState: string;
 }
 
-export class TimePicker extends React.Component<TimePickerProps, TimePickerState> {
+class TimePicker extends React.Component<TimePickerProps, TimePickerState> {
   static displayName = 'TimePicker';
   private baseComponentRef = React.createRef<any>();
   private toggleRef = React.createRef<HTMLDivElement>();
@@ -242,7 +244,7 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
   }
 
   updateFocusedIndex = (increment: number) => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const maxIndex = this.getOptions().length - 1;
       let nextIndex =
         prevState.focusedIndex !== null ? prevState.focusedIndex + increment : prevState.scrollIndex + increment;
@@ -267,9 +269,8 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
   };
 
   scrollToIndex = (index: number) => {
-    this.getOptions()[index].closest(`.${menuStyles.menuContent}`).scrollTop = this.getOptions()[
-      this.getIndexToScroll(index)
-    ].offsetTop;
+    this.getOptions()[index].closest(`.${menuStyles.menuContent}`).scrollTop =
+      this.getOptions()[this.getIndexToScroll(index)].offsetTop;
   };
 
   focusSelection = (index: number) => {
@@ -308,7 +309,7 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
     ) {
       time = `${time}${new Date().getHours() > 11 ? pmSuffix : amSuffix}`;
     }
-    let scrollIndex = this.getOptions().findIndex(option => option.textContent === time);
+    let scrollIndex = this.getOptions().findIndex((option) => option.textContent === time);
 
     // if we found an exact match, scroll to match and return index of match for focus
     if (scrollIndex !== -1) {
@@ -325,7 +326,7 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
         }
       }
       time = `${splitTime[0]}${delimiter}00${amPm}`;
-      scrollIndex = this.getOptions().findIndex(option => option.textContent === time);
+      scrollIndex = this.getOptions().findIndex((option) => option.textContent === time);
       if (scrollIndex !== -1) {
         this.scrollToIndex(scrollIndex);
       }
@@ -372,10 +373,23 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
 
   onToggle = (isOpen: boolean) => {
     // on close, parse and validate input
-    this.setState(prevState => {
-      const { timeRegex, isInvalid } = prevState;
-      const { delimiter, is24Hour, includeSeconds } = this.props;
-      const time = parseTime(prevState.timeState, timeRegex, delimiter, !is24Hour, includeSeconds);
+    this.setState((prevState) => {
+      const { timeRegex, isInvalid, timeState } = prevState;
+      const { delimiter, is24Hour, includeSeconds, onChange } = this.props;
+      const time = parseTime(timeState, timeRegex, delimiter, !is24Hour, includeSeconds);
+
+      // Call onChange when Enter is pressed in input and timeoption does not exist in menu
+      if (onChange && !isOpen && time !== timeState) {
+        onChange(
+          null,
+          time,
+          getHours(time, timeRegex),
+          getMinutes(time, timeRegex),
+          getSeconds(time, timeRegex),
+          this.isValid(time)
+        );
+      }
+
       return {
         isTimeOptionsOpen: isOpen,
         timeState: time,
@@ -393,7 +407,7 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
     const { delimiter, is24Hour, includeSeconds, setIsOpen } = this.props;
     const time = parseTime(e.target.textContent, timeRegex, delimiter, !is24Hour, includeSeconds);
     if (time !== timeState) {
-      this.onInputChange(time, e);
+      this.onInputChange(e, time);
     }
 
     this.inputRef.current.focus();
@@ -411,10 +425,9 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
     e.stopPropagation();
   };
 
-  onInputChange = (newTime: string, event: React.FormEvent<HTMLInputElement>) => {
+  onInputChange = (event: React.FormEvent<HTMLInputElement>, newTime: string) => {
     const { onChange } = this.props;
     const { timeRegex } = this.state;
-
     if (onChange) {
       onChange(
         event,
@@ -461,7 +474,7 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
       ...props
     } = this.props;
     const { timeState, isTimeOptionsOpen, isInvalid, minTimeState, maxTimeState } = this.state;
-    const style = { '--pf-c-date-picker__input--c-form-control--Width': width } as React.CSSProperties;
+    const style = { [cssDatePickerFormControlWidth.name]: width } as React.CSSProperties;
     const options = makeTimeOptions(stepMinutes, !is24Hour, delimiter, minTimeState, maxTimeState, includeSeconds);
     const isValidFormat = this.isValidFormat(timeState);
     const randomId = id || getUniqueId('time-picker');
@@ -490,18 +503,18 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
     const textInput = (
       <TextInput
         aria-haspopup="menu"
-        className={css(formStyles.formControl)}
         id={`${randomId}-input`}
         aria-label={ariaLabel}
         validated={isInvalid ? 'error' : 'default'}
         placeholder={placeholder}
         value={timeState || ''}
         type="text"
-        iconVariant="clock"
+        customIcon={<OutlinedClockIcon />}
         onClick={this.onInputClick}
         onChange={this.onInputChange}
         autoComplete="off"
         isDisabled={isDisabled}
+        isExpanded={isTimeOptionsOpen}
         ref={this.inputRef}
         {...inputProps}
       />
@@ -523,23 +536,29 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
       <div ref={this.baseComponentRef} className={css(datePickerStyles.datePicker, className)}>
         <div className={css(datePickerStyles.datePickerInput)} style={style} {...props}>
           <InputGroup>
-            <div id={randomId}>
-              <div ref={this.toggleRef} style={{ paddingLeft: '0' }}>
-                <Popper
-                  appendTo={calculatedAppendTo}
-                  trigger={textInput}
-                  triggerRef={this.inputRef}
-                  popper={menuContainer}
-                  popperRef={this.menuRef}
-                  isVisible={isTimeOptionsOpen}
-                  zIndex={zIndex}
-                />
+            <InputGroupItem>
+              <div id={randomId}>
+                <div ref={this.toggleRef} style={{ paddingLeft: '0' }}>
+                  <Popper
+                    appendTo={calculatedAppendTo}
+                    trigger={textInput}
+                    triggerRef={this.toggleRef}
+                    popper={menuContainer}
+                    popperRef={this.menuRef}
+                    isVisible={isTimeOptionsOpen}
+                    zIndex={zIndex}
+                  />
+                </div>
               </div>
-            </div>
+            </InputGroupItem>
           </InputGroup>
           {isInvalid && (
-            <div className={css(datePickerStyles.datePickerHelperText, datePickerStyles.modifiers.error)}>
-              {!isValidFormat ? invalidFormatErrorMessage : invalidMinMaxErrorMessage}
+            <div className={css(datePickerStyles.datePickerHelperText)}>
+              <HelperText>
+                <HelperTextItem variant="error">
+                  {!isValidFormat ? invalidFormatErrorMessage : invalidMinMaxErrorMessage}
+                </HelperTextItem>
+              </HelperText>
             </div>
           )}
         </div>
@@ -547,3 +566,5 @@ export class TimePicker extends React.Component<TimePickerProps, TimePickerState
     );
   }
 }
+
+export { TimePicker };

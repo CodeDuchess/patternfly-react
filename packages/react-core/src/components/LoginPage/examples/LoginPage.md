@@ -1,7 +1,7 @@
 ---
 id: Login page
 section: components
-cssPrefix: pf-c-login
+cssPrefix: pf-v5-c-login
 propComponents:
   [
     'LoginPage',
@@ -17,8 +17,7 @@ propComponents:
     'LoginMainFooterLinksItem',
   ]
 ---
-
-import brandImg2 from './brandImgColor2.svg';
+import brandImg2 from '../../assets/brandImgColor2.svg';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 
 ## Examples

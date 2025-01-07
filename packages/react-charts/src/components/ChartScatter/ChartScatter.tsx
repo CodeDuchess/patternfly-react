@@ -20,14 +20,10 @@ import {
   VictoryStyleInterface
 } from 'victory-core';
 import { VictoryScatter, VictoryScatterProps, VictoryScatterTTargetType } from 'victory-scatter';
-import { ChartContainer } from '../ChartContainer';
-import { ChartScatterStyles, ChartThemeDefinition } from '../ChartTheme';
-import { getTheme } from '../ChartUtils';
-
-export enum ChartScatterSortOrder {
-  ascending = 'ascending',
-  descending = 'descending'
-}
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartScatterStyles } from '../ChartTheme/ChartStyles';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getTheme } from '../ChartUtils/chart-theme';
 
 /**
  * ChartScatter renders a dataset as a series of points. ChartScatter can be composed with Chart to create scatter plots.
@@ -450,7 +446,6 @@ export const ChartScatter: React.FunctionComponent<ChartScatterProps> = ({
 
   // destructure last
   theme = getTheme(themeColor),
-  size = ({ active }) => (active ? ChartScatterStyles.activeSize : ChartScatterStyles.size),
   ...rest
 }: ChartScatterProps) => {
   // Clone so users can override container props
@@ -459,8 +454,14 @@ export const ChartScatter: React.FunctionComponent<ChartScatterProps> = ({
     ...containerComponent.props
   });
 
+  // bubbleProperty is only considered if the size prop is undefined, therefore set
+  // default size function only if bubbleProperty is not set.
+  if (typeof rest.size === 'undefined' && typeof rest.bubbleProperty === 'undefined') {
+    rest.size = ({ active }) => (active ? ChartScatterStyles.activeSize : ChartScatterStyles.size);
+  }
+
   // Note: containerComponent is required for theme
-  return <VictoryScatter containerComponent={container} size={size} theme={theme} {...rest} />;
+  return <VictoryScatter containerComponent={container} theme={theme} {...rest} />;
 };
 ChartScatter.displayName = 'ChartScatter';
 

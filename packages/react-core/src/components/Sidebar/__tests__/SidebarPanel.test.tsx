@@ -1,20 +1,21 @@
 import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import { SidebarPanel, SidebarPanelWidthType } from '../SidebarPanel';
+import styles from '@patternfly/react-styles/css/components/Sidebar/sidebar';
 
 test('Renders children', () => {
   render(<SidebarPanel>Test</SidebarPanel>);
   expect(screen.getByText('Test')).toBeVisible();
 });
 
-test('Renders with with only class name pf-c-sidebar__panel by default', () => {
+test(`Renders with with only class name ${styles.sidebarPanel} by default`, () => {
   render(<SidebarPanel>Test</SidebarPanel>);
-  expect(screen.getByText('Test')).toHaveClass('pf-c-sidebar__panel', { exact: true });
+  expect(screen.getByText('Test')).toHaveClass(styles.sidebarPanel, { exact: true });
 });
 
-test('Renders with with class name pf-c-sidebar__panel', () => {
+test(`Renders with with class name ${styles.sidebarPanel}`, () => {
   render(<SidebarPanel>Test</SidebarPanel>);
-  expect(screen.getByText('Test')).toHaveClass('pf-c-sidebar__panel');
+  expect(screen.getByText('Test')).toHaveClass(styles.sidebarPanel);
 });
 
 test('Renders with custom class name when className prop is provided', () => {
@@ -37,7 +38,12 @@ test('Renders with class name pf-m-no-background when hasNoBackground prop is pa
   expect(screen.getByText('Test')).toHaveClass('pf-m-no-background');
 });
 
-['width_25', 'width_33', 'width_50', 'width_66', 'width_75', 'width_100'].forEach(widthType => {
+test('Renders with class name pf-m-padding when hasPadding prop is passed', () => {
+  render(<SidebarPanel hasPadding>Test</SidebarPanel>);
+  expect(screen.getByText('Test')).toHaveClass('pf-m-padding');
+});
+
+['width_25', 'width_33', 'width_50', 'width_66', 'width_75', 'width_100'].forEach((widthType) => {
   test(`Renders with appropriate class names when ${widthType} is passed to each breakpoint of width prop`, () => {
     render(
       <SidebarPanel

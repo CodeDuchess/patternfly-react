@@ -4,9 +4,10 @@ import { TextInput } from '../TextInput';
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
 import { ValidatedOptions } from '../../helpers/constants';
-import { InputGroup } from '../InputGroup';
+import { InputGroup, InputGroupItem } from '../InputGroup';
 import EyeSlashIcon from '@patternfly/react-icons/dist/esm/icons/eye-slash-icon';
 import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
+import { HelperText, HelperTextItem } from '../HelperText';
 
 export interface LoginFormProps extends Omit<React.HTMLProps<HTMLFormElement>, 'ref'> {
   /** Flag to indicate if the first dropdown item should not gain initial focus */
@@ -24,7 +25,7 @@ export interface LoginFormProps extends Omit<React.HTMLProps<HTMLFormElement>, '
   /** Value for the username */
   usernameValue?: string;
   /** Function that handles the onChange event for the username */
-  onChangeUsername?: (value: string, event: React.FormEvent<HTMLInputElement>) => void;
+  onChangeUsername?: (event: React.FormEvent<HTMLInputElement>, value: string) => void;
   /** Flag indicating if the username is valid */
   isValidUsername?: boolean;
   /** Label for the password input field */
@@ -32,7 +33,7 @@ export interface LoginFormProps extends Omit<React.HTMLProps<HTMLFormElement>, '
   /** Value for the password */
   passwordValue?: string;
   /** Function that handles the onChange event for the password */
-  onChangePassword?: (value: string, event: React.FormEvent<HTMLInputElement>) => void;
+  onChangePassword?: (event: React.FormEvent<HTMLInputElement>, value: string) => void;
   /** Flag indicating if the password is valid */
   isValidPassword?: boolean;
   /** Flag indicating if the user can toggle hiding the password */
@@ -52,7 +53,7 @@ export interface LoginFormProps extends Omit<React.HTMLProps<HTMLFormElement>, '
   /** Flag indicating if the remember me checkbox is checked. */
   isRememberMeChecked?: boolean;
   /** Function that handles the onChange event for the remember me checkbox */
-  onChangeRememberMe?: (checked: boolean, event: React.FormEvent<HTMLInputElement>) => void;
+  onChangeRememberMe?: (event: React.FormEvent<HTMLInputElement>, checked: boolean) => void;
 }
 
 export const LoginForm: React.FunctionComponent<LoginFormProps> = ({
@@ -96,15 +97,16 @@ export const LoginForm: React.FunctionComponent<LoginFormProps> = ({
 
   return (
     <Form className={className} {...props}>
-      <FormHelperText isError={!isValidUsername || !isValidPassword} isHidden={!showHelperText} icon={helperTextIcon}>
-        {helperText}
-      </FormHelperText>
-      <FormGroup
-        label={usernameLabel}
-        isRequired
-        validated={isValidUsername ? ValidatedOptions.default : ValidatedOptions.error}
-        fieldId="pf-login-username-id"
-      >
+      {showHelperText && (
+        <FormHelperText>
+          <HelperText>
+            <HelperTextItem variant={!isValidUsername || !isValidPassword ? 'error' : 'default'} icon={helperTextIcon}>
+              {helperText}
+            </HelperTextItem>
+          </HelperText>
+        </FormHelperText>
+      )}
+      <FormGroup label={usernameLabel} isRequired fieldId="pf-login-username-id">
         <TextInput
           autoFocus={!noAutoFocus}
           id="pf-login-username-id"
@@ -116,22 +118,19 @@ export const LoginForm: React.FunctionComponent<LoginFormProps> = ({
           onChange={onChangeUsername}
         />
       </FormGroup>
-      <FormGroup
-        label={passwordLabel}
-        isRequired
-        validated={isValidPassword ? ValidatedOptions.default : ValidatedOptions.error}
-        fieldId="pf-login-password-id"
-      >
+      <FormGroup label={passwordLabel} isRequired fieldId="pf-login-password-id">
         {isShowPasswordEnabled && (
           <InputGroup>
-            {passwordInput}
-            <Button
-              variant="control"
-              onClick={() => setPasswordHidden(!passwordHidden)}
-              aria-label={passwordHidden ? showPasswordAriaLabel : hidePasswordAriaLabel}
-            >
-              {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
-            </Button>
+            <InputGroupItem isFill>{passwordInput}</InputGroupItem>
+            <InputGroupItem>
+              <Button
+                variant="control"
+                onClick={() => setPasswordHidden(!passwordHidden)}
+                aria-label={passwordHidden ? showPasswordAriaLabel : hidePasswordAriaLabel}
+              >
+                {passwordHidden ? <EyeIcon /> : <EyeSlashIcon />}
+              </Button>
+            </InputGroupItem>
           </InputGroup>
         )}
         {!isShowPasswordEnabled && passwordInput}
@@ -142,7 +141,7 @@ export const LoginForm: React.FunctionComponent<LoginFormProps> = ({
             id="pf-login-remember-me-id"
             label={rememberMeLabel}
             isChecked={isRememberMeChecked}
-            onChange={(event, checked) => onChangeRememberMe(checked, event)}
+            onChange={onChangeRememberMe}
           />
         </FormGroup>
       )}

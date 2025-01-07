@@ -2,25 +2,28 @@ import React from 'react';
 import {
   Avatar,
   Button,
-  Dropdown,
   Page,
-  PageHeader,
-  PageHeaderTools,
-  PageHeaderToolsGroup,
-  PageHeaderToolsItem,
   PageSidebar,
+  PageSidebarBody,
   PageSection,
   PageSectionVariants,
   SkipToContent,
-  KebabToggle,
-  DropdownToggle,
-  DropdownGroup,
-  DropdownItem
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle
 } from '@patternfly/react-core';
+import {
+  PageHeader,
+  PageHeaderTools,
+  PageHeaderToolsItem,
+  PageHeaderToolsGroup
+} from '@patternfly/react-core/deprecated';
 import CogIcon from '@patternfly/react-icons/dist/esm/icons/cog-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-circle-icon';
 import imgAvatar from '@patternfly/react-integration/demo-app-ts/src/assets/images/imgAvatar.svg';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 export class PageDemo extends React.Component {
   static displayName = 'PageDemo';
@@ -30,33 +33,33 @@ export class PageDemo extends React.Component {
     isKebabDropdownOpen: false
   };
 
-  onNavToggle = () => {
+  onNavToggle = (_event: React.MouseEvent) => {
     this.setState({
       isNavOpen: !this.state.isNavOpen
     });
   };
 
-  onDropdownToggle = (_event: any, isDropdownOpen: boolean) => {
-    this.setState({
-      isDropdownOpen
-    });
-  };
-
-  onDropdownSelect = (_event: any) => {
+  onDropdownToggle = () => {
     this.setState({
       isDropdownOpen: !this.state.isDropdownOpen
     });
   };
 
-  onKebabDropdownToggle = (_event: any, isKebabDropdownOpen: boolean) => {
+  onDropdownSelect = () => {
     this.setState({
-      isKebabDropdownOpen
+      isDropdownOpen: false
     });
   };
 
-  onKebabDropdownSelect = (_event: any) => {
+  onKebabDropdownToggle = () => {
     this.setState({
       isKebabDropdownOpen: !this.state.isKebabDropdownOpen
+    });
+  };
+
+  onKebabDropdownSelect = () => {
+    this.setState({
+      isKebabDropdownOpen: false
     });
   };
 
@@ -85,13 +88,11 @@ export class PageDemo extends React.Component {
     ];
 
     const userDropdownItems = [
-      <DropdownGroup key="group 2">
-        <DropdownItem key="group 2 profile">My profile</DropdownItem>
-        <DropdownItem key="group 2 user" component="button">
-          User management
-        </DropdownItem>
-        <DropdownItem key="group 2 logout">Logout</DropdownItem>
-      </DropdownGroup>
+      <DropdownItem key="group 2 profile">My profile</DropdownItem>,
+      <DropdownItem key="group 2 user" component="button">
+        User management
+      </DropdownItem>,
+      <DropdownItem key="group 2 logout">Logout</DropdownItem>
     ];
 
     const headerTools = (
@@ -122,13 +123,23 @@ export class PageDemo extends React.Component {
             /** this kebab dropdown replaces the icon buttons and is hidden for desktop sizes */
           >
             <Dropdown
-              isPlain
-              position="right"
               onSelect={this.onKebabDropdownSelect}
-              toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
               isOpen={isKebabDropdownOpen}
-              dropdownItems={kebabDropdownItems}
-            />
+              onOpenChange={(isOpen) => this.setState({ isKebabDropdownOpen: isOpen })}
+              popperProps={{ position: 'right' }}
+              toggle={(toggleRef) => (
+                <MenuToggle
+                  variant="plain"
+                  ref={toggleRef}
+                  onClick={this.onKebabDropdownToggle}
+                  isExpanded={isKebabDropdownOpen}
+                >
+                  <EllipsisVIcon />
+                </MenuToggle>
+              )}
+            >
+              <DropdownList>{kebabDropdownItems}</DropdownList>
+            </Dropdown>
           </PageHeaderToolsItem>
           <PageHeaderToolsItem
             id="user-dropdown"
@@ -141,13 +152,18 @@ export class PageDemo extends React.Component {
             }} /** this user dropdown is hidden on mobile sizes */
           >
             <Dropdown
-              isPlain
-              position="right"
               onSelect={this.onDropdownSelect}
               isOpen={isDropdownOpen}
-              toggle={<DropdownToggle onToggle={this.onDropdownToggle}>John Smith</DropdownToggle>}
-              dropdownItems={userDropdownItems}
-            />
+              onOpenChange={(isOpen) => this.setState({ isDropdownOpen: isOpen })}
+              popperProps={{ position: 'right' }}
+              toggle={(toggleRef) => (
+                <MenuToggle ref={toggleRef} onClick={this.onDropdownToggle} isExpanded={isDropdownOpen}>
+                  John Smith
+                </MenuToggle>
+              )}
+            >
+              <DropdownList>{userDropdownItems}</DropdownList>
+            </Dropdown>
           </PageHeaderToolsItem>
         </PageHeaderToolsGroup>
         <Avatar src={imgAvatar} alt="Avatar image" />
@@ -169,7 +185,11 @@ export class PageDemo extends React.Component {
     );
     const pageId = 'page-demo-page-id';
     const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to Content</SkipToContent>;
-    const Sidebar = <PageSidebar id="page-demo-sidebar" nav="Navigation" isNavOpen={isNavOpen} />;
+    const Sidebar = (
+      <PageSidebar id="page-demo-sidebar" isSidebarOpen={isNavOpen}>
+        <PageSidebarBody>Navigation</PageSidebarBody>
+      </PageSidebar>
+    );
 
     return (
       <Page

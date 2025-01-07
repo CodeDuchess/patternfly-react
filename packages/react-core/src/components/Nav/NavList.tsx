@@ -3,7 +3,7 @@ import styles from '@patternfly/react-styles/css/components/Nav/nav';
 import { css } from '@patternfly/react-styles';
 import AngleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-left-icon';
 import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
-import { isElementInView } from '../../helpers/util';
+import { getLanguageDirection, isElementInView } from '../../helpers/util';
 import { NavContext } from './Nav';
 import { PageSidebarContext } from '../Page/PageSidebar';
 import { getResizeObserver } from '../../helpers/resizeObserver';
@@ -14,20 +14,27 @@ export interface NavListProps
   children?: React.ReactNode;
   /** Additional classes added to the list */
   className?: string;
-  /** Aria-label for the left scroll button */
+  /** @deprecated Please use backScrollAriaLabel. Aria-label for the left scroll button */
   ariaLeftScroll?: string;
-  /** Aria-label for the right scroll button */
+  /** @deprecated Please use forwardScrollAriaLabel. Aria-label for the right scroll button */
   ariaRightScroll?: string;
+  /** Aria-label for the back scroll button */
+  backScrollAriaLabel?: string;
+  /** Aria-label for the forward scroll button */
+  forwardScrollAriaLabel?: string;
 }
 
-export class NavList extends React.Component<NavListProps> {
+class NavList extends React.Component<NavListProps> {
   static displayName = 'NavList';
   static contextType = NavContext;
   context!: React.ContextType<typeof NavContext>;
   static defaultProps: NavListProps = {
     ariaLeftScroll: 'Scroll left',
-    ariaRightScroll: 'Scroll right'
+    backScrollAriaLabel: 'Scroll back',
+    ariaRightScroll: 'Scroll right',
+    forwardScrollAriaLabel: 'Scroll foward'
   };
+  private direction = 'ltr';
 
   state = {
     scrollViewAtStart: false,
@@ -51,7 +58,7 @@ export class NavList extends React.Component<NavListProps> {
     }
   };
 
-  scrollLeft = () => {
+  scrollBack = () => {
     // find first Element that is fully in view on the left, then scroll to the element before it
     const container = this.navList.current;
     if (container) {
@@ -65,13 +72,19 @@ export class NavList extends React.Component<NavListProps> {
         }
       }
       if (lastElementOutOfView) {
-        container.scrollLeft -= lastElementOutOfView.scrollWidth;
+        if (this.direction === 'ltr') {
+          // LTR scrolls left to go back
+          container.scrollLeft -= lastElementOutOfView.scrollWidth;
+        } else {
+          // RTL scrolls right to go back
+          container.scrollLeft += lastElementOutOfView.scrollWidth;
+        }
       }
       this.handleScrollButtons();
     }
   };
 
-  scrollRight = () => {
+  scrollForward = () => {
     // find last Element that is fully in view on the right, then scroll to the element after it
     const container = this.navList.current;
     if (container) {
@@ -85,7 +98,13 @@ export class NavList extends React.Component<NavListProps> {
         }
       }
       if (firstElementOutOfView) {
-        container.scrollLeft += firstElementOutOfView.scrollWidth;
+        if (this.direction === 'ltr') {
+          // LTR scrolls right to go forward
+          container.scrollLeft += firstElementOutOfView.scrollWidth;
+        } else {
+          // RTL scrolls left to go forward
+          container.scrollLeft -= firstElementOutOfView.scrollWidth;
+        }
       }
       this.handleScrollButtons();
     }
@@ -93,6 +112,7 @@ export class NavList extends React.Component<NavListProps> {
 
   componentDidMount() {
     this.observer = getResizeObserver(this.navList.current, this.handleScrollButtons, true);
+    this.direction = getLanguageDirection(this.navList.current);
     this.handleScrollButtons();
   }
 
@@ -100,23 +120,35 @@ export class NavList extends React.Component<NavListProps> {
     this.observer();
   }
 
+  componentDidUpdate() {
+    this.direction = getLanguageDirection(this.navList.current);
+  }
+
   render() {
-    const { children, className, ariaLeftScroll, ariaRightScroll, ...props } = this.props;
+    const {
+      children,
+      className,
+      ariaLeftScroll,
+      ariaRightScroll,
+      backScrollAriaLabel,
+      forwardScrollAriaLabel,
+      ...props
+    } = this.props;
     const { scrollViewAtStart, scrollViewAtEnd } = this.state;
 
     return (
       <NavContext.Consumer>
         {({ isHorizontal }) => (
           <PageSidebarContext.Consumer>
-            {({ isNavOpen }) => (
+            {({ isSidebarOpen }) => (
               <React.Fragment>
                 {isHorizontal && (
                   <button
                     className={css(styles.navScrollButton)}
-                    aria-label={ariaLeftScroll}
-                    onClick={this.scrollLeft}
+                    aria-label={backScrollAriaLabel || ariaLeftScroll}
+                    onClick={this.scrollBack}
                     disabled={scrollViewAtStart}
-                    tabIndex={isNavOpen ? null : -1}
+                    tabIndex={isSidebarOpen ? null : -1}
                   >
                     <AngleLeftIcon />
                   </button>
@@ -133,10 +165,10 @@ export class NavList extends React.Component<NavListProps> {
                 {isHorizontal && (
                   <button
                     className={css(styles.navScrollButton)}
-                    aria-label={ariaRightScroll}
-                    onClick={this.scrollRight}
+                    aria-label={forwardScrollAriaLabel || ariaRightScroll}
+                    onClick={this.scrollForward}
                     disabled={scrollViewAtEnd}
-                    tabIndex={isNavOpen ? null : -1}
+                    tabIndex={isSidebarOpen ? null : -1}
                   >
                     <AngleRightIcon />
                   </button>
@@ -149,3 +181,5 @@ export class NavList extends React.Component<NavListProps> {
     );
   }
 }
+
+export { NavList };

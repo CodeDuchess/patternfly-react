@@ -1,33 +1,89 @@
 import React from 'react';
-import { Wizard, WizardStep } from '@patternfly/react-core';
+import {
+  DescriptionList,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  DescriptionListDescription,
+  Wizard,
+  WizardStep,
+  WizardStepType
+} from '@patternfly/react-core';
 
-export const WizardGetCurrentStep: React.FunctionComponent = () => {
-  const onCurrentStepChanged = ({ id }: WizardStep) => {
-    // eslint-disable-next-line no-console
-    console.log(id);
-  };
-  const closeWizard = () => {
-    // eslint-disable-next-line no-console
-    console.log('close wizard');
-  };
+const CurrentStepDescriptionList = ({ currentStep }: { currentStep: WizardStepType | undefined }) => (
+  <DescriptionList isHorizontal isCompact>
+    <DescriptionListGroup>
+      <DescriptionListTerm>Index</DescriptionListTerm>
+      <DescriptionListDescription>{currentStep?.index}</DescriptionListDescription>
+    </DescriptionListGroup>
 
-  const steps = [
-    { id: 1, name: 'First step', component: <p>Step 1 content</p> },
-    { id: 2, name: 'Second step', component: <p>Step 2 content</p> },
-    { id: 3, name: 'Third step', component: <p>Step 3 content</p> },
-    { id: 4, name: 'Fourth step', component: <p>Step 4 content</p> },
-    { id: 5, name: 'Review', component: <p>Review step content</p>, nextButtonText: 'Finish' }
-  ];
-  const title = 'Get current step wizard example';
+    <DescriptionListGroup>
+      <DescriptionListTerm>ID</DescriptionListTerm>
+      <DescriptionListDescription>{currentStep?.id}</DescriptionListDescription>
+    </DescriptionListGroup>
+
+    <DescriptionListGroup>
+      <DescriptionListTerm>Name</DescriptionListTerm>
+      <DescriptionListDescription>{currentStep?.name}</DescriptionListDescription>
+    </DescriptionListGroup>
+
+    <DescriptionListGroup>
+      <DescriptionListTerm>Visited</DescriptionListTerm>
+      <DescriptionListDescription>{currentStep?.isVisited ? 'true' : 'false'}</DescriptionListDescription>
+    </DescriptionListGroup>
+  </DescriptionList>
+);
+
+export const GetCurrentStepWizard: React.FunctionComponent = () => {
+  const [currentStep, setCurrentStep] = React.useState<WizardStepType>();
+
+  const onStepChange = (_event: React.MouseEvent<HTMLButtonElement>, currentStep: WizardStepType) =>
+    setCurrentStep(currentStep);
+
   return (
-    <Wizard
-      navAriaLabel={`${title} steps`}
-      mainAriaLabel={`${title} content`}
-      onClose={closeWizard}
-      description="Simple Wizard Description"
-      steps={steps}
-      height={400}
-      onCurrentStepChanged={onCurrentStepChanged}
-    />
+    <Wizard height={400} title="Get current step wizard" onStepChange={onStepChange}>
+      <WizardStep name="Step 1" id="get-current-step-1">
+        {currentStep ? <CurrentStepDescriptionList currentStep={currentStep} /> : 'Step 1 content'}
+      </WizardStep>
+      <WizardStep
+        name="Step 2"
+        id="get-current-step-2"
+        isDisabled
+        steps={[
+          <WizardStep name="Substep 1" id="get-current-substep-1" key="get-current-substep-1">
+            <CurrentStepDescriptionList currentStep={currentStep} />
+          </WizardStep>,
+          <WizardStep name="Substep 2" id="get-current-substep-2" key="get-current-substep-2">
+            <CurrentStepDescriptionList currentStep={currentStep} />
+          </WizardStep>
+        ]}
+      />
+      <WizardStep
+        name="Step 3"
+        id="get-current-step-3"
+        steps={[
+          <WizardStep name="Substep 3" id="get-current-substep-3" key="get-current-substep-3">
+            <CurrentStepDescriptionList currentStep={currentStep} />
+          </WizardStep>,
+          <WizardStep name="Substep 4" id="get-current-substep-4" key="get-current-substep-4">
+            <CurrentStepDescriptionList currentStep={currentStep} />
+          </WizardStep>
+        ]}
+      />
+      <WizardStep
+        name="Step 4"
+        id="get-current-step-4"
+        steps={[
+          <WizardStep name="Substep 5" id="get-current-substep-5" key="get-current-substep-5" isHidden>
+            <CurrentStepDescriptionList currentStep={currentStep} />
+          </WizardStep>,
+          <WizardStep name="Substep 6" id="get-current-substep-6" key="get-current-substep-6">
+            <CurrentStepDescriptionList currentStep={currentStep} />
+          </WizardStep>
+        ]}
+      />
+      <WizardStep name="Review" id="get-current-review-step" footer={{ nextButtonText: 'Finish' }}>
+        <CurrentStepDescriptionList currentStep={currentStep} />
+      </WizardStep>
+    </Wizard>
   );
 };

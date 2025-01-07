@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 import * as React from 'react';
 import {
-  TableComposable,
+  Table,
   Thead,
   Tbody,
   Tr,
@@ -28,6 +29,8 @@ import {
 import CodeBranchIcon from '@patternfly/react-icons/dist/esm/icons/code-branch-icon';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
+/* eslint-disable camelcase */
+import global_primary_color_100 from '@patternfly/react-tokens/dist/esm/global_primary_color_100';
 
 export const TableComposableDemo = () => {
   const ComposableTableBasic = () => {
@@ -53,7 +56,7 @@ export const TableComposableDemo = () => {
             </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
-        <TableComposable aria-label="Simple table using composable components">
+        <Table aria-label="Simple table using composable components">
           <Caption>Simple table using composable components</Caption>
           <Thead>
             <Tr>
@@ -83,7 +86,7 @@ export const TableComposableDemo = () => {
               </Tr>
             ))}
           </Tbody>
-        </TableComposable>
+        </Table>
       </>
     );
   };
@@ -95,12 +98,11 @@ export const TableComposableDemo = () => {
       [{ title: 'one - 2', colSpan: 3 }, null, null, 'four - 2', 'five - 2'],
       ['one - 3', 'two - 3', 'three - 3', 'four - 3', { title: 'five - 3 (not centered)', textCenter: false }]
     ];
-    const onRowClick = (event: React.MouseEvent, rowIndex: number, row: any[]) => {
-      // eslint-disable-next-line no-console
+    const onRowClick = (_event: React.MouseEvent, rowIndex: number, row: any[]) => {
       console.log(`handle row click ${rowIndex}`, row);
     };
     return (
-      <TableComposable aria-label="Misc table">
+      <Table aria-label="Misc table">
         <Thead noWrap>
           <Tr>
             <Th>
@@ -141,12 +143,12 @@ export const TableComposableDemo = () => {
           {rows.map((row, rowIndex) => {
             const isOddRow = (rowIndex + 1) % 2;
             const customStyle = {
-              borderLeft: '3px solid var(--pf-global--primary-color--100)'
+              borderLeft: `3px solid ${global_primary_color_100.var}`
             };
             return (
               <Tr
                 key={rowIndex}
-                onClick={event => onRowClick(event, rowIndex, row)}
+                onClick={(event) => onRowClick(event, rowIndex, row)}
                 className={isOddRow ? 'odd-row-class' : 'even-row-class'}
                 style={isOddRow ? customStyle : {}}
               >
@@ -179,7 +181,7 @@ export const TableComposableDemo = () => {
             );
           })}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -200,7 +202,7 @@ export const TableComposableDemo = () => {
     const [activeSortIndex, setActiveSortIndex] = React.useState(-1);
     // sort direction of the currently active column
     const [activeSortDirection, setActiveSortDirection] = React.useState<'asc' | 'desc' | 'none'>('none');
-    const onSort = (event: React.MouseEvent, index: number, direction: 'asc' | 'desc' | 'none') => {
+    const onSort = (_event: React.MouseEvent, index: number, direction: 'asc' | 'desc' | 'none') => {
       setActiveSortIndex(index);
       setActiveSortDirection(direction);
       // sorts the rows
@@ -214,12 +216,12 @@ export const TableComposableDemo = () => {
       setRows(updatedRows);
     };
     return (
-      <TableComposable aria-label="Sortable Table">
+      <Table aria-label="Sortable Table">
         <Thead>
           <Tr>
             {columns.map((column, columnIndex) => {
               // In this example, wrap all but the first column just to demonstrate
-              const modifier = columnIndex !== 0 ? 'wrap' : null;
+              const modifier = columnIndex !== 0 ? 'wrap' : undefined;
               // In this example, make the 1st and 3rd columns sortable
               const sortParams =
                 columnIndex === 0 || columnIndex === 2
@@ -249,7 +251,7 @@ export const TableComposableDemo = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -261,9 +263,9 @@ export const TableComposableDemo = () => {
       ['p', 'two', 'b', 'four', 'five']
     ];
     const [allRowsSelected, setAllRowsSelected] = React.useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [selected, setSelected] = React.useState(rows.map(row => false));
-    const onSelect: OnSelect = (event, isSelected, rowId) => {
+
+    const [selected, setSelected] = React.useState(rows.map(() => false));
+    const onSelect: OnSelect = (_event, isSelected, rowId) => {
       setSelected(selected.map((sel, index) => (index === rowId ? isSelected : sel)));
       if (!isSelected && allRowsSelected) {
         setAllRowsSelected(false);
@@ -281,13 +283,13 @@ export const TableComposableDemo = () => {
         }
       }
     };
-    const onSelectAll: OnSelect = (event, isSelected) => {
+    const onSelectAll: OnSelect = (_event, isSelected) => {
       setAllRowsSelected(isSelected);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      setSelected(selected.map(sel => isSelected));
+
+      setSelected(selected.map(() => isSelected));
     };
     return (
-      <TableComposable aria-label="Selectable Table">
+      <Table aria-label="Selectable Table">
         <Thead>
           <Tr>
             <Th
@@ -312,7 +314,7 @@ export const TableComposableDemo = () => {
                   rowIndex,
                   onSelect,
                   isSelected: selected[rowIndex],
-                  disable: rowIndex === 1
+                  isDisabled: rowIndex === 1
                 }}
               />
               {row.map((cell, cellIndex) => {
@@ -326,7 +328,7 @@ export const TableComposableDemo = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -338,14 +340,14 @@ export const TableComposableDemo = () => {
       ['p', 'two', 'b', 'four', 'five']
     ];
     const [selected, setSelected] = React.useState(-1);
-    const onSelect: OnSelect = (event, isSelected, rowId) => {
+    const onSelect: OnSelect = (_event, _isSelected, rowId) => {
       setSelected(rowId);
     };
     return (
-      <TableComposable aria-label="Radio selectable table">
+      <Table aria-label="Radio selectable table">
         <Thead>
           <Tr>
-            <Th />
+            <Th screenReaderText="Row select" />
             <Th>{columns[0]}</Th>
             <Th>{columns[1]}</Th>
             <Th>{columns[2]}</Th>
@@ -362,7 +364,7 @@ export const TableComposableDemo = () => {
                   rowIndex,
                   onSelect,
                   isSelected: selected === rowIndex,
-                  disable: rowIndex === 1,
+                  isDisabled: rowIndex === 1,
                   variant: 'radio'
                 }}
               />
@@ -377,7 +379,7 @@ export const TableComposableDemo = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -385,8 +387,7 @@ export const TableComposableDemo = () => {
     const defaultActions: IActions = [
       {
         title: 'Some action',
-        // eslint-disable-next-line
-        onClick: (event, rowId, rowData, extra) => console.log('clicked on Some action, on row: ', rowId)
+        onClick: (_event, rowId) => console.log('clicked on Some action, on row: ', rowId)
       },
       {
         title: <a href="https://www.patternfly.org">Link action</a>
@@ -396,28 +397,24 @@ export const TableComposableDemo = () => {
       },
       {
         title: 'Third action',
-        // eslint-disable-next-line
-        onClick: (event, rowId, rowData, extra) => console.log('clicked on Third action, on row: ', rowId)
+        onClick: (_event, rowId) => console.log('clicked on Third action, on row: ', rowId)
       }
     ];
     const lastRowActions: IActions = [
       {
         title: 'Some action',
-        // eslint-disable-next-line
-        onClick: (event, rowId, rowData, extra) => console.log(`clicked on Some action, on row ${rowId}`)
+        onClick: (_event, rowId) => console.log(`clicked on Some action, on row ${rowId}`)
       },
       {
         title: <div>Another action</div>,
-        // eslint-disable-next-line
-        onClick: (event, rowId, rowData, extra) => console.log(`clicked on Another action, on row ${rowId}`)
+        onClick: (_event, rowId) => console.log(`clicked on Another action, on row ${rowId}`)
       },
       {
         isSeparator: true
       },
       {
         title: 'Third action',
-        // eslint-disable-next-line
-        onClick: (event, rowId, rowData, extra) => console.log(`clicked on Third action, on row ${rowId}`)
+        onClick: (_event, rowId) => console.log(`clicked on Third action, on row ${rowId}`)
       }
     ];
     const columns = ['Repositories', 'Branches', 'Pull requests', 'Workspaces', 'Last commit'];
@@ -429,7 +426,7 @@ export const TableComposableDemo = () => {
       ['5', '2', 'b', 'four', 'five']
     ];
     return (
-      <TableComposable aria-label="Actions table">
+      <Table aria-label="Actions table">
         <Thead>
           <Tr>
             <Th>{columns[0]}</Th>
@@ -437,14 +434,14 @@ export const TableComposableDemo = () => {
             <Th>{columns[2]}</Th>
             <Th>{columns[3]}</Th>
             <Th>{columns[4]}</Th>
-            <Th />
+            <Th screenReaderText="Actions" />
           </Tr>
         </Thead>
         <Tbody>
           {rows.map((row, rowIndex) => {
             let itemsActions = defaultActions;
             if (rowIndex === 1) {
-              itemsActions = null;
+              itemsActions = [];
             }
             if (rowIndex === 4) {
               itemsActions = lastRowActions;
@@ -460,14 +457,14 @@ export const TableComposableDemo = () => {
                   key={`${rowIndex}_5`}
                   actions={{
                     items: itemsActions,
-                    disable: rowIndex === 3
+                    isDisabled: rowIndex === 3
                   }}
                 />
               </Tr>
             );
           })}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -481,12 +478,12 @@ export const TableComposableDemo = () => {
       ['5', '2', 'b', 'four', 'five']
     ];
     const [choice, setChoice] = React.useState('default');
-    const handleItemClick = (isSelected: boolean, event: React.MouseEvent) => {
+    const handleItemClick = (event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent) => {
       const id = event.currentTarget.id;
       setChoice(id);
     };
     return (
-      <React.Fragment>
+      <>
         <Toolbar>
           <ToolbarContent>
             <ToolbarItem>
@@ -513,9 +510,9 @@ export const TableComposableDemo = () => {
             </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
-        <TableComposable
+        <Table
           aria-label="Compact Table"
-          variant={choice !== 'default' ? 'compact' : null}
+          variant={choice !== 'default' ? 'compact' : undefined}
           borders={choice !== 'compactBorderless'}
         >
           <Thead>
@@ -536,8 +533,8 @@ export const TableComposableDemo = () => {
               </Tr>
             ))}
           </Tbody>
-        </TableComposable>
-      </React.Fragment>
+        </Table>
+      </>
     );
   };
 
@@ -588,7 +585,7 @@ export const TableComposableDemo = () => {
     const toggleCompact = (checked: boolean) => {
       setCompact(checked);
     };
-    const handleExpansionToggle: OnCollapse = (event: any, pairIndex: number) => {
+    const handleExpansionToggle: OnCollapse = (_event, pairIndex) => {
       setExpanded({
         ...expanded,
         [pairIndex]: !expanded[pairIndex]
@@ -596,7 +593,7 @@ export const TableComposableDemo = () => {
     };
     let rowIndex = -1;
     return (
-      <React.Fragment>
+      <>
         <Toolbar>
           <ToolbarContent>
             <ToolbarItem>
@@ -611,10 +608,10 @@ export const TableComposableDemo = () => {
             </ToolbarItem>
           </ToolbarContent>
         </Toolbar>
-        <TableComposable aria-label="Expandable Table" variant={compact ? 'compact' : null}>
+        <Table aria-label="Expandable Table" variant={compact ? 'compact' : undefined}>
           <Thead>
             <Tr>
-              <Th />
+              <Th screenReaderText="Row expansion" />
               <Th>{columns[0]}</Th>
               <Th>{columns[1]}</Th>
               <Th>{columns[2]}</Th>
@@ -635,7 +632,7 @@ export const TableComposableDemo = () => {
                           isExpanded: expanded[pairIndex],
                           onToggle: handleExpansionToggle
                         }
-                      : null
+                      : undefined
                   }
                 />
                 {pair.parent.map((cell: any, cellIndex: number) => (
@@ -697,8 +694,8 @@ export const TableComposableDemo = () => {
               </Tbody>
             );
           })}
-        </TableComposable>
-      </React.Fragment>
+        </Table>
+      </>
     );
   };
 
@@ -715,7 +712,7 @@ export const TableComposableDemo = () => {
       const rows = [firstColumnRows, ['a', 'two', 'k', 'four', 'five'], ['p', 'two', 'b', 'four', 'five']];
 
       return (
-        <TableComposable aria-label="Demo child table" id={id}>
+        <Table aria-label="Demo child table" id={id}>
           <Thead>
             <Tr>
               {columns.map((column, columnIndex) => (
@@ -734,7 +731,7 @@ export const TableComposableDemo = () => {
               </Tr>
             ))}
           </Tbody>
-        </TableComposable>
+        </Table>
       );
     };
     // key = row_col of the parent it corresponds to
@@ -801,21 +798,21 @@ export const TableComposableDemo = () => {
         return <a href="#">{cell}</a>;
       } else if (index === 1) {
         return (
-          <React.Fragment>
+          <>
             <CodeBranchIcon key="icon" /> {cell}
-          </React.Fragment>
+          </>
         );
       } else if (index === 2) {
         return (
-          <React.Fragment>
+          <>
             <CodeIcon key="icon" /> {cell}
-          </React.Fragment>
+          </>
         );
       } else if (index === 3) {
         return (
-          <React.Fragment>
+          <>
             <CubeIcon key="icon" /> {cell}
-          </React.Fragment>
+          </>
         );
       } else if (index === 5) {
         return <a href="#">{cell}</a>;
@@ -827,10 +824,10 @@ export const TableComposableDemo = () => {
       if (1 <= cellIndex && cellIndex <= 3) {
         return activeChild[rowIndex] === cellIndex;
       }
-      return null;
+      return false;
     };
     return (
-      <TableComposable aria-label="Compound expandable table">
+      <Table aria-label="Compound expandable table">
         <Thead>
           <Tr>
             {columns.map((column, columnIndex) => (
@@ -842,7 +839,7 @@ export const TableComposableDemo = () => {
           const isRowExpanded = activeChild[rowIndex] !== null;
           return (
             <Tbody key={rowIndex} isExpanded={isRowExpanded}>
-              <React.Fragment>
+              <>
                 <Tr>
                   {row.map((cell, cellIndex) => {
                     // for this example, only columns 1 - 3 are clickable
@@ -892,11 +889,11 @@ export const TableComposableDemo = () => {
                     </Td>
                   </Tr>
                 )}
-              </React.Fragment>
+              </>
             </Tbody>
           );
         })}
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -908,14 +905,14 @@ export const TableComposableDemo = () => {
       ['one - 3', 'two - 3', 'three - 3', 'four - 3', 'five - 3']
     ];
     return (
-      <TableComposable aria-label="Cell widths">
+      <Table aria-label="Cell widths">
         <Thead>
           <Tr>
             {columns.map((column, columnIndex) => (
               <Th
                 key={columnIndex}
                 width={columnIndex === 2 ? 40 : 15}
-                visibility={columnIndex === 2 ? ['hiddenOnMd', 'visibleOnLg'] : null}
+                visibility={columnIndex === 2 ? ['hiddenOnMd', 'visibleOnLg'] : undefined}
               >
                 {column}
               </Th>
@@ -929,7 +926,7 @@ export const TableComposableDemo = () => {
                 <Td
                   key={`${rowIndex}_${cellIndex}`}
                   dataLabel={columns[cellIndex]}
-                  visibility={cellIndex === 2 ? ['hiddenOnMd', 'visibleOnLg'] : null}
+                  visibility={cellIndex === 2 ? ['hiddenOnMd', 'visibleOnLg'] : undefined}
                 >
                   {cell}
                 </Td>
@@ -937,7 +934,7 @@ export const TableComposableDemo = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -968,7 +965,7 @@ export const TableComposableDemo = () => {
       ]
     ];
     return (
-      <TableComposable aria-label="Controlling text">
+      <Table aria-label="Controlling text">
         <Thead>
           <Tr>
             <Th width={20}>{columns[0]}</Th>
@@ -995,7 +992,7 @@ export const TableComposableDemo = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -1012,7 +1009,7 @@ export const TableComposableDemo = () => {
       ]
     ];
     return (
-      <TableComposable aria-label="Table text">
+      <Table aria-label="Table text">
         <Thead>
           <Tr>
             <Th width={30}>{columns[0]}</Th>
@@ -1030,7 +1027,7 @@ export const TableComposableDemo = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 
@@ -1045,7 +1042,7 @@ export const TableComposableDemo = () => {
     const [activeSortIndex, setActiveSortIndex] = React.useState(-1);
     // sort direction of the currently active column
     const [activeSortDirection, setActiveSortDirection] = React.useState('none');
-    const onSort: OnSort = (event, index, direction) => {
+    const onSort: OnSort = (_event, index, direction) => {
       setActiveSortIndex(index);
       setActiveSortDirection(direction);
       // sorts the rows
@@ -1071,7 +1068,7 @@ export const TableComposableDemo = () => {
       }
     };
     return (
-      <TableComposable aria-label="Favoritable table" variant={'compact'}>
+      <Table aria-label="Favoritable table" variant={'compact'}>
         <Thead>
           <Tr>
             <Th {...sortParams} />
@@ -1086,7 +1083,7 @@ export const TableComposableDemo = () => {
               <Td
                 favorites={{
                   isFavorited: row.favorited,
-                  onFavorite: (event, isFavorited) =>
+                  onFavorite: (_event, isFavorited) =>
                     setRows(
                       rows.map((row, index) => {
                         if (index === rowIndex) {
@@ -1106,7 +1103,7 @@ export const TableComposableDemo = () => {
             </Tr>
           ))}
         </Tbody>
-      </TableComposable>
+      </Table>
     );
   };
 

@@ -8,14 +8,16 @@ import {
   TextInput,
   Checkbox,
   Popover,
-  Select,
-  SelectOption,
-  SelectOptionObject,
-  SelectVariant,
-  ValidatedOptions
+  ValidatedOptions,
+  HelperText,
+  HelperTextItem,
+  FormHelperText
 } from '@patternfly/react-core';
+import { Select, SelectOption, SelectOptionObject, SelectVariant } from '@patternfly/react-core/deprecated';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
+import styles from '@patternfly/react-styles/css/components/Form/form';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 export interface FormState {
   value: string;
@@ -42,10 +44,10 @@ export class FormDemo extends Component<FormProps, FormState> {
 
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
-  handleTextInputChange = (value: string) => {
+  handleTextInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     this.setState({ value, isValid: /^\d+$/.test(value) });
   };
-  handleValidatedTextInputChange = (value: string) => {
+  handleValidatedTextInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     let validated = ValidatedOptions.default;
     if (value.length === 0) {
       validated = ValidatedOptions.warning;
@@ -59,17 +61,17 @@ export class FormDemo extends Component<FormProps, FormState> {
       isOpen
     });
   };
-  onSelect = (event: React.SyntheticEvent, selection: string | SelectOptionObject) => {
+  onSelect = (_event: React.SyntheticEvent, selection: string | SelectOptionObject) => {
     const { selected } = this.state;
     if (selected.includes(selection.toString())) {
       this.setState(
-        prevState => ({ selected: prevState.selected.filter(item => item !== selection) }),
+        (prevState) => ({ selected: prevState.selected.filter((item) => item !== selection) }),
         // eslint-disable-next-line no-console
         () => console.log('selections: ', this.state.selected)
       );
     } else {
       this.setState(
-        prevState => ({ selected: [...prevState.selected, selection.toString()] }),
+        (prevState) => ({ selected: [...prevState.selected, selection.toString()] }),
         // eslint-disable-next-line no-console
         () => console.log('selections: ', this.state.selected)
       );
@@ -105,7 +107,7 @@ export class FormDemo extends Component<FormProps, FormState> {
     ];
 
     return (
-      <React.Fragment>
+      <>
         <Form id="form-demo-1">
           <FormGroup
             id="form-group-age"
@@ -124,20 +126,16 @@ export class FormDemo extends Component<FormProps, FormState> {
                 <button
                   id="helper-text-target"
                   aria-label="More info for name field"
-                  onClick={e => e.preventDefault()}
+                  onClick={(e) => e.preventDefault()}
                   aria-describedby="simple-form-name"
-                  className="pf-c-form__group-label-help"
+                  className={styles.formGroupLabelHelp}
                 >
-                  <HelpIcon noVerticalAlign />
+                  <HelpIcon />
                 </button>
               </Popover>
             }
             type="number"
-            helperText="Please write your age"
-            helperTextInvalid="Age has to be a number"
-            helperTextInvalidIcon={<ExclamationCircleIcon />}
             fieldId="age"
-            validated={isValid ? ValidatedOptions.default : ValidatedOptions.error}
           >
             <TextInput
               validated={isValid ? ValidatedOptions.default : ValidatedOptions.error}
@@ -146,10 +144,18 @@ export class FormDemo extends Component<FormProps, FormState> {
               aria-describedby="age-helper"
               onChange={this.handleTextInputChange}
             />
+            <HelperText id="age-helper">
+              <HelperTextItem
+                icon={<ExclamationCircleIcon />}
+                variant={isValid ? ValidatedOptions.default : ValidatedOptions.error}
+              >
+                {isValid ? 'Please write your age' : 'Age has to be a number'}
+              </HelperTextItem>
+            </HelperText>
           </FormGroup>
         </Form>
 
-        <Divider className="pf-u-my-xl" />
+        <Divider className={spacing.myXl} />
 
         <Form id="form-demo-2">
           <FormGroup fieldId="select-state-typeahead">
@@ -173,15 +179,7 @@ export class FormDemo extends Component<FormProps, FormState> {
             </Select>
           </FormGroup>
           <FormSection title="Title" titleElement="h4">
-            <FormGroup
-              id="formgroup-validated"
-              label="Validated Age"
-              type="number"
-              helperText="Enter age"
-              helperTextInvalid="Age must be a number"
-              fieldId="age2"
-              validated={validated}
-            >
+            <FormGroup id="formgroup-validated" label="Validated Age" type="number" fieldId="age2">
               <TextInput
                 validated={validated}
                 value={validatedValue}
@@ -189,6 +187,13 @@ export class FormDemo extends Component<FormProps, FormState> {
                 aria-describedby="age-helper-validated"
                 onChange={this.handleValidatedTextInputChange}
               />
+              <FormHelperText>
+                <HelperText id="age2-helper">
+                  <HelperTextItem variant={validated}>
+                    {validated === 'error' ? 'Age must be a number' : 'Enter age'}
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
             </FormGroup>
           </FormSection>
           <FormSection>
@@ -203,7 +208,7 @@ export class FormDemo extends Component<FormProps, FormState> {
             </FormGroup>
           </FormSection>
         </Form>
-      </React.Fragment>
+      </>
     );
   }
 }

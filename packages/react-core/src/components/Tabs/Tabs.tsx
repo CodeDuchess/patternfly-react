@@ -6,7 +6,7 @@ import { PickOptional } from '../../helpers/typeUtils';
 import AngleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-left-icon';
 import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
-import { getUniqueId, isElementInView, formatBreakpointMods } from '../../helpers/util';
+import { getUniqueId, isElementInView, formatBreakpointMods, getLanguageDirection } from '../../helpers/util';
 import { TabContent } from './TabContent';
 import { TabProps } from './Tab';
 import { TabsContextProvider } from './TabsContext';
@@ -63,10 +63,14 @@ export interface TabsProps extends Omit<React.HTMLProps<HTMLElement | HTMLDivEle
   isVertical?: boolean;
   /** Disables border bottom tab styling on tabs. Defaults to false. To remove the bottom border, set this prop to true. */
   hasNoBorderBottom?: boolean;
-  /** Aria-label for the left scroll button */
+  /** @deprecated Please use backScrollAriaLabel. Aria-label for the left scroll button */
   leftScrollAriaLabel?: string;
-  /** Aria-label for the right scroll button */
+  /** @deprecated Please use forwardScrollAriaLabel. Aria-label for the right scroll button */
   rightScrollAriaLabel?: string;
+  /** Aria-label for the back scroll button */
+  backScrollAriaLabel?: string;
+  /** Aria-label for the forward scroll button */
+  forwardScrollAriaLabel?: string;
   /** Determines what tag is used around the tabs. Use "nav" to define the tabs inside a navigation region */
   component?: 'div' | 'nav';
   /** Provides an accessible label for the tabs. Labels should be unique for each set of tabs that are present on a page. When component is set to nav, this prop should be defined to differentiate the tabs from other navigation regions on the page. */
@@ -104,8 +108,8 @@ export interface TabsProps extends Omit<React.HTMLProps<HTMLElement | HTMLDivEle
   /** Aria-label for the expandable toggle */
   toggleAriaLabel?: string;
   /** Callback function to toggle the expandable tabs. */
-  onToggle?: (isExpanded: boolean) => void;
-  /** @beta Flag which places overflowing tabs into a menu triggered by the last tab. Additionally an object can be passed with custom settings for the overflow tab. */
+  onToggle?: (event: React.MouseEvent, isExpanded: boolean) => void;
+  /** Flag which places overflowing tabs into a menu triggered by the last tab. Additionally an object can be passed with custom settings for the overflow tab. */
   isOverflowHorizontal?: boolean | HorizontalOverflowObject;
   /** Value to overwrite the randomly generated data-ouia-component-id.*/
   ouiaId?: number | string;
@@ -127,8 +131,8 @@ interface TabsState {
    * shown and rendering must be stopped after they stop being shown to preserve CSS transitions.
    */
   renderScrollButtons: boolean;
-  disableLeftScrollButton: boolean;
-  disableRightScrollButton: boolean;
+  disableBackScrollButton: boolean;
+  disableForwardScrollButton: boolean;
   shownKeys: (string | number)[];
   uncontrolledActiveKey: number | string;
   uncontrolledIsExpandedLocal: boolean;
@@ -136,18 +140,19 @@ interface TabsState {
   overflowingTabCount: number;
 }
 
-export class Tabs extends React.Component<TabsProps, TabsState> {
+class Tabs extends React.Component<TabsProps, TabsState> {
   static displayName = 'Tabs';
   tabList = React.createRef<HTMLUListElement>();
   leftScrollButtonRef = React.createRef<HTMLButtonElement>();
+  private direction = 'ltr';
   constructor(props: TabsProps) {
     super(props);
     this.state = {
       enableScrollButtons: false,
       showScrollButtons: false,
       renderScrollButtons: false,
-      disableLeftScrollButton: true,
-      disableRightScrollButton: true,
+      disableBackScrollButton: true,
+      disableForwardScrollButton: true,
       shownKeys: this.props.defaultActiveKey !== undefined ? [this.props.defaultActiveKey] : [this.props.activeKey], // only for mountOnEnter case
       uncontrolledActiveKey: this.props.defaultActiveKey,
       uncontrolledIsExpandedLocal: this.props.defaultIsExpanded,
@@ -177,14 +182,16 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
     isBox: false,
     hasNoBorderBottom: false,
     leftScrollAriaLabel: 'Scroll left',
+    backScrollAriaLabel: 'Scroll back',
     rightScrollAriaLabel: 'Scroll right',
+    forwardScrollAriaLabel: 'Scroll forward',
     component: TabsComponent.div,
     mountOnEnter: false,
     unmountOnExit: false,
     ouiaSafe: true,
     variant: 'default',
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onToggle: (isExpanded): void => undefined
+
+    onToggle: (_event: React.MouseEvent, _isExpanded: boolean): void => undefined
   };
 
   handleTabClick(
@@ -208,7 +215,7 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
       React.Children.toArray(this.props.children)
         .filter((child): child is TabElement => React.isValidElement(child))
         .filter(({ props }) => props.tabContentRef && props.tabContentRef.current)
-        .forEach(child => (child.props.tabContentRef.current.hidden = true));
+        .forEach((child) => (child.props.tabContentRef.current.hidden = true));
       // most recently selected tabContent
       if (tabContentRef.current) {
         tabContentRef.current.hidden = false;
@@ -223,7 +230,7 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
 
   countOverflowingElements = (container: HTMLUListElement) => {
     const elements = Array.from(container.children);
-    return elements.filter(element => !isElementInView(container, element as HTMLElement, false)).length;
+    return elements.filter((element) => !isElementInView(container, element as HTMLElement, false)).length;
   };
 
   handleScrollButtons = () => {
@@ -232,8 +239,8 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
     clearTimeout(this.scrollTimeout);
     this.scrollTimeout = setTimeout(() => {
       const container = this.tabList.current;
-      let disableLeftScrollButton = true;
-      let disableRightScrollButton = true;
+      let disableBackScrollButton = true;
+      let disableForwardScrollButton = true;
       let enableScrollButtons = false;
       let overflowingTabCount = 0;
 
@@ -246,8 +253,8 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
 
         enableScrollButtons = overflowOnLeft || overflowOnRight;
 
-        disableLeftScrollButton = !overflowOnLeft;
-        disableRightScrollButton = !overflowOnRight;
+        disableBackScrollButton = !overflowOnLeft;
+        disableForwardScrollButton = !overflowOnRight;
       }
 
       if (isOverflowHorizontal) {
@@ -256,14 +263,14 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
 
       this.setState({
         enableScrollButtons,
-        disableLeftScrollButton,
-        disableRightScrollButton,
+        disableBackScrollButton,
+        disableForwardScrollButton,
         overflowingTabCount
       });
     }, 100);
   };
 
-  scrollLeft = () => {
+  scrollBack = () => {
     // find first Element that is fully in view on the left, then scroll to the element before it
     if (this.tabList.current) {
       const container = this.tabList.current;
@@ -278,12 +285,18 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
         }
       }
       if (lastElementOutOfView) {
-        container.scrollLeft -= lastElementOutOfView.scrollWidth;
+        if (this.direction === 'ltr') {
+          // LTR scrolls left to go back
+          container.scrollLeft -= lastElementOutOfView.scrollWidth;
+        } else {
+          // RTL scrolls right to go back
+          container.scrollLeft += lastElementOutOfView.scrollWidth;
+        }
       }
     }
   };
 
-  scrollRight = () => {
+  scrollForward = () => {
     // find last Element that is fully in view on the right, then scroll to the element after it
     if (this.tabList.current) {
       const container = this.tabList.current as any;
@@ -297,7 +310,13 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
         }
       }
       if (firstElementOutOfView) {
-        container.scrollLeft += firstElementOutOfView.scrollWidth;
+        if (this.direction === 'ltr') {
+          // LTR scrolls right to go forward
+          container.scrollLeft += firstElementOutOfView.scrollWidth;
+        } else {
+          // RTL scrolls left to go forward
+          container.scrollLeft -= firstElementOutOfView.scrollWidth;
+        }
       }
     }
   };
@@ -314,6 +333,7 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
       if (canUseDOM) {
         window.addEventListener('resize', this.handleScrollButtons, false);
       }
+      this.direction = getLanguageDirection(this.tabList.current);
       // call the handle resize function to check if scroll buttons should be shown
       this.handleScrollButtons();
     }
@@ -360,6 +380,29 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
     } else if (prevState.enableScrollButtons && !enableScrollButtons) {
       this.setState({ showScrollButtons: false });
     }
+
+    this.direction = getLanguageDirection(this.tabList.current);
+  }
+
+  static getDerivedStateFromProps(nextProps: TabsProps, prevState: TabsState) {
+    if (prevState.uncontrolledActiveKey === undefined) {
+      return null;
+    }
+
+    const childrenHasTabWithActiveEventKey = React.Children.toArray(nextProps.children)
+      .filter((child): child is TabElement => React.isValidElement(child))
+      .some(({ props }) => props.eventKey === prevState.uncontrolledActiveKey);
+
+    // if uncontrolledActiveKey is an existing eventKey of any Tab of nextProps.children --> don't update uncontrolledActiveKey
+    if (childrenHasTabWithActiveEventKey) {
+      return null;
+    }
+
+    // otherwise update state derived from nextProps.defaultActiveKey
+    return {
+      uncontrolledActiveKey: nextProps.defaultActiveKey,
+      shownKeys: nextProps.defaultActiveKey !== undefined ? [nextProps.defaultActiveKey] : [nextProps.activeKey] // only for mountOnEnter case
+    };
   }
 
   render() {
@@ -376,6 +419,8 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
       hasNoBorderBottom,
       leftScrollAriaLabel,
       rightScrollAriaLabel,
+      backScrollAriaLabel,
+      forwardScrollAriaLabel,
       'aria-label': ariaLabel,
       component,
       ouiaId,
@@ -400,8 +445,8 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
     const {
       showScrollButtons,
       renderScrollButtons,
-      disableLeftScrollButton,
-      disableRightScrollButton,
+      disableBackScrollButton,
+      disableForwardScrollButton,
       shownKeys,
       uncontrolledActiveKey,
       uncontrolledIsExpandedLocal,
@@ -421,11 +466,11 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
 
     const isExpandedLocal = defaultIsExpanded !== undefined ? uncontrolledIsExpandedLocal : isExpanded;
     /*  Uncontrolled expandable tabs */
-    const toggleTabs = (newValue: boolean) => {
+    const toggleTabs = (event: React.MouseEvent, newValue: boolean) => {
       if (isExpanded === undefined) {
         this.setState({ uncontrolledIsExpandedLocal: newValue });
       } else {
-        onToggle(newValue);
+        onToggle(event, newValue);
       }
     };
 
@@ -468,11 +513,11 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
         >
           {expandable && isVertical && (
             <GenerateId>
-              {randomId => (
+              {(randomId) => (
                 <div className={css(styles.tabsToggle)}>
                   <div className={css(styles.tabsToggleButton)}>
                     <Button
-                      onClick={() => toggleTabs(!isExpandedLocal)}
+                      onClick={(event) => toggleTabs(event, !isExpandedLocal)}
                       variant="plain"
                       aria-label={toggleAriaLabel}
                       aria-expanded={isExpandedLocal}
@@ -483,7 +528,7 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
                         <AngleRightIcon arian-hidden="true" />
                       </span>
                       {toggleText && (
-                        <span className={css('pf-c-tabs__toggle-text')} id={`${randomId}-text`}>
+                        <span className={css(styles.tabsToggleText)} id={`${randomId}-text`}>
                           {toggleText}
                         </span>
                       )}
@@ -497,10 +542,10 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
             <button
               type="button"
               className={css(styles.tabsScrollButton, isSecondary && buttonStyles.modifiers.secondary)}
-              aria-label={leftScrollAriaLabel}
-              onClick={this.scrollLeft}
-              disabled={disableLeftScrollButton}
-              aria-hidden={disableLeftScrollButton}
+              aria-label={backScrollAriaLabel || leftScrollAriaLabel}
+              onClick={this.scrollBack}
+              disabled={disableBackScrollButton}
+              aria-hidden={disableBackScrollButton}
               ref={this.leftScrollButtonRef}
             >
               <AngleLeftIcon />
@@ -514,10 +559,10 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
             <button
               type="button"
               className={css(styles.tabsScrollButton, isSecondary && buttonStyles.modifiers.secondary)}
-              aria-label={rightScrollAriaLabel}
-              onClick={this.scrollRight}
-              disabled={disableRightScrollButton}
-              aria-hidden={disableRightScrollButton}
+              aria-label={forwardScrollAriaLabel || rightScrollAriaLabel}
+              onClick={this.scrollForward}
+              disabled={disableForwardScrollButton}
+              aria-hidden={disableForwardScrollButton}
             >
               <AngleRightIcon />
             </button>
@@ -532,12 +577,12 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
         </Component>
         {filteredChildren
           .filter(
-            child =>
+            (child) =>
               child.props.children &&
               !(unmountOnExit && child.props.eventKey !== localActiveKey) &&
               !(mountOnEnter && shownKeys.indexOf(child.props.eventKey) === -1)
           )
-          .map(child => (
+          .map((child) => (
             <TabContent
               key={child.props.eventKey}
               activeKey={localActiveKey}
@@ -550,3 +595,5 @@ export class Tabs extends React.Component<TabsProps, TabsState> {
     );
   }
 }
+
+export { Tabs };

@@ -20,7 +20,7 @@ export interface TreeViewRootProps {
   hasSelectableNodes?: boolean;
 }
 
-export class TreeViewRoot extends React.Component<TreeViewRootProps> {
+class TreeViewRoot extends React.Component<TreeViewRootProps> {
   displayName = 'TreeViewRoot';
   private treeRef = React.createRef<HTMLDivElement>();
 
@@ -32,7 +32,7 @@ export class TreeViewRoot extends React.Component<TreeViewRootProps> {
       );
     }
     if (this.props.hasCheckboxes || this.props.hasSelectableNodes) {
-      const firstToggle = this.treeRef.current.getElementsByClassName('pf-c-tree-view__node-toggle')[0] as HTMLElement;
+      const firstToggle = this.treeRef.current.getElementsByClassName(styles.treeViewNodeToggle)[0] as HTMLElement;
       if (firstToggle) {
         firstToggle.tabIndex = 0;
       }
@@ -43,15 +43,13 @@ export class TreeViewRoot extends React.Component<TreeViewRootProps> {
         }
       }
       if (this.props.hasSelectableNodes) {
-        const firstTextButton = this.treeRef.current.getElementsByClassName(
-          'pf-c-tree-view__node-text'
-        )[0] as HTMLElement;
+        const firstTextButton = this.treeRef.current.getElementsByClassName(styles.treeViewNodeText)[0] as HTMLElement;
         if (firstTextButton) {
           firstTextButton.tabIndex = 0;
         }
       }
     } else {
-      (this.treeRef.current?.getElementsByClassName('pf-c-tree-view__node')[0] as HTMLElement).tabIndex = 0;
+      (this.treeRef.current?.getElementsByClassName(styles.treeViewNode)[0] as HTMLElement).tabIndex = 0;
     }
   }
 
@@ -65,13 +63,16 @@ export class TreeViewRoot extends React.Component<TreeViewRootProps> {
   }
 
   handleKeys = (event: KeyboardEvent) => {
-    if (!this.treeRef.current.contains(event.target as HTMLElement)) {
+    if (
+      !this.treeRef.current.contains(event.target as HTMLElement) ||
+      !(event.target as HTMLElement).classList.contains(styles.treeViewNode)
+    ) {
       return;
     }
     const activeElement = document.activeElement;
     const key = event.key;
-    const treeItems = Array.from(this.treeRef.current?.getElementsByClassName('pf-c-tree-view__node')).filter(
-      el => !el.classList.contains('pf-m-disabled')
+    const treeItems = Array.from(this.treeRef.current?.getElementsByClassName(styles.treeViewNode)).filter(
+      (el) => !el.classList.contains('pf-m-disabled')
     );
 
     if (key === KeyTypes.Space) {
@@ -92,7 +93,7 @@ export class TreeViewRoot extends React.Component<TreeViewRootProps> {
 
     if (['ArrowLeft', 'ArrowRight'].includes(key)) {
       const isExpandable = activeElement?.firstElementChild?.firstElementChild?.classList.contains(
-        'pf-c-tree-view__node-toggle'
+        styles.treeViewNodeToggle
       );
       const isExpanded = activeElement?.closest('li')?.classList.contains('pf-m-expanded');
       if (key === 'ArrowLeft') {
@@ -113,10 +114,7 @@ export class TreeViewRoot extends React.Component<TreeViewRootProps> {
         if (isExpandable && !isExpanded) {
           (activeElement as HTMLElement).tabIndex = -1;
           (activeElement as HTMLElement).click();
-          const childElement = activeElement
-            ?.closest('li')
-            ?.querySelector('ul > li')
-            ?.querySelector('button');
+          const childElement = activeElement?.closest('li')?.querySelector('ul > li')?.querySelector('button');
           if (childElement) {
             childElement.tabIndex = 0;
             childElement.focus();
@@ -140,7 +138,7 @@ export class TreeViewRoot extends React.Component<TreeViewRootProps> {
       event.preventDefault();
     }
 
-    const treeNodes = Array.from(this.treeRef.current?.getElementsByClassName('pf-c-tree-view__node'));
+    const treeNodes = Array.from(this.treeRef.current?.getElementsByClassName(styles.treeViewNode));
 
     handleArrows(
       event,
@@ -205,3 +203,5 @@ export class TreeViewRoot extends React.Component<TreeViewRootProps> {
     );
   }
 }
+
+export { TreeViewRoot };

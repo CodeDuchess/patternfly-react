@@ -4,7 +4,7 @@ import { Form, FormGroup, FormHelperText, TextInput, HelperText, HelperTextItem 
 export const HelperTextStaticVariantStaticText: React.FunctionComponent = () => {
   const [value, setValue] = React.useState('');
 
-  const handleInputChange = (inputValue: string) => {
+  const handleInputChange = (_event, inputValue: string) => {
     setValue(inputValue);
   };
 
@@ -19,7 +19,7 @@ export const HelperTextStaticVariantStaticText: React.FunctionComponent = () => 
           aria-describedby="helper-text1"
           value={value}
         />
-        <FormHelperText isHidden={false} component="div">
+        <FormHelperText>
           <HelperText id="helper-text1">
             <HelperTextItem variant={'default'}>Enter your middle name or your middle initial</HelperTextItem>
           </HelperText>

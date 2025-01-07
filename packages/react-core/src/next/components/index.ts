@@ -1,3 +1,2 @@
-export * from './Dropdown';
-export * from './Select';
-export * from './Wizard';
+export * from './Modal';
+export * from './DualListSelector';

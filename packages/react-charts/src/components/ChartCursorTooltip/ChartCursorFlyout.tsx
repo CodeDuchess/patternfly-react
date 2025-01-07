@@ -1,6 +1,5 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Helpers, CommonProps, Path } from 'victory-core';
+import { Helpers, OrientationTypes, Path, VictoryCommonPrimitiveProps } from 'victory-core';
 import isPlainObject from 'lodash/isPlainObject';
 
 const getVerticalPath = (props: any) => {
@@ -92,8 +91,32 @@ const evaluateProps = (props: any) => {
   return Object.assign({}, props, { id, style });
 };
 
-const ChartCursorFlyout = (props: any) => {
-  props = evaluateProps(props);
+interface ChartCursorFlyoutProps extends VictoryCommonPrimitiveProps {
+  center?: {
+    x: number;
+    y: number;
+  };
+  cornerRadius?: number;
+  datum?: object;
+  dx?: number;
+  dy?: number;
+  height?: number;
+  orientation?: OrientationTypes;
+  pathComponent?: React.ReactElement;
+  pointerLength?: number;
+  pointerWidth?: number;
+  width?: number;
+  x?: number;
+  y?: number;
+}
+
+const ChartCursorFlyout = (props: ChartCursorFlyoutProps) => {
+  props = evaluateProps({
+    pathComponent: <Path />,
+    role: 'presentation',
+    shapeRendering: 'auto',
+    ...props
+  });
 
   return React.cloneElement(props.pathComponent, {
     ...props.events,
@@ -105,29 +128,6 @@ const ChartCursorFlyout = (props: any) => {
     transform: props.transform,
     clipPath: props.clipPath
   });
-};
-
-ChartCursorFlyout.propTypes = {
-  ...CommonProps.primitiveProps,
-  center: PropTypes.shape({ x: PropTypes.number, y: PropTypes.number }),
-  cornerRadius: PropTypes.number,
-  datum: PropTypes.object,
-  dx: PropTypes.number,
-  dy: PropTypes.number,
-  height: PropTypes.number,
-  orientation: PropTypes.oneOf(['top', 'bottom', 'left', 'right']),
-  pathComponent: PropTypes.element,
-  pointerLength: PropTypes.number,
-  pointerWidth: PropTypes.number,
-  width: PropTypes.number,
-  x: PropTypes.number,
-  y: PropTypes.number
-};
-
-ChartCursorFlyout.defaultProps = {
-  pathComponent: <Path />,
-  role: 'presentation',
-  shapeRendering: 'auto'
 };
 
 export { ChartCursorFlyout };

@@ -1,11 +1,12 @@
 ---
 id: About modal
 section: components
-cssPrefix: pf-c-about-modal-box
+cssPrefix: pf-v5-c-about-modal-box
 propComponents: ['AboutModal']
 ---
-import brandImg from './brandImg.svg';
-import bgImg from './patternfly-orb.svg';
+import brandImg from '../../assets/brandImg.svg';
+import bgImg from '../../assets/patternfly-orb.svg';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 ## Examples
 ### Basic
@@ -20,6 +21,3 @@ import bgImg from './patternfly-orb.svg';
 ```ts file="./AboutModalComplexUserPositionedContent.tsx"
 ```
 
-### Custom background image
-```ts file="./AboutModalCustomBackgroundImage.tsx"
-```

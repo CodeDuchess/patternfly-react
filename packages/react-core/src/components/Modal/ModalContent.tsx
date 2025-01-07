@@ -25,6 +25,8 @@ export interface ModalContentProps extends OUIAProps {
   'aria-label'?: string;
   /** Id to use for the modal box label. */
   'aria-labelledby'?: string | null;
+  /** Id of the backdrop. */
+  backdropId?: string;
   /** Accessible label applied to the modal box body. This should be used to communicate
    * important information about the modal box body div element if needed, such as that it
    * is scrollable.
@@ -47,6 +49,10 @@ export interface ModalContentProps extends OUIAProps {
   descriptorId: string;
   /** Flag to disable focus trap. */
   disableFocusTrap?: boolean;
+  /** The element to focus when the modal opens. By default the first
+   * focusable element will receive focus.
+   */
+  elementToFocus?: HTMLElement | SVGElement | string;
   /** Custom footer. */
   footer?: React.ReactNode;
   /** Flag indicating if modal content should be placed in a modal box body wrapper. */
@@ -60,25 +66,27 @@ export interface ModalContentProps extends OUIAProps {
   /** Id of the modal box title. */
   labelId: string;
   /** A callback for when the close button is clicked. */
-  onClose?: () => void;
-  /** Alternate position of the modal. */
-  position?: 'top';
+  onClose?: (event: KeyboardEvent | React.MouseEvent) => void;
+  /** Position of the modal. By default a modal will be positioned vertically and horizontally centered. */
+  position?: 'default' | 'top';
   /** Offset from alternate position. Can be any valid CSS length/percentage. */
   positionOffset?: string;
   /** Flag to show the close button in the header area of the modal. */
   showClose?: boolean;
-  /** Simple text content of the modal header. Also used for the aria-label on the body. */
-  title?: string;
+  /** Text content of the modal header. */
+  title?: React.ReactNode;
   /** Optional alert icon (or other) to show before the title of the modal header. When the
    * predefined alert types are used the default styling will be automatically applied.
    */
-  titleIconVariant?: 'success' | 'danger' | 'warning' | 'info' | 'default' | React.ComponentType<any>;
+  titleIconVariant?: 'success' | 'danger' | 'warning' | 'info' | 'custom' | React.ComponentType<any>;
   /** Optional title label text for screen readers. */
   titleLabel?: string;
   /** Variant of the modal. */
   variant?: 'small' | 'medium' | 'large' | 'default';
   /** Default width of the modal. */
   width?: number | string;
+  /** Maximum width of the modal. */
+  maxWidth?: number | string;
   /** Value to overwrite the randomly generated data-ouia-component-id.*/
   ouiaId?: number | string;
   /** Set the value of data-ouia-safe. Only set to true when the component is in a static state, i.e. no animations are occurring. At all other times, this value must be false. */
@@ -107,14 +115,17 @@ export const ModalContent: React.FunctionComponent<ModalContentProps> = ({
   variant = 'default',
   position,
   positionOffset,
-  width = -1,
+  width,
+  maxWidth,
   boxId,
   labelId,
+  backdropId,
   descriptorId,
   disableFocusTrap = false,
   hasNoBodyWrapper = false,
   ouiaId,
   ouiaSafe = true,
+  elementToFocus,
   ...props
 }: ModalContentProps) => {
   if (!isOpen) {
@@ -140,19 +151,16 @@ export const ModalContent: React.FunctionComponent<ModalContentProps> = ({
 
   const defaultModalBodyAriaRole = bodyAriaLabel ? 'region' : undefined;
 
+  const hasNoDescription = !description && !ariaDescribedby;
+  const id = hasNoDescription ? descriptorId : undefined;
+
   const modalBody = hasNoBodyWrapper ? (
     children
   ) : (
-    <ModalBoxBody
-      aria-label={bodyAriaLabel}
-      role={bodyAriaRole || defaultModalBodyAriaRole}
-      {...props}
-      {...(!description && !ariaDescribedby && { id: descriptorId })}
-    >
+    <ModalBoxBody aria-label={bodyAriaLabel} role={bodyAriaRole || defaultModalBodyAriaRole} {...props} id={id}>
       {children}
     </ModalBoxBody>
   );
-  const boxStyle = width === -1 ? {} : { width };
   const ariaLabelledbyFormatted = (): null | string => {
     if (ariaLabelledby === null) {
       return null;
@@ -173,12 +181,7 @@ export const ModalContent: React.FunctionComponent<ModalContentProps> = ({
   const modalBox = (
     <ModalBox
       id={boxId}
-      style={boxStyle}
-      className={css(
-        className,
-        isVariantIcon(titleIconVariant) &&
-          modalStyles.modifiers[titleIconVariant as 'success' | 'warning' | 'info' | 'danger' | 'default']
-      )}
+      className={css(className, isVariantIcon(titleIconVariant) && modalStyles.modifiers[titleIconVariant])}
       variant={variant}
       position={position}
       positionOffset={positionOffset}
@@ -186,18 +189,32 @@ export const ModalContent: React.FunctionComponent<ModalContentProps> = ({
       aria-labelledby={ariaLabelledbyFormatted()}
       aria-describedby={ariaDescribedby || (hasNoBodyWrapper ? null : descriptorId)}
       {...getOUIAProps(ModalContent.displayName, ouiaId, ouiaSafe)}
+      style={
+        {
+          ...(width && { '--pf-v5-c-modal-box--Width': typeof width !== 'number' ? width : `${width}px` }),
+          ...(maxWidth && {
+            '--pf-v5-c-modal-box--MaxWidth': typeof maxWidth !== 'number' ? maxWidth : `${maxWidth}px`
+          })
+        } as React.CSSProperties
+      }
     >
-      {showClose && <ModalBoxCloseButton onClose={onClose} ouiaId={ouiaId} />}
+      {showClose && <ModalBoxCloseButton onClose={(event) => onClose(event)} ouiaId={ouiaId} />}
       {modalBoxHeader}
       {modalBody}
       {modalBoxFooter}
     </ModalBox>
   );
   return (
-    <Backdrop>
+    <Backdrop id={backdropId}>
       <FocusTrap
         active={!disableFocusTrap}
-        focusTrapOptions={{ clickOutsideDeactivates: true, tabbableOptions: { displayCheck: 'none' } }}
+        focusTrapOptions={{
+          clickOutsideDeactivates: true,
+          tabbableOptions: { displayCheck: 'none' },
+          // FocusTrap's initialFocus can accept false as a value to prevent initial focus.
+          // We want to prevent this in case false is ever passed in.
+          initialFocus: elementToFocus || undefined
+        }}
         className={css(bullsEyeStyles.bullseye)}
       >
         {modalBox}

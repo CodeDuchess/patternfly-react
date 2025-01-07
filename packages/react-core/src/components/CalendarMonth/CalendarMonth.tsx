@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { TextInput } from '../TextInput/TextInput';
-import { Button } from '../Button/Button';
-import { Select, SelectOption } from '../Select';
-import { InputGroup } from '../InputGroup';
+import { TextInput } from '../TextInput';
+import { Button } from '../Button';
+import { Select, SelectList, SelectOption } from '../Select';
+import { MenuToggle, MenuToggleElement } from '../MenuToggle';
+import { InputGroup, InputGroupItem } from '../InputGroup';
 import AngleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-left-icon';
 import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
 import { css } from '@patternfly/react-styles';
@@ -82,9 +83,6 @@ export interface CalendarProps extends CalendarFormat, Omit<React.HTMLProps<HTML
   validators?: ((date: Date) => boolean)[];
 }
 
-// Must be numeric given current header design
-const yearFormat = (date: Date) => date.getFullYear();
-
 const buildCalendar = (year: number, month: number, weekStart: number, validators: ((date: Date) => boolean)[]) => {
   const defaultDate = new Date(year, month);
 
@@ -105,7 +103,7 @@ const buildCalendar = (year: number, month: number, weekStart: number, validator
       const date = new Date(firstDayOfWeek);
       week.push({
         date,
-        isValid: validators.every(validator => validator(date))
+        isValid: validators.every((validator) => validator(date))
       });
       firstDayOfWeek.setDate(firstDayOfWeek.getDate() + 1);
     }
@@ -128,10 +126,10 @@ const today = new Date();
 export const CalendarMonth = ({
   date: dateProp,
   locale = undefined,
-  monthFormat = date => date.toLocaleDateString(locale, { month: 'long' }),
-  weekdayFormat = date => date.toLocaleDateString(locale, { weekday: 'narrow' }),
-  longWeekdayFormat = date => date.toLocaleDateString(locale, { weekday: 'long' }),
-  dayFormat = date => date.getDate(),
+  monthFormat = (date) => date.toLocaleDateString(locale, { month: 'long' }),
+  weekdayFormat = (date) => date.toLocaleDateString(locale, { weekday: 'narrow' }),
+  longWeekdayFormat = (date) => date.toLocaleDateString(locale, { weekday: 'long' }),
+  dayFormat = (date) => date.getDate(),
   weekStart = 0, // Use the American Sunday as a default
   onChange = () => {},
   validators = [() => true],
@@ -147,27 +145,35 @@ export const CalendarMonth = ({
   inlineProps,
   ...props
 }: CalendarProps) => {
-  const longMonths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(monthNum => new Date(1990, monthNum)).map(monthFormat);
+  const longMonths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    .map((monthNum) => new Date(1990, monthNum))
+    .map(monthFormat);
   const [isSelectOpen, setIsSelectOpen] = React.useState(false);
-  // eslint-disable-next-line prefer-const
-  const [focusedDate, setFocusedDate] = React.useState(() => {
-    const initDate = new Date(dateProp);
-    if (isValidDate(initDate)) {
-      return initDate;
-    } else {
-      if (isValidDate(rangeStart)) {
-        return rangeStart;
-      } else {
-        return today;
-      }
+
+  const getInitialDate = () => {
+    if (isValidDate(dateProp)) {
+      return dateProp;
     }
-  });
-  const [hoveredDate, setHoveredDate] = React.useState(new Date(focusedDate));
+    if (isValidDate(rangeStart)) {
+      return rangeStart;
+    }
+    return today;
+  };
+  const initialDate = getInitialDate();
+  const [focusedDate, setFocusedDate] = React.useState(initialDate);
+
+  // Must be numeric given current header design
+  const yearFormat = (date: Date) => date.getFullYear();
+  //
+  const yearFormatted = yearFormat(focusedDate);
+  const [yearInput, setYearInput] = React.useState(yearFormatted.toString());
+
+  const [hoveredDate, setHoveredDate] = React.useState<Date>(undefined);
   const focusRef = React.useRef<HTMLButtonElement>();
   const [hiddenMonthId] = React.useState(getUniqueId('hidden-month-span'));
   const [shouldFocus, setShouldFocus] = React.useState(false);
 
-  const isValidated = (date: Date) => validators.every(validator => validator(date));
+  const isValidated = (date: Date) => validators.every((validator) => validator(date));
   const focusedDateValidated = isValidated(focusedDate);
   useEffect(() => {
     if (isValidDate(dateProp) && !isSameDate(focusedDate, dateProp)) {
@@ -179,19 +185,16 @@ export const CalendarMonth = ({
 
   useEffect(() => {
     // Calendar month should not be focused on page load
-    // Datepicker should place focus in calendar month when opened
     if ((shouldFocus || isDateFocused) && focusedDateValidated && focusRef.current) {
       focusRef.current.focus();
-    } else {
-      setShouldFocus(true);
     }
   }, [focusedDate, isDateFocused, focusedDateValidated, focusRef]);
 
   const onMonthClick = (ev: React.MouseEvent, newDate: Date) => {
     setFocusedDate(newDate);
-    setHoveredDate(newDate);
     setShouldFocus(false);
     onMonthChange(ev, newDate);
+    setYearInput(yearFormat(newDate).toString());
   };
 
   const onKeyDown = (ev: React.KeyboardEvent<HTMLTableSectionElement>) => {
@@ -208,27 +211,65 @@ export const CalendarMonth = ({
     if (newDate.getTime() !== focusedDate.getTime() && isValidated(newDate)) {
       ev.preventDefault();
       setFocusedDate(newDate);
-      setHoveredDate(newDate);
       setShouldFocus(true);
     }
   };
 
+  const changeYear = (newYear: number) => changeMonth(focusedDate.getMonth(), newYear);
+
+  const changeMonth = (newMonth: number, newYear?: number) =>
+    new Date(newYear ?? focusedDate.getFullYear(), newMonth, 1);
+
+  const MIN_YEAR = 1900;
+  const MAX_YEAR = 2100;
+
+  const handleYearInputChange = (event: React.FormEvent<HTMLInputElement>, yearStr: string) => {
+    if (!/^\d{0,4}$/.test(yearStr)) {
+      return;
+    }
+
+    setYearInput(yearStr);
+
+    if (yearStr.length === 4) {
+      const yearNum = Number(yearStr);
+
+      if (yearNum >= MIN_YEAR && yearNum <= MAX_YEAR) {
+        const newDate = changeYear(yearNum);
+        setFocusedDate(newDate);
+        setShouldFocus(false);
+
+        // We need to manually focus the year input in FireFox when the scroll buttons are clicked, as FireFox doesn't place focus automatically
+        (event.target as HTMLElement).focus();
+        onMonthChange(event, newDate);
+      } else {
+        setYearInput(yearFormatted.toString());
+      }
+    }
+  };
+
   const addMonth = (toAdd: -1 | 1) => {
-    const newDate = new Date(focusedDate);
-    newDate.setMonth(newDate.getMonth() + toAdd);
-    return newDate;
+    let newMonth = focusedDate.getMonth() + toAdd;
+    let newYear = focusedDate.getFullYear();
+
+    if (newMonth === -1) {
+      newMonth = 11;
+      newYear--;
+    } else if (newMonth === 12) {
+      newMonth = 0;
+      newYear++;
+    }
+
+    return changeMonth(newMonth, newYear);
   };
 
   const prevMonth = addMonth(-1);
   const nextMonth = addMonth(1);
   const focusedYear = focusedDate.getFullYear();
   const focusedMonth = focusedDate.getMonth();
-  const calendar = React.useMemo(() => buildCalendar(focusedYear, focusedMonth, weekStart, validators), [
-    focusedYear,
-    focusedMonth,
-    weekStart,
-    validators
-  ]);
+  const calendar = React.useMemo(
+    () => buildCalendar(focusedYear, focusedMonth, weekStart, validators),
+    [focusedYear, focusedMonth, weekStart, validators]
+  );
   if (!focusedDateValidated) {
     const toFocus = calendar
       .reduce((acc, cur) => [...acc, ...cur], [])
@@ -238,12 +279,10 @@ export const CalendarMonth = ({
       .map(({ date }) => date)[0];
     if (toFocus) {
       setFocusedDate(toFocus);
-      setHoveredDate(toFocus);
     }
   }
-  const isHoveredDateValid = isValidated(hoveredDate);
+  const isHoveredDateValid = hoveredDate && isValidated(hoveredDate);
   const monthFormatted = monthFormat(focusedDate);
-  const yearFormatted = yearFormat(focusedDate);
 
   const calendarToRender = (
     <div className={css(styles.calendarMonth, className)} {...props}>
@@ -258,58 +297,62 @@ export const CalendarMonth = ({
           </Button>
         </div>
         <InputGroup>
-          <div className={styles.calendarMonthHeaderMonth}>
-            <span id={hiddenMonthId} hidden>
-              Month
-            </span>
-            <Select
-              // Max width with "September"
-              width="140px"
-              aria-labelledby={hiddenMonthId}
-              isOpen={isSelectOpen}
-              onToggle={() => {
-                setIsSelectOpen(!isSelectOpen);
-                onSelectToggle(!isSelectOpen);
-              }}
-              onSelect={(ev, monthNum) => {
-                // When we put CalendarMonth in a Popover we want the Popover's onDocumentClick
-                // to see the SelectOption as a child so it doesn't close the Popover.
-                setTimeout(() => {
-                  setIsSelectOpen(false);
-                  onSelectToggle(false);
-                  const newDate = new Date(focusedDate);
-                  newDate.setMonth(Number(monthNum as string));
-                  setFocusedDate(newDate);
-                  setHoveredDate(newDate);
-                  setShouldFocus(false);
-                  onMonthChange(ev, newDate);
-                }, 0);
-              }}
-              variant="single"
-              selections={monthFormatted}
-            >
-              {longMonths.map((longMonth, index) => (
-                <SelectOption key={index} value={index} isSelected={longMonth === monthFormatted}>
-                  {longMonth}
-                </SelectOption>
-              ))}
-            </Select>
-          </div>
-          <div className={styles.calendarMonthHeaderYear}>
-            <TextInput
-              aria-label={yearInputAriaLabel}
-              type="number"
-              value={yearFormatted}
-              onChange={(year: string, ev: React.FormEvent<HTMLInputElement>) => {
-                const newDate = new Date(focusedDate);
-                newDate.setFullYear(+year);
-                setFocusedDate(newDate);
-                setHoveredDate(newDate);
-                setShouldFocus(false);
-                onMonthChange(ev, newDate);
-              }}
-            />
-          </div>
+          <InputGroupItem isFill>
+            <div className={styles.calendarMonthHeaderMonth}>
+              <span id={hiddenMonthId} hidden>
+                Month
+              </span>
+              <Select
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    onClick={() => setIsSelectOpen(!isSelectOpen)}
+                    isExpanded={isSelectOpen}
+                    style={{ width: '140px' } as React.CSSProperties}
+                  >
+                    {monthFormatted}
+                  </MenuToggle>
+                )}
+                aria-labelledby={hiddenMonthId}
+                isOpen={isSelectOpen}
+                onOpenChange={(isOpen) => {
+                  setIsSelectOpen(isOpen);
+                  onSelectToggle(isOpen);
+                }}
+                onSelect={(ev, monthNum) => {
+                  // When we put CalendarMonth in a Popover we want the Popover's onDocumentClick
+                  // to see the SelectOption as a child so it doesn't close the Popover.
+                  setTimeout(() => {
+                    setIsSelectOpen(false);
+                    onSelectToggle(false);
+                    const newDate = changeMonth(Number(monthNum as string));
+                    setFocusedDate(newDate);
+                    setShouldFocus(false);
+                    onMonthChange(ev, newDate);
+                  }, 0);
+                }}
+                selected={monthFormatted}
+              >
+                <SelectList>
+                  {longMonths.map((longMonth, index) => (
+                    <SelectOption key={index} value={index} isSelected={longMonth === monthFormatted}>
+                      {longMonth}
+                    </SelectOption>
+                  ))}
+                </SelectList>
+              </Select>
+            </div>
+          </InputGroupItem>
+          <InputGroupItem>
+            <div className={styles.calendarMonthHeaderYear}>
+              <TextInput
+                aria-label={yearInputAriaLabel}
+                type="number"
+                value={yearInput}
+                onChange={handleYearInputChange}
+              />
+            </div>
+          </InputGroupItem>
         </InputGroup>
         <div className={css(styles.calendarMonthHeaderNavControl, styles.modifiers.nextMonth)}>
           <Button
@@ -321,12 +364,12 @@ export const CalendarMonth = ({
           </Button>
         </div>
       </div>
-      <table className={styles.calendarMonthCalendar}>
+      <table className={styles.calendarMonthCalendar} onMouseLeave={() => setHoveredDate(undefined)}>
         <thead className={styles.calendarMonthDays}>
           <tr>
             {calendar[0].map(({ date }, index) => (
               <th key={index} className={styles.calendarMonthDay} scope="col">
-                <span className="pf-screen-reader">{longWeekdayFormat(date)}</span>
+                <span className="pf-v5-screen-reader">{longWeekdayFormat(date)}</span>
                 <span aria-hidden>{weekdayFormat(date)}</span>
               </th>
             ))}
@@ -344,16 +387,21 @@ export const CalendarMonth = ({
                 const isRangeStart = isValidDate(rangeStart) && isSameDate(date, rangeStart);
                 let isInRange = false;
                 let isRangeEnd = false;
-                if (isValidDate(rangeStart) && isValidDate(dateProp)) {
-                  isInRange = date > rangeStart && date < dateProp;
-                  isRangeEnd = isSameDate(date, dateProp);
-                } else if (isValidDate(rangeStart) && isHoveredDateValid) {
-                  if (hoveredDate > rangeStart || isSameDate(hoveredDate, rangeStart)) {
-                    isInRange = date > rangeStart && date < hoveredDate;
-                    isRangeEnd = isSameDate(date, hoveredDate);
+                if (isValidDate(rangeStart)) {
+                  let rangeEndDate: Date;
+
+                  if (isValidDate(dateProp)) {
+                    rangeEndDate = dateProp;
                   }
-                  // Don't handle focused dates before start dates for now.
-                  // Core would likely need new styles
+                  if (isHoveredDateValid && (!isValidDate(dateProp) || hoveredDate > dateProp)) {
+                    rangeEndDate = hoveredDate;
+                  }
+
+                  if (rangeEndDate) {
+                    isInRange = date >= rangeStart && date <= rangeEndDate;
+                    isRangeEnd = isSameDate(date, rangeEndDate);
+                  }
+                  // Core would likely need new styles for "is selected but disabled"
                 }
 
                 return (
@@ -364,8 +412,8 @@ export const CalendarMonth = ({
                       isAdjacentMonth && styles.modifiers.adjacentMonth,
                       isToday && styles.modifiers.current,
                       (isSelected || isRangeStart) && styles.modifiers.selected,
-                      !isValid && styles.modifiers.disabled,
-                      (isInRange || isRangeStart || isRangeEnd) && styles.modifiers.inRange,
+                      !isValid && !(isInRange || isRangeStart || isRangeEnd || isSelected) && styles.modifiers.disabled,
+                      isInRange && styles.modifiers.inRange,
                       isRangeStart && styles.modifiers.startRange,
                       isRangeEnd && styles.modifiers.endRange
                     )}

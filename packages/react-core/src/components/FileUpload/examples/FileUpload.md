@@ -1,15 +1,16 @@
 ---
-id: File upload
-cssPrefix: pf-c-file-upload
+id: Simple file upload
+cssPrefix: pf-v5-c-file-upload
 propComponents: ['FileUpload', 'FileUploadField']
 section: components
+subsection: file-upload
 ---
 
 import FileUploadIcon from '@patternfly/react-icons/dist/esm/icons/file-upload-icon';
 
 ## Examples
 
-The basic `FileUpload` component can accept a file via browse or drag-and-drop, and behaves like a standard form field with its `value` and `onFileInputChange` event that is similar to `<input onChange="...">` prop. The `type` prop determines how the `FileUpload` component behaves upon accepting a file, what type of value it passes to its `onDataChange` event.
+The `FileUpload` component can accept a file via browse or drag-and-drop, and behaves like a standard form field with its `value` and `onFileInputChange` event that is similar to `<input onChange="...">` prop. The `type` prop determines how the `FileUpload` component behaves upon accepting a file, what type of value it passes to its `onDataChange` event.
 
 ### Text files
 
@@ -69,4 +70,17 @@ Note that the `isLoading` prop is styled to position the spinner dead center abo
 ### Custom file upload
 
 ```ts file="./FileUploadCustomUpload.tsx"
+```
+
+## Types
+
+File upload uses the `DropzoneOptions` type from react-dropzone. It is comprised of additional props with their own types. For more information on using `DropzoneOptions` visit [react-dropzone props and methods](https://react-dropzone.js.org/#src).
+
+Additionally, it calls the `onDataChange`, `onReadFailed`, `onReadFinished`, and `onReadStarted` callbacks with an event of type `DropEvent`. `DropEvent` is a union comprised of the following types:
+
+```noLive
+ React.DragEvent<HTMLElement>
+ | React.ChangeEvent<HTMLInputElement>
+ | DragEvent
+ | Event
 ```

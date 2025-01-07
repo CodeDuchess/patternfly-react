@@ -1,7 +1,7 @@
 ---
 id: Progress
 section: components
-cssPrefix: pf-c-progress
+cssPrefix: pf-v5-c-progress
 propComponents: ['Progress']
 ---
 
@@ -76,5 +76,5 @@ propComponents: ['Progress']
 ```
 
 ### Helper text
-```ts file="./ProgressHelperText.tsx" isBeta
+```ts file="./ProgressHelperText.tsx"
 ```

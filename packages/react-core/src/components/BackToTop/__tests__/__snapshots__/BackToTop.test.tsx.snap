@@ -3,7 +3,7 @@
 exports[`Matches the snapshot 1`] = `
 <DocumentFragment>
   <div
-    class="pf-c-back-to-top pf-m-hidden"
+    class="pf-v5-c-back-to-top pf-m-hidden"
   >
     <button>
       Back to top
@@ -20,17 +20,17 @@ exports[`Matches the snapshot 1`] = `
       isInline: undefined
     </p>
     <p>
-      iconPosition: right
+      iconPosition: end
     </p>
     <div
       data-testid="icon"
     >
       <svg
         aria-hidden="true"
+        class="pf-v5-svg"
         fill="currentColor"
         height="1em"
         role="img"
-        style="vertical-align: -0.125em;"
         viewBox="0 0 320 512"
         width="1em"
       >

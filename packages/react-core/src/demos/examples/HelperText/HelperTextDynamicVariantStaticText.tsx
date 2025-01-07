@@ -36,11 +36,11 @@ export const HelperTextDynamicVariantDynamicText: React.FunctionComponent = () =
     setInputValidation({ ruleLength: lengthStatus, ruleCharacterTypes: typeStatus });
   }, [value, ruleLength, ruleCharacterTypes]);
 
-  const handleInputChange = (inputValue: string) => {
+  const handleInputChange = (_event, inputValue: string) => {
     setValue(inputValue);
   };
 
-  const filterValidations = () => Object.keys(inputValidation).filter(item => inputValidation[item] !== 'success');
+  const filterValidations = () => Object.keys(inputValidation).filter((item) => inputValidation[item] !== 'success');
 
   return (
     <Form>
@@ -55,7 +55,7 @@ export const HelperTextDynamicVariantDynamicText: React.FunctionComponent = () =
           aria-invalid={ruleCharacterTypes === 'error' || ruleLength === 'error'}
           value={value}
         />
-        <FormHelperText isHidden={false} component="div">
+        <FormHelperText>
           <HelperText component="ul">
             <HelperTextItem component="li" id="ruleLength" isDynamic variant={ruleLength as any}>
               Must be at least 5 characters in length

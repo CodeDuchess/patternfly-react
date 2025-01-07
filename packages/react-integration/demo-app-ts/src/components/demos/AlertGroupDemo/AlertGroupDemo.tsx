@@ -1,5 +1,14 @@
 import React from 'react';
-import { Alert, AlertGroup, AlertVariant, AlertActionCloseButton, InputGroup } from '@patternfly/react-core';
+import {
+  Alert,
+  AlertGroup,
+  AlertVariant,
+  AlertActionCloseButton,
+  InputGroup,
+  InputGroupItem
+} from '@patternfly/react-core';
+import { css } from '@patternfly/react-styles';
+import buttonStyles from '@patternfly/react-styles/css/components/Button/button';
 
 interface AlertDemoAlert {
   title: string;
@@ -36,7 +45,7 @@ export class AlertGroupDemo extends React.Component<{}, AlertGroupDemoState> {
       this.setState({ alerts: [...this.state.alerts, ...incomingAlerts] });
     };
     const getUniqueId = () => new Date().getTime();
-    const btnClasses = ['pf-c-button', 'pf-m-secondary'].join(' ');
+    const btnClasses = css(buttonStyles.button, buttonStyles.modifiers.secondary);
     this.removeAlert = (key: React.ReactText) => {
       this.setState({ alerts: [...this.state.alerts.filter((el: AlertDemoAlert) => el.key !== key)] });
     };
@@ -53,14 +62,18 @@ export class AlertGroupDemo extends React.Component<{}, AlertGroupDemoState> {
       this.setState({ timer: timerValue });
     };
     return (
-      <React.Fragment>
+      <>
         <InputGroup style={{ marginBottom: '16px' }}>
-          <button onClick={startAsyncAlerts} type="button" className={btnClasses}>
-            Start Async Alerts
-          </button>
-          <button onClick={this.stopAsyncAlerts} type="button" className={btnClasses}>
-            Stop Async Alerts
-          </button>
+          <InputGroupItem>
+            <button onClick={startAsyncAlerts} type="button" className={btnClasses}>
+              Start Async Alerts
+            </button>
+          </InputGroupItem>
+          <InputGroupItem>
+            <button onClick={this.stopAsyncAlerts} type="button" className={btnClasses}>
+              Stop Async Alerts
+            </button>
+          </InputGroupItem>
         </InputGroup>
         <AlertGroup isToast>
           {this.state.alerts.map(({ title, variant, key }) => (
@@ -73,7 +86,9 @@ export class AlertGroupDemo extends React.Component<{}, AlertGroupDemoState> {
             />
           ))}
         </AlertGroup>
-      </React.Fragment>
+      </>
     );
   }
 }
+
+AlertGroupDemo.displayName = 'AlertGroupDemo';

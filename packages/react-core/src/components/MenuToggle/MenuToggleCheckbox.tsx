@@ -33,7 +33,7 @@ export interface MenuToggleCheckboxProps
   ouiaSafe?: boolean;
 }
 
-export class MenuToggleCheckbox extends React.Component<MenuToggleCheckboxProps, { ouiaStateId: string }> {
+class MenuToggleCheckbox extends React.Component<MenuToggleCheckboxProps, { ouiaStateId: string }> {
   static displayName = 'MenuToggleCheckbox';
   static defaultProps: PickOptional<MenuToggleCheckboxProps> = {
     isValid: true,
@@ -84,16 +84,16 @@ export class MenuToggleCheckbox extends React.Component<MenuToggleCheckboxProps,
       </span>
     );
     return (
-      <label className={css(styles.check, !children && styles.modifiers.standalone, className)} htmlFor={id}>
+      <label className={css(styles.check, !children && styles.modifiers.standalone, className)}>
         <input
           className={css(styles.checkInput)}
           {...(this.calculateChecked() !== undefined && { onChange: this.handleChange })}
           name={id}
           type="checkbox"
-          ref={elem => elem && (elem.indeterminate = isChecked === null)}
+          ref={(elem) => elem && (elem.indeterminate = isChecked === null)}
           aria-invalid={!isValid}
           disabled={isDisabled}
-          {...(defaultChecked !== undefined ? { defaultChecked } : { checked: isChecked })}
+          {...(defaultChecked !== undefined ? { defaultChecked } : { checked: this.calculateChecked() })}
           {...getOUIAProps(
             MenuToggleCheckbox.displayName,
             ouiaId !== undefined ? ouiaId : this.state.ouiaStateId,
@@ -106,3 +106,5 @@ export class MenuToggleCheckbox extends React.Component<MenuToggleCheckboxProps,
     );
   }
 }
+
+export { MenuToggleCheckbox };

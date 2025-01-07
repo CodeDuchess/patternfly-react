@@ -3,30 +3,30 @@
 exports[`Matches snapshot when expanded 1`] = `
 <DocumentFragment>
   <li
-    class="pf-c-tabs__item pf-m-overflow pf-m-current"
+    class="pf-v5-c-tabs__item pf-m-overflow pf-m-current"
     role="presentation"
   >
     <button
       aria-expanded="true"
       aria-haspopup="menu"
-      class="pf-c-tabs__link pf-m-expanded"
+      class="pf-v5-c-tabs__link pf-m-expanded"
       role="tab"
       type="button"
     >
       <span
-        class="pf-c-tabs__item-text"
+        class="pf-v5-c-tabs__item-text"
       >
         Tab one
       </span>
       <span
-        class="pf-c-tabs__link-toggle-icon"
+        class="pf-v5-c-tabs__link-toggle-icon"
       >
         <svg
           aria-hidden="true"
+          class="pf-v5-svg"
           fill="currentColor"
           height="1em"
           role="img"
-          style="vertical-align: -0.125em;"
           viewBox="0 0 256 512"
           width="1em"
         >
@@ -79,10 +79,7 @@ exports[`Matches snapshot when expanded 1`] = `
       </div>
     </div>
     <p>
-      Popper matches trigger width: false
-    </p>
-    <p>
-      Append to class name: pf-c-tabs__item pf-m-overflow pf-m-current
+      Append to class name: pf-v5-c-tabs__item pf-m-overflow pf-m-current
     </p>
   </div>
 </DocumentFragment>
@@ -91,30 +88,30 @@ exports[`Matches snapshot when expanded 1`] = `
 exports[`Renders tabs passed via overflowingTabs when expanded in strict mode 1`] = `
 <DocumentFragment>
   <li
-    class="pf-c-tabs__item pf-m-overflow"
+    class="pf-v5-c-tabs__item pf-m-overflow"
     role="presentation"
   >
     <button
       aria-expanded="true"
       aria-haspopup="menu"
-      class="pf-c-tabs__link pf-m-expanded"
+      class="pf-v5-c-tabs__link pf-m-expanded"
       role="tab"
       type="button"
     >
       <span
-        class="pf-c-tabs__item-text"
+        class="pf-v5-c-tabs__item-text"
       >
         More
       </span>
       <span
-        class="pf-c-tabs__link-toggle-icon"
+        class="pf-v5-c-tabs__link-toggle-icon"
       >
         <svg
           aria-hidden="true"
+          class="pf-v5-svg"
           fill="currentColor"
           height="1em"
           role="img"
-          style="vertical-align: -0.125em;"
           viewBox="0 0 256 512"
           width="1em"
         >
@@ -167,10 +164,7 @@ exports[`Renders tabs passed via overflowingTabs when expanded in strict mode 1`
       </div>
     </div>
     <p>
-      Popper matches trigger width: false
-    </p>
-    <p>
-      Append to class name: pf-c-tabs__item pf-m-overflow
+      Append to class name: pf-v5-c-tabs__item pf-m-overflow
     </p>
   </div>
 </DocumentFragment>

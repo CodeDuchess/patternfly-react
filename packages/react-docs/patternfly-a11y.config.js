@@ -10,14 +10,31 @@ async function waitFor(page) {
 }
 
 const urls = Object.keys(fullscreenRoutes)
-  .map(key => {
+  .map((key) => {
     if (fullscreenRoutes[key].isFullscreenOnly) {
       return key;
     } else {
+      // the default tab for each component/pattern does not have a trailing 'react-demo' or 'react' string in the url
+      // so we strip the trailing string from those paths.
       const path = fullscreenRoutes[key].path;
-      if (path.match(/\/demos\/.*\/react-demos$/g)) {
+      if (path.match(/\/patterns\/.*\/react-demos$/g)) {
         return path.replace(/\/react-demos$/, '');
       } else {
+        // some demos have been moved to the component section, so their default tab has a trailing 'react-demos'
+        if (path.match(/\/components\/.*\/react-demos$/g)) {
+          if (
+            path.includes('/application-launcher/') ||
+            path.includes('/context-selector/') ||
+            path.includes('/date-and-time-picker/') ||
+            path.includes('/password-generator/') ||
+            path.includes('/password-strength/') ||
+            path.includes('/custom-menus/') ||
+            path.includes('/options-menu/')
+          ) {
+            return path.replace(/\/react-demos$/, '');
+          }
+        }
+        // all other pages in the components section have a trailing 'react' string in their default tab
         return path.replace(/\/react$/, '');
       }
     }
@@ -33,7 +50,7 @@ module.exports = {
       url: '/',
       label: 'home fullscreen nav expanded',
       viewportDimensions: { width: 1920, height: 1080 },
-      afterNav: async page => {
+      afterNav: async (page) => {
         await page.click('button#nav-toggle');
       }
     },
@@ -51,7 +68,7 @@ module.exports = {
       url: '/',
       label: 'home mobile nav expanded',
       viewportDimensions: { width: 400, height: 900 },
-      afterNav: async page => {
+      afterNav: async (page) => {
         await page.click('button#nav-toggle');
       }
     },
@@ -66,8 +83,8 @@ module.exports = {
       viewportDimensions: { width: 400, height: 900 }
     },
     {
-      url: '/components/table/react-legacy',
-      label: 'legacy table content on mobile screen',
+      url: '/components/table/react-deprecated',
+      label: 'deprecated table content on mobile screen',
       viewportDimensions: { width: 400, height: 900 }
     },
     ...urls
@@ -76,7 +93,8 @@ module.exports = {
     'color-contrast',
     'landmark-no-duplicate-main',
     'landmark-main-is-top-level',
-    'scrollable-region-focusable'
+    'scrollable-region-focusable',
+    'aria-required-children'
   ].join(','),
   ignoreIncomplete: true
 };

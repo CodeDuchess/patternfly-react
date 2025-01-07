@@ -1,25 +1,30 @@
 import React from 'react';
 import {
-  Menu,
-  MenuContent,
-  MenuList,
-  MenuItem,
+  Badge,
+  Breadcrumb,
+  BreadcrumbHeading,
+  BreadcrumbItem,
+  Checkbox,
   Divider,
   DrilldownMenu,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbHeading,
-  MenuBreadcrumb,
   Dropdown,
   DropdownItem,
-  BadgeToggle,
-  Checkbox
+  DropdownList,
+  Icon,
+  Menu,
+  MenuBreadcrumb,
+  MenuContent,
+  MenuItem,
+  MenuList,
+  MenuToggle,
+  MenuToggleElement
 } from '@patternfly/react-core';
 import StorageDomainIcon from '@patternfly/react-icons/dist/esm/icons/storage-domain-icon';
 import CodeBranchIcon from '@patternfly/react-icons/dist/esm/icons/code-branch-icon';
 import LayerGroupIcon from '@patternfly/react-icons/dist/esm/icons/layer-group-icon';
 import AngleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-left-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
+import CaretDownIcon from '@patternfly/react-icons/dist/esm/icons/caret-down-icon';
 
 export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
   const [menuDrilledIn, setMenuDrilledIn] = React.useState<string[]>([]);
@@ -58,11 +63,11 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     fromPathId: string,
     breadcrumb: JSX.Element | null
   ) => {
-    setMenuDrilledIn(prevMenuDrilledIn => {
+    setMenuDrilledIn((prevMenuDrilledIn) => {
       const indexOfMenuId = prevMenuDrilledIn.indexOf(toMenuId);
       return prevMenuDrilledIn.slice(0, indexOfMenuId);
     });
-    setDrilldownPath(prevDrilldownPath => {
+    setDrilldownPath((prevDrilldownPath) => {
       const indexOfMenuIdPath = prevDrilldownPath.indexOf(fromPathId);
       return prevDrilldownPath.slice(0, indexOfMenuIdPath);
     });
@@ -91,7 +96,7 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     <Breadcrumb>
       <BreadcrumbItem
         component="button"
-        onClick={event => drillOut(event, 'breadcrumbs-rootMenu', 'group:start_rollout', null)}
+        onClick={(event: any) => drillOut(event, 'breadcrumbs-rootMenu', 'group:start_rollout', null)}
       >
         Root
       </BreadcrumbItem>
@@ -103,31 +108,41 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     <Breadcrumb>
       <BreadcrumbItem
         component="button"
-        onClick={event => drillOut(event, 'breadcrumbs-rootMenu', 'group:start_rollout', null)}
+        onClick={(event: any) => drillOut(event, 'breadcrumbs-rootMenu', 'group:start_rollout', null)}
       >
         Root
       </BreadcrumbItem>
       <BreadcrumbItem isDropdown>
         <Dropdown
-          toggle={
-            <BadgeToggle id="toggle-id" onToggle={(_event: any, open: boolean) => onToggle(open, 'app')}>
-              1
-            </BadgeToggle>
-          }
           isOpen={isOpen}
-          dropdownItems={[
+          onOpenChange={(isOpen: boolean) => onToggle(isOpen, 'app')}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle ref={toggleRef} onClick={() => onToggle(true, 'app')} isExpanded={isOpen} variant="plain">
+              <Badge isRead screenReaderText="additional item">
+                1{' '}
+                <span>
+                  <CaretDownIcon />
+                </span>
+              </Badge>
+            </MenuToggle>
+          )}
+        >
+          <DropdownList>
             <DropdownItem
               key="dropdown-start"
-              component="button"
-              icon={<AngleLeftIcon />}
-              onClick={event =>
+              icon={
+                <Icon shouldMirrorRTL>
+                  <AngleLeftIcon />
+                </Icon>
+              }
+              onClick={(event: any) =>
                 drillOut(event, 'breadcrumbs-drilldownMenuStart', 'group:app_grouping_start', startRolloutBreadcrumb)
               }
             >
               Start rollout
             </DropdownItem>
-          ]}
-        />
+          </DropdownList>
+        </Dropdown>
       </BreadcrumbItem>
       <BreadcrumbHeading component="button">Application Grouping</BreadcrumbHeading>
     </Breadcrumb>
@@ -137,31 +152,41 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     <Breadcrumb>
       <BreadcrumbItem
         component="button"
-        onClick={event => drillOut(event, 'breadcrumbs-rootMenu', 'group:start_rollout', null)}
+        onClick={(event: any) => drillOut(event, 'breadcrumbs-rootMenu', 'group:start_rollout', null)}
       >
         Root
       </BreadcrumbItem>
       <BreadcrumbItem isDropdown>
         <Dropdown
-          toggle={
-            <BadgeToggle id="toggle-id" onToggle={(_event: any, open: boolean) => onToggle(open, 'label')}>
-              1
-            </BadgeToggle>
-          }
           isOpen={isOpen}
-          dropdownItems={[
+          onOpenChange={(isOpen: boolean) => onToggle(isOpen, 'label')}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle ref={toggleRef} onClick={() => onToggle(true, 'label')} isExpanded={isOpen} variant="plain">
+              <Badge isRead screenReaderText="additional item">
+                1{' '}
+                <span>
+                  <CaretDownIcon />
+                </span>
+              </Badge>
+            </MenuToggle>
+          )}
+        >
+          <DropdownList>
             <DropdownItem
               key="dropdown-start"
-              component="button"
-              icon={<AngleLeftIcon />}
-              onClick={event =>
+              icon={
+                <Icon shouldMirrorRTL>
+                  <AngleLeftIcon />
+                </Icon>
+              }
+              onClick={(event: any) =>
                 drillOut(event, 'breadcrumbs-drilldownMenuStart', 'group:labels_start', startRolloutBreadcrumb)
               }
             >
               Start rollout
             </DropdownItem>
-          ]}
-        />
+          </DropdownList>
+        </Dropdown>
       </BreadcrumbItem>
       <BreadcrumbHeading component="button">Labels</BreadcrumbHeading>
     </Breadcrumb>
@@ -171,7 +196,7 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     <Breadcrumb>
       <BreadcrumbItem
         component="button"
-        onClick={event => drillOut(event, 'breadcrumbs-rootMenu', 'group:pause_rollout', null)}
+        onClick={(event: any) => drillOut(event, 'breadcrumbs-rootMenu', 'group:pause_rollout', null)}
       >
         Root
       </BreadcrumbItem>
@@ -183,31 +208,41 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     <Breadcrumb>
       <BreadcrumbItem
         component="button"
-        onClick={event => drillOut(event, 'breadcrumbs-rootMenu', 'group:pause_rollout', null)}
+        onClick={(event: any) => drillOut(event, 'breadcrumbs-rootMenu', 'group:pause_rollout', null)}
       >
         Root
       </BreadcrumbItem>
       <BreadcrumbItem isDropdown>
         <Dropdown
-          toggle={
-            <BadgeToggle id="toggle-id" onToggle={(_event: any, open: boolean) => onToggle(open, 'pause-app')}>
-              1
-            </BadgeToggle>
-          }
           isOpen={isOpen}
-          dropdownItems={[
+          onOpenChange={(isOpen: boolean) => onToggle(isOpen, 'pause-app')}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle ref={toggleRef} onClick={() => onToggle(true, 'pause-app')} isExpanded={isOpen} variant="plain">
+              <Badge isRead screenReaderText="additional item">
+                1{' '}
+                <span>
+                  <CaretDownIcon />
+                </span>
+              </Badge>
+            </MenuToggle>
+          )}
+        >
+          <DropdownList>
             <DropdownItem
               key="dropdown-pause"
-              component="button"
-              icon={<AngleLeftIcon />}
-              onClick={event =>
+              icon={
+                <Icon shouldMirrorRTL>
+                  <AngleLeftIcon />
+                </Icon>
+              }
+              onClick={(event: any) =>
                 drillOut(event, 'breadcrumbs-drilldownMenuPause', 'group:app_grouping', pauseRolloutsBreadcrumb)
               }
             >
               Pause rollouts
             </DropdownItem>
-          ]}
-        />
+          </DropdownList>
+        </Dropdown>
       </BreadcrumbItem>
       <BreadcrumbHeading component="button">Application Grouping</BreadcrumbHeading>
     </Breadcrumb>
@@ -217,31 +252,46 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     <Breadcrumb>
       <BreadcrumbItem
         component="button"
-        onClick={event => drillOut(event, 'breadcrumbs-rootMenu', 'group:pause_rollout', null)}
+        onClick={(event: any) => drillOut(event, 'breadcrumbs-rootMenu', 'group:pause_rollout', null)}
       >
         Root
       </BreadcrumbItem>
       <BreadcrumbItem isDropdown>
         <Dropdown
-          toggle={
-            <BadgeToggle id="toggle-id" onToggle={(_event: any, open: boolean) => onToggle(open, 'pause-label')}>
-              1
-            </BadgeToggle>
-          }
           isOpen={isOpen}
-          dropdownItems={[
+          onOpenChange={(isOpen: boolean) => onToggle(isOpen, 'pause-label')}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              ref={toggleRef}
+              onClick={() => onToggle(true, 'pause-label')}
+              isExpanded={isOpen}
+              variant="plain"
+            >
+              <Badge isRead screenReaderText="additional item">
+                1{' '}
+                <span>
+                  <CaretDownIcon />
+                </span>
+              </Badge>
+            </MenuToggle>
+          )}
+        >
+          <DropdownList>
             <DropdownItem
               key="dropdown-pause"
-              component="button"
-              icon={<AngleLeftIcon />}
-              onClick={event =>
+              icon={
+                <Icon shouldMirrorRTL>
+                  <AngleLeftIcon />
+                </Icon>
+              }
+              onClick={(event: any) =>
                 drillOut(event, 'breadcrumbs-drilldownMenuPause', 'group:labels', pauseRolloutsBreadcrumb)
               }
             >
               Pause rollouts
             </DropdownItem>
-          ]}
-        />
+          </DropdownList>
+        </Dropdown>
       </BreadcrumbItem>
       <BreadcrumbHeading component="button">Labels</BreadcrumbHeading>
     </Breadcrumb>
@@ -251,7 +301,7 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
     <Breadcrumb>
       <BreadcrumbItem
         component="button"
-        onClick={event => drillOut(event, 'breadcrumbs-rootMenu', 'group:storage', null)}
+        onClick={(event: any) => drillOut(event, 'breadcrumbs-rootMenu', 'group:storage', null)}
       >
         Root
       </BreadcrumbItem>
@@ -302,34 +352,34 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
                     onClick={() => setBreadcrumb(appGroupingBreadcrumb(false))}
                     drilldownMenu={
                       <DrilldownMenu id="breadcrumbs-drilldownMenuStartGrouping">
-                        <MenuItem itemId="group_a">Group A</MenuItem>
-                        <MenuItem itemId="group_b">Group B</MenuItem>
-                        <MenuItem itemId="group_c">Group C</MenuItem>
-                        <MenuItem itemId="group_d">Group D</MenuItem>
-                        <MenuItem itemId="group_e">Group E</MenuItem>
-                        <MenuItem itemId="group_f">Group F</MenuItem>
-                        <MenuItem itemId="group_g">Group G</MenuItem>
+                        <MenuItem itemId="group_a">Group A (start rollout)</MenuItem>
+                        <MenuItem itemId="group_b">Group B (start rollout)</MenuItem>
+                        <MenuItem itemId="group_c">Group C (start rollout)</MenuItem>
+                        <MenuItem itemId="group_d">Group D (start rollout)</MenuItem>
+                        <MenuItem itemId="group_e">Group E (start rollout)</MenuItem>
+                        <MenuItem itemId="group_f">Group F (start rollout)</MenuItem>
+                        <MenuItem itemId="group_g">Group G (start rollout)</MenuItem>
                       </DrilldownMenu>
                     }
                   >
-                    Application grouping
+                    Application grouping (start rollout)
                   </MenuItem>
-                  <MenuItem itemId="count">Count</MenuItem>
+                  <MenuItem itemId="count">Count (start rollout)</MenuItem>
                   <MenuItem
                     itemId="group:labels_start"
                     direction="down"
                     onClick={() => setBreadcrumb(labelsBreadcrumb(false))}
                     drilldownMenu={
                       <DrilldownMenu id="breadcrumbs-drilldownMenuStartLabels">
-                        <MenuItem itemId="label_1">Label 1</MenuItem>
-                        <MenuItem itemId="label_2">Label 2</MenuItem>
-                        <MenuItem itemId="label_3">Label 3</MenuItem>
+                        <MenuItem itemId="label_1">Label 1 (start rollout)</MenuItem>
+                        <MenuItem itemId="label_2">Label 2 (start rollout)</MenuItem>
+                        <MenuItem itemId="label_3">Label 3 (start rollout)</MenuItem>
                       </DrilldownMenu>
                     }
                   >
-                    Labels
+                    Labels (start rollout)
                   </MenuItem>
-                  <MenuItem itemId="annotations">Annotations</MenuItem>
+                  <MenuItem itemId="annotations">Annotations (start rollout)</MenuItem>
                 </DrilldownMenu>
               }
             >
@@ -348,30 +398,30 @@ export const MenuWithDrilldownBreadcrumbs: React.FunctionComponent = () => {
                     onClick={() => setBreadcrumb(pauseRolloutsAppGrpBreadcrumb(false))}
                     drilldownMenu={
                       <DrilldownMenu id="breadcrumbs-drilldownMenuGrouping">
-                        <MenuItem itemId="group_a">Group A</MenuItem>
-                        <MenuItem itemId="group_b">Group B</MenuItem>
-                        <MenuItem itemId="group_c">Group C</MenuItem>
+                        <MenuItem itemId="group_a">Group A (pause rollouts)</MenuItem>
+                        <MenuItem itemId="group_b">Group B (pause rollouts)</MenuItem>
+                        <MenuItem itemId="group_c">Group C (pause rollouts)</MenuItem>
                       </DrilldownMenu>
                     }
                   >
-                    Application grouping
+                    Application grouping (pause rollouts)
                   </MenuItem>
-                  <MenuItem itemId="count">Count</MenuItem>
+                  <MenuItem itemId="count">Count (pause rollouts)</MenuItem>
                   <MenuItem
                     itemId="group:labels"
                     direction="down"
                     onClick={() => setBreadcrumb(pauseRolloutsLabelsBreadcrumb(false))}
                     drilldownMenu={
                       <DrilldownMenu id="breadcrumbs-drilldownMenuLabels">
-                        <MenuItem itemId="label_1">Label 1</MenuItem>
-                        <MenuItem itemId="label_2">Label 2</MenuItem>
-                        <MenuItem itemId="label_3">Label 3</MenuItem>
+                        <MenuItem itemId="label_1">Label 1 (pause rollouts)</MenuItem>
+                        <MenuItem itemId="label_2">Label 2 (pause rollouts)</MenuItem>
+                        <MenuItem itemId="label_3">Label 3 (pause rollouts)</MenuItem>
                       </DrilldownMenu>
                     }
                   >
-                    Labels
+                    Labels (pause rollouts)
                   </MenuItem>
-                  <MenuItem itemId="annotations">Annotations</MenuItem>
+                  <MenuItem itemId="annotations">Annotations (pause rollouts)</MenuItem>
                 </DrilldownMenu>
               }
             >

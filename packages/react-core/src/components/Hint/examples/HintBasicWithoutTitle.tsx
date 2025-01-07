@@ -5,48 +5,70 @@ import {
   HintFooter,
   Button,
   Dropdown,
+  DropdownList,
   DropdownItem,
-  DropdownSeparator,
-  KebabToggle
+  Divider,
+  MenuToggle,
+  MenuToggleElement
 } from '@patternfly/react-core';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 export const HintBasicWithoutTitle: React.FunctionComponent = () => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
 
-  const onToggle = (_event: any, isOpen: boolean) => {
-    setIsOpen(isOpen);
+  const onToggle = () => {
+    setIsOpen(!isOpen);
   };
 
   const onSelect = () => {
     setIsOpen(!isOpen);
   };
 
-  const dropdownItems = [
-    <DropdownItem key="link">Link</DropdownItem>,
-    <DropdownItem key="action" component="button">
-      Action
-    </DropdownItem>,
-    <DropdownItem key="disabled link" isDisabled>
-      Disabled Link
-    </DropdownItem>,
-    <DropdownItem key="disabled action" isDisabled component="button">
-      Disabled Action
-    </DropdownItem>,
-    <DropdownSeparator key="separator" />,
-    <DropdownItem key="separated link">Separated Link</DropdownItem>,
-    <DropdownItem key="separated action" component="button">
-      Separated Action
-    </DropdownItem>
-  ];
   const actions = (
     <Dropdown
-      onSelect={onSelect}
-      toggle={<KebabToggle onToggle={onToggle} id="hint-notitle-kebab-toggle" />}
       isOpen={isOpen}
-      dropdownItems={dropdownItems}
-      position="right"
-      isPlain
-    />
+      onSelect={onSelect}
+      onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+        <MenuToggle
+          ref={toggleRef}
+          aria-label="Without title example kebab toggle"
+          variant="plain"
+          onClick={onToggle}
+          isExpanded={isOpen}
+        >
+          <EllipsisVIcon />
+        </MenuToggle>
+      )}
+    >
+      <DropdownList>
+        <DropdownItem value={0} key="action">
+          Action
+        </DropdownItem>
+        <DropdownItem
+          value={1}
+          key="link"
+          to="#default-link2"
+          // Prevent the default onClick functionality for example purposes
+          onClick={(ev: any) => ev.preventDefault()}
+        >
+          Link
+        </DropdownItem>
+        <DropdownItem value={2} isDisabled key="disabled action">
+          Disabled Action
+        </DropdownItem>
+        <DropdownItem value={3} isDisabled key="disabled link" to="#default-link4">
+          Disabled Link
+        </DropdownItem>
+        <Divider component="li" key="separator" />
+        <DropdownItem value={4} key="separated action">
+          Separated Action
+        </DropdownItem>
+        <DropdownItem value={5} key="separated link" to="#default-link6" onClick={(ev) => ev.preventDefault()}>
+          Separated Link
+        </DropdownItem>
+      </DropdownList>
+    </Dropdown>
   );
   return (
     <React.Fragment>

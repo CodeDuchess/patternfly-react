@@ -24,7 +24,7 @@ export interface DataListItemChildProps {
   rowid: string;
 }
 
-export class DataListItem extends React.Component<DataListItemProps> {
+class DataListItem extends React.Component<DataListItemProps> {
   static displayName = 'DataListItem';
   static defaultProps: DataListItemProps = {
     isExpanded: false,
@@ -45,7 +45,7 @@ export class DataListItem extends React.Component<DataListItemProps> {
     } = this.props;
     return (
       <DataListContext.Consumer>
-        {({ isSelectable, selectedDataListItemId, updateSelectedDataListItem, selectableRow }) => {
+        {({ isSelectable, selectedDataListItemId, updateSelectedDataListItem, onSelectableRowChange }) => {
           const selectDataListItem = (event: React.MouseEvent) => {
             let target: any = event.target;
             while (event.currentTarget !== target) {
@@ -82,7 +82,7 @@ export class DataListItem extends React.Component<DataListItemProps> {
               className={css(
                 styles.dataListItem,
                 isExpanded && styles.modifiers.expanded,
-                isSelectable && styles.modifiers.selectable,
+                isSelectable && styles.modifiers.clickable,
                 selectedDataListItemId && isSelected && styles.modifiers.selected,
                 className
               )}
@@ -91,12 +91,12 @@ export class DataListItem extends React.Component<DataListItemProps> {
               {...(isSelectable && isSelected && { 'aria-selected': true })}
               {...props}
             >
-              {selectableRow && (
+              {onSelectableRowChange && (
                 <input
-                  className="pf-screen-reader"
+                  className="pf-v5-screen-reader"
                   type="radio"
                   checked={isSelected}
-                  onChange={(event) => selectableRow.onChange(event, id)}
+                  onChange={(event) => onSelectableRowChange(event, id)}
                   tabIndex={-1}
                   {...selectableInputAriaProps}
                 />
@@ -116,3 +116,5 @@ export class DataListItem extends React.Component<DataListItemProps> {
     );
   }
 }
+
+export { DataListItem };

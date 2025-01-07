@@ -29,29 +29,29 @@ export class TextAreaDemo extends React.Component<{}, TextAreaState> {
     validated: ValidatedOptions.default
   };
 
-  handleChange = (value: string) => {
+  handleChange = (_event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
     // If the text area contains less than 1 character, set isValid to false
     const valid = !(value.length < 1);
     this.setState({ textAreaValue: value, isValid: valid });
   };
 
-  handleChangeRequired = (value: string) => {
+  handleChangeRequired = (_event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
     // If the text area contains less than 1 character, set requiredIsValid to false
     const isValid = !(value.length < 1);
     this.setState({ requiredTextAreaValue: value, requiredIsValid: isValid });
   };
 
-  handleChangeHorizontal = (value: string) => {
+  handleChangeHorizontal = (_event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
     // If the text area contains less than 1 character, set isValid to false
     const horizontalIsValid = !(value.length < 1);
     this.setState({ resizeHorizontalTextArea: value, horizontalIsValid });
   };
-  handleChangeVertical = (value: string) => {
+  handleChangeVertical = (_event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
     // If the text area contains less than 1 character, set isValid to false
     const verticalIsValid = !(value.length < 1);
     this.setState({ resizeVerticalTextArea: value, verticalIsValid });
   };
-  handleChangeValidated = (value: string) => {
+  handleChangeValidated = (_event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
     // If the text area contains less than 5 characters, set validated to error. If empty set to warning.
     let validated = ValidatedOptions.default;
     if (value.length === 0) {
@@ -80,7 +80,7 @@ export class TextAreaDemo extends React.Component<{}, TextAreaState> {
       validated
     } = this.state;
     return (
-      <React.Fragment>
+      <>
         <Text>Text area</Text>
         <TextArea
           id="textarea1"
@@ -129,9 +129,14 @@ export class TextAreaDemo extends React.Component<{}, TextAreaState> {
         <TextArea id="textarea6-b" value={'isDisabled text area'} aria-label="text area example 6 b" isDisabled />
         <Text>Read only text area </Text>
         <TextArea id="textarea7-a" value={'readOnly text area'} aria-label="text area example 7 a" readOnly />
-        <TextArea id="textarea7-b" value={'isReadOnly text area'} aria-label="text area example 7 b" isReadOnly />
+        <TextArea
+          id="textarea7-b"
+          value={'isReadOnly text area'}
+          aria-label="text area example 7 b"
+          readOnlyVariant="default"
+        />
         <TextArea id="autoResize" aria-label="resizable text area example" autoResize />
-      </React.Fragment>
+      </>
     );
   }
 }

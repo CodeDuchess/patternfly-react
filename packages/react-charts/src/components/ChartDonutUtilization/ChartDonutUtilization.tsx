@@ -18,37 +18,11 @@ import {
   VictoryStyleInterface
 } from 'victory-core';
 import { SliceProps, VictoryPie, VictorySliceLabelPositionType } from 'victory-pie';
-import { ChartContainer } from '../ChartContainer';
-import { ChartDonut, ChartDonutProps } from '../ChartDonut';
-import { ChartCommonStyles, ChartThemeDefinition, ChartDonutUtilizationStyles } from '../ChartTheme';
-import { getDonutUtilizationTheme } from '../ChartUtils';
-
-export enum ChartDonutUtilizationLabelPosition {
-  centroid = 'centroid',
-  endAngle = 'endAngle',
-  startAngle = 'startAngle'
-}
-
-export enum ChartDonutUtilizationLegendOrientation {
-  horizontal = 'horizontal',
-  vertical = 'vertical'
-}
-
-export enum ChartDonutUtilizationLegendPosition {
-  bottom = 'bottom',
-  right = 'right'
-}
-
-export enum ChartDonutUtilizationSortOrder {
-  ascending = 'ascending',
-  descending = 'descending'
-}
-
-export enum ChartDonutUtilizationSubTitlePosition {
-  bottom = 'bottom',
-  center = 'center',
-  right = 'right'
-}
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartDonut, ChartDonutProps } from '../ChartDonut/ChartDonut';
+import { ChartCommonStyles, ChartDonutUtilizationStyles } from '../ChartTheme/ChartStyles';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getDonutUtilizationTheme } from '../ChartUtils/chart-theme-types';
 
 /**
  * ChartDonutUtilization renders a dataset as a donut utilization chart.
@@ -255,7 +229,6 @@ export interface ChartDonutUtilizationProps extends ChartDonutProps {
    *
    * @example hasPatterns={ true }
    * @example hasPatterns={[ true, true, false ]}
-   * @beta
    */
   hasPatterns?: boolean | boolean[];
   /**
@@ -365,6 +338,10 @@ export interface ChartDonutUtilizationProps extends ChartDonutProps {
    */
   legendPosition?: 'bottom' | 'right';
   /**
+   * @beta Text direction of the legend labels.
+   */
+  legendDirection?: 'ltr' | 'rtl';
+  /**
    * The labelRadius prop defines the radius of the arc that will be used for positioning each slice label.
    * If this prop is not set, the label radius will default to the radius of the pie + label padding.
    *
@@ -419,7 +396,6 @@ export interface ChartDonutUtilizationProps extends ChartDonutProps {
    * Note: Not all components are supported; for example, ChartLine, ChartBullet, ChartThreshold, etc.
    *
    * @example patternScale={[ 'url("#pattern1")', 'url("#pattern2")', null ]}
-   * @beta
    */
   patternScale?: string[];
   /**
@@ -616,7 +592,8 @@ export const ChartDonutUtilization: React.FunctionComponent<ChartDonutUtilizatio
   data,
   invert = false,
   isStatic = true,
-  legendPosition = ChartCommonStyles.legend.position as ChartDonutUtilizationLegendPosition,
+  legendPosition = ChartCommonStyles.legend.position,
+  legendDirection = 'ltr',
   padding,
   standalone = true,
   themeColor,
@@ -707,9 +684,11 @@ export const ChartDonutUtilization: React.FunctionComponent<ChartDonutUtilizatio
       height={height}
       key="pf-chart-donut-utilization"
       legendPosition={legendPosition}
+      legendDirection={legendDirection}
       padding={padding}
       standalone={false}
       theme={getThresholdTheme()}
+      themeColor={themeColor}
       width={width}
       {...rest}
     />

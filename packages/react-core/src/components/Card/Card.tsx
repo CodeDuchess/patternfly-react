@@ -14,13 +14,23 @@ export interface CardProps extends React.HTMLProps<HTMLElement>, OUIAProps {
   component?: keyof JSX.IntrinsicElements;
   /** Modifies the card to include compact styling. Should not be used with isLarge. */
   isCompact?: boolean;
-  /** Modifies the card to include selectable styling */
+  /** Flag indicating that the card is selectable. */
   isSelectable?: boolean;
-  /** Specifies the card is selectable, and applies the new raised styling on hover and select */
+  /** @deprecated Specifies the card is selectable, and applies raised styling on hover and select */
   isSelectableRaised?: boolean;
-  /** Modifies the card to include selected styling */
+  /** Flag indicating that the card is clickable and contains some action that triggers on click. */
+  isClickable?: boolean;
+  /** Flag indicating whether a card that is either selectable only or both clickable and selectable is
+   * currently selected and has selected styling.
+   */
   isSelected?: boolean;
-  /** Modifies a raised selectable card to have disabled styling */
+  /** Flag indicating whether a card that is either only clickable or that is both clickable and selectable
+   * is currently clicked and has clicked styling.
+   */
+  isClicked?: boolean;
+  /** Flag indicating that a clickable or selectable card is disabled. */
+  isDisabled?: boolean;
+  /** @deprecated Modifies a raised selectable card to have disabled styling */
   isDisabledRaised?: boolean;
   /** Modifies the card to include flat styling */
   isFlat?: boolean;
@@ -34,11 +44,11 @@ export interface CardProps extends React.HTMLProps<HTMLElement>, OUIAProps {
   isPlain?: boolean;
   /** Flag indicating if a card is expanded. Modifies the card to be expandable. */
   isExpanded?: boolean;
-  /** Flag indicating that the card should render a hidden input to make it selectable */
+  /** @deprecated Flag indicating that the card should render a hidden input to make it selectable */
   hasSelectableInput?: boolean;
-  /** Aria label to apply to the selectable input if one is rendered */
+  /** @deprecated Aria label to apply to the selectable input if one is rendered */
   selectableInputAriaLabel?: string;
-  /** Callback that executes when the selectable input is changed */
+  /** @deprecated Callback that executes when the selectable input is changed */
   onSelectableInputChange?: (event: React.FormEvent<HTMLInputElement>, labelledBy: string) => void;
   /** Value to overwrite the randomly generated data-ouia-component-id.*/
   ouiaId?: number | string;
@@ -50,6 +60,13 @@ interface CardContextProps {
   cardId: string;
   registerTitleId: (id: string) => void;
   isExpanded: boolean;
+  isClickable: boolean;
+  isSelectable: boolean;
+  isSelected: boolean;
+  isClicked: boolean;
+  isDisabled: boolean;
+  // TODO: Remove hasSelectableInput when deprecated prop is removed
+  hasSelectableInput: boolean;
 }
 
 interface AriaProps {
@@ -60,7 +77,12 @@ interface AriaProps {
 export const CardContext = React.createContext<Partial<CardContextProps>>({
   cardId: '',
   registerTitleId: () => {},
-  isExpanded: false
+  isExpanded: false,
+  isClickable: false,
+  isSelectable: false,
+  isSelected: false,
+  isClicked: false,
+  isDisabled: false
 });
 
 export const Card: React.FunctionComponent<CardProps> = ({
@@ -70,8 +92,11 @@ export const Card: React.FunctionComponent<CardProps> = ({
   component = 'div',
   isCompact = false,
   isSelectable = false,
+  isClickable = false,
+  isDisabled = false,
   isSelectableRaised = false,
   isSelected = false,
+  isClicked = false,
   isDisabledRaised = false,
   isFlat = false,
   isExpanded = false,
@@ -104,9 +129,22 @@ export const Card: React.FunctionComponent<CardProps> = ({
     if (isSelectableRaised) {
       return css(styles.modifiers.selectableRaised, isSelected && styles.modifiers.selectedRaised);
     }
+    if (isSelectable && isClickable) {
+      return css(
+        styles.modifiers.selectable,
+        styles.modifiers.clickable,
+        (isSelected || isClicked) && styles.modifiers.current
+      );
+    }
+
     if (isSelectable) {
       return css(styles.modifiers.selectable, isSelected && styles.modifiers.selected);
     }
+
+    if (isClickable) {
+      return css(styles.modifiers.clickable, isClicked && styles.modifiers.current);
+    }
+
     return '';
   };
 
@@ -136,17 +174,24 @@ export const Card: React.FunctionComponent<CardProps> = ({
       value={{
         cardId: id,
         registerTitleId,
-        isExpanded
+        isExpanded,
+        isClickable,
+        isSelectable,
+        isSelected,
+        isClicked,
+        isDisabled,
+        // TODO: Remove hasSelectableInput when deprecated prop is removed
+        hasSelectableInput
       }}
     >
       {hasSelectableInput && (
         <input
-          className="pf-screen-reader"
+          className="pf-v5-screen-reader"
           id={`${id}-input`}
           {...ariaProps}
           type="checkbox"
           checked={isSelected}
-          onChange={event => onSelectableInputChange(event, id)}
+          onChange={(event) => onSelectableInputChange(event, id)}
           disabled={isDisabledRaised}
           tabIndex={-1}
         />
@@ -163,9 +208,10 @@ export const Card: React.FunctionComponent<CardProps> = ({
           isFullHeight && styles.modifiers.fullHeight,
           isPlain && styles.modifiers.plain,
           getSelectableModifiers(),
+          isDisabled && styles.modifiers.disabled,
           className
         )}
-        tabIndex={isSelectable || isSelectableRaised ? '0' : undefined}
+        tabIndex={isSelectableRaised ? '0' : undefined}
         {...props}
         {...ouiaProps}
       >

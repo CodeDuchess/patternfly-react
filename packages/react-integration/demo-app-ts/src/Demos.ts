@@ -68,6 +68,11 @@ export const Demos: DemoInterface[] = [
     componentType: Examples.CardDemo
   },
   {
+    id: 'chip-demo',
+    name: 'Chip Demo',
+    componentType: Examples.ChipDemo
+  },
+  {
     id: 'chipgroup-demo',
     name: 'ChipGroup Demo',
     componentType: Examples.ChipGroupDemo
@@ -143,14 +148,14 @@ export const Demos: DemoInterface[] = [
     componentType: Examples.DrawerResizeDemo
   },
   {
+    id: 'dropdown-deprecated-demo',
+    name: 'Dropdown Deprecated Demo',
+    componentType: Examples.DropdownDeprecatedDemo
+  },
+  {
     id: 'dropdown-demo',
     name: 'Dropdown Demo',
     componentType: Examples.DropdownDemo
-  },
-  {
-    id: 'dropdown-next-demo',
-    name: 'Dropdown Next Demo',
-    componentType: Examples.DropdownNextDemo
   },
   {
     id: 'dual-list-selector-basic-demo',
@@ -243,6 +248,11 @@ export const Demos: DemoInterface[] = [
     componentType: Examples.ModalDemo
   },
   {
+    id: 'modal-next-demo',
+    name: 'Modal Next Demo',
+    componentType: Examples.ModalNextDemo
+  },
+  {
     id: 'nav-demo',
     name: 'Nav Demo',
     componentType: Examples.NavDemo
@@ -314,57 +324,57 @@ export const Demos: DemoInterface[] = [
   },
   {
     id: 'select-demo',
-    name: 'Select Demo',
+    name: 'Select Deprecated Demo',
     componentType: Examples.SelectDemo
   },
   {
     id: 'select-demo-filtering',
-    name: 'Select Demo with Filtering',
+    name: 'Select Deprecated Demo with Filtering',
     componentType: Examples.FilteringSelectDemo
   },
   {
     id: 'select-demo-filtering-live-updates',
-    name: 'Select Demo with Filtering and Live Items Updates',
+    name: 'Select Deprecated Demo with Filtering and Live Items Updates',
     componentType: Examples.FilteringSelectLiveUpdateDemo
   },
   {
     id: 'select-favorites-demo',
-    name: 'Select Favorites Demo',
+    name: 'Select Deprecated Favorites Demo',
     componentType: Examples.SelectFavoritesDemo
   },
   {
     id: 'select-in-modal-demo',
-    name: 'Select in modal demo',
+    name: 'Select Deprecated in modal demo',
     componentType: Examples.SelectInModal
   },
   {
     id: 'select-typeahead-footer-filtering-demo',
-    name: 'Select Footer filtering Demo',
+    name: 'Select Deprecated Footer filtering Demo',
     componentType: Examples.SelectFooterFilteringDemo
   },
   {
     id: 'select-typeahead-footer-demo',
-    name: 'Select Typeahead Footer Demo',
+    name: 'Select Deprecated Typeahead Footer Demo',
     componentType: Examples.SelectTypeaheadFooterDemo
   },
   {
     id: 'select-validated-demo',
-    name: 'Select Validated Demo',
+    name: 'Select Deprecated Validated Demo',
     componentType: Examples.SelectValidatedDemo
   },
   {
     id: 'select-view-more-demo',
-    name: 'Select View More Demo',
+    name: 'Select Deprecated View More Demo',
     componentType: Examples.SelectViewMoreDemo
   },
   {
     id: 'select-view-more-grouped-demo',
-    name: 'Select View More Grouped Demo',
+    name: 'Select Deprecated View More Grouped Demo',
     componentType: Examples.SelectViewMoreGroupedDemo
   },
   {
     id: 'select-view-more-typeahead-grouped-demo',
-    name: 'Select View More Typeahead Grouped Demo',
+    name: 'Select Deprecated View More Typeahead Grouped Demo',
     componentType: Examples.SelectViewMoreTypeaheadGroupedDemo
   },
   {
@@ -511,6 +521,11 @@ export const Demos: DemoInterface[] = [
     id: 'wizard-demo',
     name: 'Wizard Demo',
     componentType: Examples.WizardDemo
+  },
+  {
+    id: 'wizard-deprecated-demo',
+    name: 'Wizard Deprecated Demo',
+    componentType: Examples.WizardDeprecatedDemo
   }
 ];
 

@@ -4,36 +4,36 @@ exports[`expandable vertical with subsection 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Jump to section"
-    class="pf-c-jump-links pf-m-vertical pf-m-expandable"
+    class="pf-v5-c-jump-links pf-m-vertical pf-m-expandable"
   >
     <div
-      class="pf-c-jump-links__main"
+      class="pf-v5-c-jump-links__main"
     >
       <div
-        class="pf-c-jump-links__header"
+        class="pf-v5-c-jump-links__header"
       >
         <div
-          class="pf-c-jump-links__toggle"
+          class="pf-v5-c-jump-links__toggle"
         >
           <button
             aria-disabled="false"
             aria-expanded="false"
             aria-label="Toggle jump links"
-            class="pf-c-button pf-m-plain"
+            class="pf-v5-c-button pf-m-plain"
             data-ouia-component-id="OUIA-Generated-Button-plain-1"
-            data-ouia-component-type="PF4/Button"
+            data-ouia-component-type="PF5/Button"
             data-ouia-safe="true"
             type="button"
           >
             <span
-              class="pf-c-jump-links__toggle-icon"
+              class="pf-v5-c-jump-links__toggle-icon"
             >
               <svg
                 aria-hidden="true"
+                class="pf-v5-svg"
                 fill="currentColor"
                 height="1em"
                 role="img"
-                style="vertical-align: -0.125em;"
                 viewBox="0 0 256 512"
                 width="1em"
               >
@@ -43,86 +43,86 @@ exports[`expandable vertical with subsection 1`] = `
               </svg>
             </span>
             <span
-              class="pf-c-jump-links__toggle-text"
+              class="pf-v5-c-jump-links__toggle-text"
             >
                Jump to section 
             </span>
           </button>
         </div>
         <div
-          class="pf-c-jump-links__label"
+          class="pf-v5-c-jump-links__label"
         >
           Jump to section
         </div>
       </div>
       <ul
-        class="pf-c-jump-links__list"
+        class="pf-v5-c-jump-links__list"
         role="list"
       >
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
           </a>
         </li>
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Section with active subsection
             </span>
           </a>
           <ul
-            class="pf-c-jump-links__list"
+            class="pf-v5-c-jump-links__list"
             role="list"
           >
             <li
               aria-current="location"
-              class="pf-c-jump-links__item pf-m-current"
+              class="pf-v5-c-jump-links__item pf-m-current"
             >
               <a
-                class="pf-c-jump-links__link"
+                class="pf-v5-c-jump-links__link"
               >
                 <span
-                  class="pf-c-jump-links__link-text"
+                  class="pf-v5-c-jump-links__link-text"
                 >
                   Active subsection
                 </span>
               </a>
             </li>
             <li
-              class="pf-c-jump-links__item"
+              class="pf-v5-c-jump-links__item"
             >
               <a
-                class="pf-c-jump-links__link"
+                class="pf-v5-c-jump-links__link"
               >
                 <span
-                  class="pf-c-jump-links__link-text"
+                  class="pf-v5-c-jump-links__link-text"
                 >
                   Inactive subsection
                 </span>
               </a>
             </li>
             <li
-              class="pf-c-jump-links__item"
+              class="pf-v5-c-jump-links__item"
             >
               <a
-                class="pf-c-jump-links__link"
+                class="pf-v5-c-jump-links__link"
               >
                 <span
-                  class="pf-c-jump-links__link-text"
+                  class="pf-v5-c-jump-links__link-text"
                 >
                   Inactive subsection
                 </span>
@@ -131,26 +131,26 @@ exports[`expandable vertical with subsection 1`] = `
           </ul>
         </li>
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
           </a>
         </li>
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -165,26 +165,26 @@ exports[`expandable vertical with subsection 1`] = `
 exports[`jumplinks centered 1`] = `
 <DocumentFragment>
   <nav
-    class="pf-c-jump-links pf-m-center"
+    class="pf-v5-c-jump-links pf-m-center"
   >
     <div
-      class="pf-c-jump-links__main"
+      class="pf-v5-c-jump-links__main"
     >
       <div
-        class="pf-c-jump-links__header"
+        class="pf-v5-c-jump-links__header"
       />
       <ul
-        class="pf-c-jump-links__list"
+        class="pf-v5-c-jump-links__list"
         role="list"
       >
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -192,26 +192,26 @@ exports[`jumplinks centered 1`] = `
         </li>
         <li
           aria-current="location"
-          class="pf-c-jump-links__item pf-m-current"
+          class="pf-v5-c-jump-links__item pf-m-current"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Active section
             </span>
           </a>
         </li>
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -227,32 +227,32 @@ exports[`jumplinks with label 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Jump to section"
-    class="pf-c-jump-links pf-m-center"
+    class="pf-v5-c-jump-links pf-m-center"
   >
     <div
-      class="pf-c-jump-links__main"
+      class="pf-v5-c-jump-links__main"
     >
       <div
-        class="pf-c-jump-links__header"
+        class="pf-v5-c-jump-links__header"
       >
         <div
-          class="pf-c-jump-links__label"
+          class="pf-v5-c-jump-links__label"
         >
           Jump to section
         </div>
       </div>
       <ul
-        class="pf-c-jump-links__list"
+        class="pf-v5-c-jump-links__list"
         role="list"
       >
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -260,26 +260,26 @@ exports[`jumplinks with label 1`] = `
         </li>
         <li
           aria-current="location"
-          class="pf-c-jump-links__item pf-m-current"
+          class="pf-v5-c-jump-links__item pf-m-current"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Active section
             </span>
           </a>
         </li>
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -294,26 +294,26 @@ exports[`jumplinks with label 1`] = `
 exports[`simple jumplinks 1`] = `
 <DocumentFragment>
   <nav
-    class="pf-c-jump-links"
+    class="pf-v5-c-jump-links"
   >
     <div
-      class="pf-c-jump-links__main"
+      class="pf-v5-c-jump-links__main"
     >
       <div
-        class="pf-c-jump-links__header"
+        class="pf-v5-c-jump-links__header"
       />
       <ul
-        class="pf-c-jump-links__list"
+        class="pf-v5-c-jump-links__list"
         role="list"
       >
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -321,26 +321,26 @@ exports[`simple jumplinks 1`] = `
         </li>
         <li
           aria-current="location"
-          class="pf-c-jump-links__item pf-m-current"
+          class="pf-v5-c-jump-links__item pf-m-current"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Active section
             </span>
           </a>
         </li>
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -356,32 +356,32 @@ exports[`vertical with label 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Jump to section"
-    class="pf-c-jump-links pf-m-vertical"
+    class="pf-v5-c-jump-links pf-m-vertical"
   >
     <div
-      class="pf-c-jump-links__main"
+      class="pf-v5-c-jump-links__main"
     >
       <div
-        class="pf-c-jump-links__header"
+        class="pf-v5-c-jump-links__header"
       >
         <div
-          class="pf-c-jump-links__label"
+          class="pf-v5-c-jump-links__label"
         >
           Jump to section
         </div>
       </div>
       <ul
-        class="pf-c-jump-links__list"
+        class="pf-v5-c-jump-links__list"
         role="list"
       >
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>
@@ -389,26 +389,26 @@ exports[`vertical with label 1`] = `
         </li>
         <li
           aria-current="location"
-          class="pf-c-jump-links__item pf-m-current"
+          class="pf-v5-c-jump-links__item pf-m-current"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Active section
             </span>
           </a>
         </li>
         <li
-          class="pf-c-jump-links__item"
+          class="pf-v5-c-jump-links__item"
         >
           <a
-            class="pf-c-jump-links__link"
+            class="pf-v5-c-jump-links__link"
           >
             <span
-              class="pf-c-jump-links__link-text"
+              class="pf-v5-c-jump-links__link-text"
             >
               Inactive section
             </span>

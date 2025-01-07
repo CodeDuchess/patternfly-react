@@ -3,7 +3,6 @@ import styles from '@patternfly/react-styles/css/components/Toolbar/toolbar';
 import { css } from '@patternfly/react-styles';
 import { ToolbarContentContext, ToolbarContext } from './ToolbarUtils';
 import { formatBreakpointMods } from '../../helpers/util';
-import { ToolbarExpandableContent } from './ToolbarExpandableContent';
 import { PageContext } from '../Page/PageContext';
 
 export interface ToolbarContentProps extends React.HTMLProps<HTMLDivElement> {
@@ -17,8 +16,10 @@ export interface ToolbarContentProps extends React.HTMLProps<HTMLDivElement> {
     xl?: 'hidden' | 'visible';
     '2xl'?: 'hidden' | 'visible';
   };
+  /** Vertical alignment. */
+  alignSelf?: 'start' | 'center' | 'baseline' | 'default';
   /** Vertical alignment of children */
-  alignItems?: 'center' | 'default';
+  alignItems?: 'start' | 'center' | 'baseline' | 'default';
   /** Content to be rendered as children of the content row */
   children?: React.ReactNode;
   /** Flag indicating if a data toolbar toggle group's expandable content is expanded */
@@ -33,7 +34,7 @@ export interface ToolbarContentProps extends React.HTMLProps<HTMLDivElement> {
   toolbarId?: string;
 }
 
-export class ToolbarContent extends React.Component<ToolbarContentProps> {
+class ToolbarContent extends React.Component<ToolbarContentProps> {
   static displayName = 'ToolbarContent';
   private expandableContentRef = React.createRef<HTMLDivElement>();
   private chipContainerRef = React.createRef<HTMLDivElement>();
@@ -55,6 +56,7 @@ export class ToolbarContent extends React.Component<ToolbarContentProps> {
       clearAllFilters,
       showClearFiltersButton,
       clearFiltersButtonText,
+      alignSelf,
       ...props
     } = this.props;
 
@@ -67,6 +69,7 @@ export class ToolbarContent extends React.Component<ToolbarContentProps> {
               formatBreakpointMods(visibility, styles, '', getBreakpoint(width)),
               className
             )}
+            ref={this.expandableContentRef}
             {...props}
           >
             <ToolbarContext.Consumer>
@@ -74,35 +77,37 @@ export class ToolbarContent extends React.Component<ToolbarContentProps> {
                 clearAllFilters: clearAllFiltersContext,
                 clearFiltersButtonText: clearFiltersButtonContext,
                 showClearFiltersButton: showClearFiltersButtonContext,
+                isExpanded: isExpandedContext,
                 toolbarId: toolbarIdContext
               }) => {
-                const expandableContentId = `${toolbarId ||
-                  toolbarIdContext}-expandable-content-${ToolbarContent.currentId++}`;
+                const expandableContentId = `${
+                  toolbarId || toolbarIdContext
+                }-expandable-content-${ToolbarContent.currentId++}`;
                 return (
                   <ToolbarContentContext.Provider
                     value={{
                       expandableContentRef: this.expandableContentRef,
                       expandableContentId,
-                      chipContainerRef: this.chipContainerRef
+                      chipContainerRef: this.chipContainerRef,
+                      isExpanded: isExpanded || isExpandedContext,
+                      clearAllFilters: clearAllFilters || clearAllFiltersContext,
+                      clearFiltersButtonText: clearFiltersButtonText || clearFiltersButtonContext,
+                      showClearFiltersButton: showClearFiltersButton || showClearFiltersButtonContext
                     }}
                   >
                     <div
                       className={css(
                         styles.toolbarContentSection,
-                        alignItems === 'center' && styles.modifiers.alignItemsCenter
+                        alignItems === 'center' && styles.modifiers.alignItemsCenter,
+                        alignItems === 'start' && styles.modifiers.alignItemsStart,
+                        alignItems === 'baseline' && styles.modifiers.alignItemsBaseline,
+                        alignSelf === 'center' && styles.modifiers.alignSelfCenter,
+                        alignSelf === 'start' && styles.modifiers.alignSelfStart,
+                        alignSelf === 'baseline' && styles.modifiers.alignSelfBaseline
                       )}
                     >
                       {children}
                     </div>
-                    <ToolbarExpandableContent
-                      id={expandableContentId}
-                      isExpanded={isExpanded}
-                      expandableContentRef={this.expandableContentRef}
-                      chipContainerRef={this.chipContainerRef}
-                      clearAllFilters={clearAllFilters || clearAllFiltersContext}
-                      showClearFiltersButton={showClearFiltersButton || showClearFiltersButtonContext}
-                      clearFiltersButtonText={clearFiltersButtonText || clearFiltersButtonContext}
-                    />
                   </ToolbarContentContext.Provider>
                 );
               }}
@@ -113,3 +118,5 @@ export class ToolbarContent extends React.Component<ToolbarContentProps> {
     );
   }
 }
+
+export { ToolbarContent };

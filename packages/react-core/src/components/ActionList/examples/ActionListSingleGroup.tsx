@@ -4,45 +4,45 @@ import {
   ActionListItem,
   Button,
   Dropdown,
+  DropdownList,
   DropdownItem,
-  DropdownSeparator,
-  KebabToggle
+  MenuToggle,
+  MenuToggleElement,
+  Divider
 } from '@patternfly/react-core';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 export const ActionListSingleGroup: React.FunctionComponent = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const onToggle = (
-    event: MouseEvent | TouchEvent | KeyboardEvent | React.KeyboardEvent<any> | React.MouseEvent<HTMLButtonElement>,
-    isOpen: boolean
-  ) => {
-    event.stopPropagation();
-    setIsOpen(isOpen);
-  };
-
-  const onSelect = (event: React.SyntheticEvent<HTMLDivElement, Event>) => {
-    event.stopPropagation();
+  const onToggle = () => {
     setIsOpen(!isOpen);
   };
 
-  const dropdownItems = [
-    <DropdownItem key="link">Link</DropdownItem>,
-    <DropdownItem key="action" component="button">
-      Action
-    </DropdownItem>,
-    <DropdownItem key="disabled link" isDisabled>
-      Disabled Link
-    </DropdownItem>,
-    <DropdownItem key="disabled action" isDisabled component="button">
-      Disabled Action
-    </DropdownItem>,
-    <DropdownSeparator key="separator" />,
-    <DropdownItem key="separated link">Separated Link</DropdownItem>,
-    <DropdownItem key="separated action" component="button">
-      Separated Action
-    </DropdownItem>
-  ];
+  const onSelect = (event: React.MouseEvent<Element, MouseEvent> | undefined) => {
+    event?.stopPropagation();
+    setIsOpen(!isOpen);
+  };
 
+  const dropdownItems = (
+    <>
+      <DropdownItem to="#" key="link">
+        Link
+      </DropdownItem>
+      <DropdownItem key="action">Action</DropdownItem>
+      <DropdownItem to="#" key="disabled link" isDisabled>
+        Disabled Link
+      </DropdownItem>
+      <DropdownItem key="disabled action" isDisabled>
+        Disabled Action
+      </DropdownItem>
+      <Divider component="li" key="separator" />
+      <DropdownItem to="#" key="separated link">
+        Separated Link
+      </DropdownItem>
+      <DropdownItem key="separated action">Separated Action</DropdownItem>
+    </>
+  );
   return (
     <React.Fragment>
       <ActionList>
@@ -73,12 +73,22 @@ export const ActionListSingleGroup: React.FunctionComponent = () => {
         <ActionListItem>
           <Dropdown
             onSelect={onSelect}
-            toggle={<KebabToggle onToggle={onToggle} />}
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={onToggle}
+                variant="plain"
+                isExpanded={isOpen}
+                aria-label="Action list single group kebab"
+              >
+                <EllipsisVIcon />
+              </MenuToggle>
+            )}
             isOpen={isOpen}
-            isPlain
-            dropdownItems={dropdownItems}
-            position="right"
-          />
+            onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+          >
+            <DropdownList>{dropdownItems}</DropdownList>
+          </Dropdown>
         </ActionListItem>
       </ActionList>
     </React.Fragment>

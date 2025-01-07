@@ -7,6 +7,7 @@ import { DualListSelectorListWrapper } from './DualListSelectorListWrapper';
 import { DualListSelectorContext, DualListSelectorPaneContext } from './DualListSelectorContext';
 import { DualListSelectorList } from './DualListSelectorList';
 import { SearchInput } from '../SearchInput';
+import cssMenuMinHeight from '@patternfly/react-tokens/dist/esm/c_dual_list_selector__menu_MinHeight';
 
 /** Acts as the container for a list of options that are either available or chosen,
  * depending on the pane type (available or chosen). A search input and other actions,
@@ -36,7 +37,7 @@ export interface DualListSelectorPaneProps extends Omit<React.HTMLProps<HTMLDivE
   selectedOptions?: string[] | number[];
   /** @hide Callback for when an option is selected. Optionally used only when options prop is provided. */
   onOptionSelect?: (
-    e: React.MouseEvent | React.ChangeEvent | React.KeyboardEvent,
+    event: React.MouseEvent | React.ChangeEvent | React.KeyboardEvent,
     index: number,
     isChosen: boolean,
     id?: string,
@@ -45,7 +46,7 @@ export interface DualListSelectorPaneProps extends Omit<React.HTMLProps<HTMLDivE
   ) => void;
   /** @hide Callback for when a tree option is checked. Optionally used only when options prop is provided. */
   onOptionCheck?: (
-    evt: React.MouseEvent | React.ChangeEvent<HTMLInputElement> | React.KeyboardEvent,
+    event: React.MouseEvent | React.ChangeEvent<HTMLInputElement> | React.KeyboardEvent,
     isChecked: boolean,
     itemData: DualListSelectorTreeItemData
   ) => void;
@@ -56,7 +57,7 @@ export interface DualListSelectorPaneProps extends Omit<React.HTMLProps<HTMLDivE
   /** Callback for search input. To be used when isSearchable is true. */
   onSearch?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   /** @hide A callback for when the search input value for changes.  To be used when isSearchable is true. */
-  onSearchInputChanged?: (value: string, event: React.FormEvent<HTMLInputElement>) => void;
+  onSearchInputChanged?: (event: React.FormEvent<HTMLInputElement>, value: string) => void;
   /** @hide Callback for search input clear button */
   onSearchInputClear?: (event: React.SyntheticEvent<HTMLButtonElement>) => void;
   /** @hide Filter function for custom filtering based on search string. To be used when isSearchable is true. */
@@ -100,10 +101,10 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
     let filtered: React.ReactNode[];
     if (isTree) {
       filtered = options
-        .map(opt => Object.assign({}, opt))
-        .filter(item => filterInput((item as unknown) as DualListSelectorTreeItemData, newValue));
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) => filterInput(item as unknown as DualListSelectorTreeItemData, newValue));
     } else {
-      filtered = options.filter(option => {
+      filtered = options.filter((option) => {
         if (displayOption(option)) {
           return option;
         }
@@ -112,7 +113,7 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
     onFilterUpdate(filtered, isChosen ? 'chosen' : 'available', newValue === '');
 
     if (onSearchInputChanged) {
-      onSearchInputChanged(newValue, e);
+      onSearchInputChanged(e, newValue);
     }
     setInput(newValue);
   };
@@ -120,7 +121,7 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
   // only called when options are passed via options prop and isTree === true
   const filterInput = (item: DualListSelectorTreeItemData, input: string): boolean => {
     if (filterOption) {
-      return filterOption((item as unknown) as React.ReactNode, input);
+      return filterOption(item as unknown as React.ReactNode, input);
     } else {
       if (item.text.toLowerCase().includes(input.toLowerCase()) || input === '') {
         return true;
@@ -128,8 +129,9 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
     }
     if (item.children) {
       return (
-        (item.children = item.children.map(opt => Object.assign({}, opt)).filter(child => filterInput(child, input)))
-          .length > 0
+        (item.children = item.children
+          .map((opt) => Object.assign({}, opt))
+          .filter((child) => filterInput(child, input))).length > 0
       );
     }
   };
@@ -139,10 +141,7 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
     if (filterOption) {
       return filterOption(option, input);
     } else {
-      return option
-        .toString()
-        .toLowerCase()
-        .includes(input.toLowerCase());
+      return option.toString().toLowerCase().includes(input.toLowerCase());
     }
   };
 
@@ -153,7 +152,7 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
     >
       {title && (
         <div className={css(styles.dualListSelectorHeader)}>
-          <div className="pf-c-dual-list-selector__title">
+          <div className={`${styles.dualListSelector}__title`}>
             <div className={css(styles.dualListSelectorTitleText)}>{title}</div>
           </div>
         </div>
@@ -168,11 +167,12 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
                 <SearchInput
                   onChange={isDisabled ? undefined : onChange}
                   onClear={
-                    onSearchInputClear ? onSearchInputClear : e => onChange(e as React.FormEvent<HTMLInputElement>, '')
+                    onSearchInputClear
+                      ? onSearchInputClear
+                      : (e) => onChange(e as React.FormEvent<HTMLInputElement>, '')
                   }
                   isDisabled={isDisabled}
                   aria-label={searchInputAriaLabel}
-                  type="search"
                 />
               )}
             </div>
@@ -202,7 +202,7 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
             id={`${id}-list`}
             isDisabled={isDisabled}
             {...(listMinHeight && {
-              style: { '--pf-c-dual-list-selector__menu--MinHeight': listMinHeight } as React.CSSProperties
+              style: { [cssMenuMinHeight.name]: listMinHeight } as React.CSSProperties
             })}
           >
             {children}
@@ -213,7 +213,7 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
             aria-labelledby={`${id}-status`}
             id={`${id}-list`}
             {...(listMinHeight && {
-              style: { '--pf-c-dual-list-selector__menu--MinHeight': listMinHeight } as React.CSSProperties
+              style: { [cssMenuMinHeight.name]: listMinHeight } as React.CSSProperties
             })}
           >
             {options.length > 0 ? (
@@ -221,12 +221,12 @@ export const DualListSelectorPane: React.FunctionComponent<DualListSelectorPaneP
                 <DualListSelectorTree
                   data={
                     isSearchable
-                      ? ((options
-                          .map(opt => Object.assign({}, opt))
-                          .filter(item =>
-                            filterInput((item as unknown) as DualListSelectorTreeItemData, input)
-                          ) as unknown) as DualListSelectorTreeItemData[])
-                      : ((options as unknown) as DualListSelectorTreeItemData[])
+                      ? (options
+                          .map((opt) => Object.assign({}, opt))
+                          .filter((item) =>
+                            filterInput(item as unknown as DualListSelectorTreeItemData, input)
+                          ) as unknown as DualListSelectorTreeItemData[])
+                      : (options as unknown as DualListSelectorTreeItemData[])
                   }
                   onOptionCheck={onOptionCheck}
                   id={`${id}-tree`}

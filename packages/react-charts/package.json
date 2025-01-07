@@ -1,6 +1,6 @@
 {
   "name": "@patternfly/react-charts",
-  "version": "7.0.0-alpha.10",
+  "version": "7.4.8",
   "description": "This library provides a set of React chart components for use with the PatternFly reference implementation.",
   "main": "dist/js/index.js",
   "module": "dist/esm/index.js",
@@ -11,8 +11,7 @@
     "*.scss"
   ],
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -29,41 +28,39 @@
   },
   "homepage": "https://github.com/patternfly/patternfly-react#readme",
   "dependencies": {
-    "@patternfly/react-styles": "^5.0.0-alpha.4",
-    "@patternfly/react-tokens": "^5.0.0-alpha.4",
-    "hoist-non-react-statics": "^3.3.0",
-    "lodash": "^4.17.19",
-    "tslib": "^2.0.0",
-    "victory-area": "^36.6.8",
-    "victory-axis": "^36.6.8",
-    "victory-bar": "^36.6.8",
-    "victory-chart": "^36.6.8",
-    "victory-core": "^36.6.8",
-    "victory-create-container": "^36.6.8",
-    "victory-cursor-container": "^36.6.8",
-    "victory-group": "^36.6.8",
-    "victory-legend": "^36.6.8",
-    "victory-line": "^36.6.8",
-    "victory-pie": "^36.6.8",
-    "victory-scatter": "^36.6.8",
-    "victory-stack": "^36.6.8",
-    "victory-tooltip": "^36.6.8",
-    "victory-voronoi-container": "^36.6.8",
-    "victory-zoom-container": "^36.6.8"
+    "@patternfly/react-styles": "workspace:^",
+    "@patternfly/react-tokens": "workspace:^",
+    "hoist-non-react-statics": "^3.3.2",
+    "lodash": "^4.17.21",
+    "tslib": "^2.7.0",
+    "victory-area": "^37.3.4",
+    "victory-axis": "^37.3.4",
+    "victory-bar": "^37.3.4",
+    "victory-box-plot": "^37.3.4",
+    "victory-chart": "^37.3.4",
+    "victory-core": "^37.3.4",
+    "victory-create-container": "^37.3.4",
+    "victory-cursor-container": "^37.3.4",
+    "victory-group": "^37.3.4",
+    "victory-legend": "^37.3.4",
+    "victory-line": "^37.3.4",
+    "victory-pie": "^37.3.4",
+    "victory-scatter": "^37.3.4",
+    "victory-stack": "^37.3.4",
+    "victory-tooltip": "^37.3.4",
+    "victory-voronoi-container": "^37.3.4",
+    "victory-zoom-container": "^37.3.4"
   },
   "peerDependencies": {
-    "react": "^16.8 || ^17 || ^18",
-    "react-dom": "^16.8 || ^17 || ^18"
+    "react": "^17 || ^18",
+    "react-dom": "^17 || ^18"
   },
   "scripts": {
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "build:single:packages": "node ../../scripts/build-single-packages.js --config single-packages.config.json"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.157",
-    "css": "^2.2.3",
-    "fs-extra": "^6.0.1",
-    "glob": "^7.1.2",
-    "rimraf": "^2.6.2",
-    "typescript": "^4.7.4"
+    "@types/lodash": "^4.17.13",
+    "fs-extra": "^11.2.0"
   }
 }

@@ -1,116 +1,71 @@
 import React from 'react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardBody,
-  Dropdown,
-  DropdownItem,
-  DropdownSeparator,
-  KebabToggle
-} from '@patternfly/react-core';
+import { Card, CardHeader, CardTitle, CardBody } from '@patternfly/react-core';
 
-export const CardSelectable: React.FunctionComponent = () => {
-  const [selected, setSelected] = React.useState<string>('');
-  const [isKebabOpen, setIsKebabOpen] = React.useState<boolean>(false);
+export const SelectableCard: React.FunctionComponent = () => {
+  const [isChecked1, setIsChecked1] = React.useState(false);
+  const [isChecked2, setIsChecked2] = React.useState(false);
+  const [isChecked3, setIsChecked3] = React.useState(false);
 
-  const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.target !== event.currentTarget) {
-      return;
+  const id1 = 'selectable-card-input-1';
+  const id2 = 'selectable-card-input-2';
+  const id3 = 'selectable-card-input-3';
+
+  const onChange = (event: React.FormEvent<HTMLInputElement>, checked: boolean) => {
+    const name = event.currentTarget.name;
+
+    switch (name) {
+      case id1:
+        setIsChecked1(checked);
+        break;
+      case id2:
+        setIsChecked2(checked);
+        break;
+      case id3:
+        setIsChecked3(checked);
+        break;
     }
-    if ([' ', 'Enter'].includes(event.key)) {
-      event.preventDefault();
-      const newSelected = event.currentTarget.id === selected ? '' : event.currentTarget.id;
-      setSelected(newSelected);
-    }
   };
-
-  const onClick = (event: React.MouseEvent) => {
-    const newSelected = event.currentTarget.id === selected ? '' : event.currentTarget.id;
-    setSelected(newSelected);
-  };
-
-  const onChange = (_event: React.FormEvent<HTMLInputElement>, labelledById: string) => {
-    const newSelected = labelledById === selected ? '' : labelledById;
-    setSelected(newSelected);
-  };
-
-  const onToggle = (
-    event: MouseEvent | TouchEvent | KeyboardEvent | React.KeyboardEvent<any> | React.MouseEvent<HTMLButtonElement>,
-    isOpen: boolean
-  ) => {
-    event.stopPropagation();
-    setIsKebabOpen(isOpen);
-  };
-
-  const onSelect = (event: React.SyntheticEvent<HTMLDivElement> | undefined) => {
-    event?.stopPropagation();
-    setIsKebabOpen(false);
-  };
-
-  const dropdownItems = [
-    <DropdownItem key="link">Link</DropdownItem>,
-    <DropdownItem key="action" component="button">
-      Action
-    </DropdownItem>,
-    <DropdownItem key="disabled link" isDisabled>
-      Disabled Link
-    </DropdownItem>,
-    <DropdownItem key="disabled action" isDisabled component="button">
-      Disabled Action
-    </DropdownItem>,
-    <DropdownSeparator key="separator" />,
-    <DropdownItem key="separated link">Separated Link</DropdownItem>,
-    <DropdownItem key="separated action" component="button">
-      Separated Action
-    </DropdownItem>
-  ];
-
-  const headerActions = (
-    <>
-      <Dropdown
-        onSelect={onSelect}
-        toggle={<KebabToggle onToggle={onToggle} />}
-        isOpen={isKebabOpen}
-        isPlain
-        dropdownItems={dropdownItems}
-        position={'right'}
-      />
-    </>
-  );
 
   return (
     <React.Fragment>
-      <Card
-        id="selectable-first-card"
-        onKeyDown={onKeyDown}
-        onClick={onClick}
-        hasSelectableInput
-        onSelectableInputChange={onChange}
-        isSelectableRaised
-        isSelected={selected === 'selectable-first-card'}
-      >
-        <CardHeader actions={{actions: headerActions}}/>
-        <CardTitle>First card</CardTitle>
-        <CardBody>This is a selectable card. Click me to select me. Click again to deselect me.</CardBody>
+      <Card id="selectable-card-example-1" isSelectable isSelected={isChecked1}>
+        <CardHeader
+          selectableActions={{
+            selectableActionId: id1,
+            selectableActionAriaLabelledby: 'selectable-card-example-1',
+            name: id1,
+            onChange
+          }}
+        >
+          <CardTitle>First card</CardTitle>
+        </CardHeader>
+        <CardBody>This card is selectable.</CardBody>
       </Card>
-      <br />
-      <Card
-        id="selectable-second-card"
-        onKeyDown={onKeyDown}
-        onClick={onClick}
-        hasSelectableInput
-        onSelectableInputChange={onChange}
-        isSelectableRaised
-        isSelected={selected === 'selectable-second-card'}
-      >
-        <CardTitle>Second card</CardTitle>
-        <CardBody>This is a selectable card. Click me to select me. Click again to deselect me.</CardBody>
+      <Card id="selectable-card-example-2" isSelectable isSelected={isChecked2}>
+        <CardHeader
+          selectableActions={{
+            selectableActionId: id2,
+            selectableActionAriaLabelledby: 'selectable-card-example-2',
+            name: id2,
+            onChange
+          }}
+        >
+          <CardTitle>Second card</CardTitle>
+        </CardHeader>
+        <CardBody>This card is selectable.</CardBody>
       </Card>
-      <br />
-      <Card id="selectable-third-card" isSelectableRaised isDisabledRaised hasSelectableInput>
-        <CardTitle>Third card</CardTitle>
-        <CardBody>This is a raised but disabled card.</CardBody>
+      <Card id="selectable-card-example-3" isSelectable isDisabled isSelected={isChecked3}>
+        <CardHeader
+          selectableActions={{
+            selectableActionId: id3,
+            selectableActionAriaLabelledby: 'selectable-card-example-3',
+            name: id3,
+            onChange
+          }}
+        >
+          <CardTitle>Third card</CardTitle>
+        </CardHeader>
+        <CardBody>This card is selectable but disabled.</CardBody>
       </Card>
     </React.Fragment>
   );

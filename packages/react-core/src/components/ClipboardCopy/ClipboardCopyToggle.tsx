@@ -1,6 +1,7 @@
 import * as React from 'react';
+import styles from '@patternfly/react-styles/css/components/ClipboardCopy/clipboard-copy';
+import { css } from '@patternfly/react-styles';
 import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
-import AngleDownIcon from '@patternfly/react-icons/dist/esm/icons/angle-down-icon';
 import { Button } from '../Button';
 
 export interface ClipboardCopyToggleProps
@@ -27,11 +28,13 @@ export const ClipboardCopyToggle: React.FunctionComponent<ClipboardCopyTogglePro
     onClick={onClick}
     id={id}
     aria-labelledby={`${id} ${textId}`}
-    aria-controls={`${id} ${contentId}`}
+    aria-controls={contentId}
     aria-expanded={isExpanded}
     {...props}
   >
-    {isExpanded ? <AngleDownIcon aria-hidden="true" /> : <AngleRightIcon aria-hidden="true" />}
+    <div className={css(styles.clipboardCopyToggleIcon)}>
+      <AngleRightIcon aria-hidden="true" />
+    </div>
   </Button>
 );
 ClipboardCopyToggle.displayName = 'ClipboardCopyToggle';

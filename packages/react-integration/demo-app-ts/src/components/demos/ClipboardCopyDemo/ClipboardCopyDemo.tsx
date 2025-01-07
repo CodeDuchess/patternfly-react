@@ -6,7 +6,7 @@ export class ClipboardCopyDemo extends React.Component {
   static displayName = 'ClipboardCopyDemo';
   render() {
     return (
-      <React.Fragment>
+      <>
         <ClipboardCopy variant={ClipboardCopyVariant.expansion}>
           Got a lot of text here, need to see all of it? Click that arrow on the left side and check out the resulting
           expansion.
@@ -32,7 +32,29 @@ export class ClipboardCopyDemo extends React.Component {
           </ClipboardCopy>
           is inline in a sentence.
         </div>
-      </React.Fragment>
+        <br />
+        <br />
+        <ClipboardCopy
+          onCopy={() => {}}
+          id="tooltip-test"
+          hoverTip="Copy button not clicked"
+          clickTip="Copy button clicked"
+        >
+          Some random text.
+        </ClipboardCopy>
+        <br />
+        <br />
+        <ClipboardCopy
+          exitDelay={0}
+          entryDelay={0}
+          onCopy={() => {}}
+          id="onTooltipHidden-test"
+          hoverTip="onTooltipHidden not clicked"
+          clickTip="onTooltipHidden clicked"
+        >
+          Some random text.
+        </ClipboardCopy>
+      </>
     );
   }
 }

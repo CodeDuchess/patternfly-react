@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { OUIAProps } from '@patternfly/react-core/dist/esm/helpers/OUIA/ouia';
 import { debounce, canUseDOM } from '@patternfly/react-core/dist/esm/helpers/util';
-import { Tr } from '../TableComposable/Tr';
+import { Tr } from './Tr';
 import { IRow } from './TableTypes';
 
 // legacy export now, RowWrapperRow can simply be typed as IRow in the future
@@ -26,7 +26,7 @@ export interface RowWrapperProps extends OUIAProps {
   ouiaId?: number | string;
 }
 
-export class RowWrapper extends React.Component<RowWrapperProps> {
+class RowWrapper extends React.Component<RowWrapperProps> {
   static displayName = 'RowWrapper';
   static defaultProps = {
     className: '' as string,
@@ -79,13 +79,13 @@ export class RowWrapper extends React.Component<RowWrapperProps> {
 
   handleScroll = (event: Event): void => {
     if (!this._unmounted) {
-      this.props.onScroll((event as unknown) as React.UIEvent<Element>);
+      this.props.onScroll(event as unknown as React.UIEvent<Element>);
     }
   };
 
   handleResize = (event: Event) => {
     if (!this._unmounted) {
-      this.props.onResize((event as unknown) as React.UIEvent<Element>);
+      this.props.onResize(event as unknown as React.UIEvent<Element>);
     }
   };
 
@@ -94,7 +94,7 @@ export class RowWrapper extends React.Component<RowWrapperProps> {
       /* eslint-disable @typescript-eslint/no-unused-vars */
       onScroll,
       onResize,
-      row: { isExpanded, isEditable, isHoverable, isRowSelected },
+      row: { isExpanded, isEditable, isClickable, isRowSelected },
       rowProps,
       /* eslint-enable @typescript-eslint/no-unused-vars */
       trRef,
@@ -111,9 +111,11 @@ export class RowWrapper extends React.Component<RowWrapperProps> {
         isEditable={isEditable}
         className={className}
         ouiaId={ouiaId}
-        isHoverable={isHoverable}
+        isClickable={isClickable}
         isRowSelected={isRowSelected}
       />
     );
   }
 }
+
+export { RowWrapper };

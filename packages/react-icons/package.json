@@ -1,14 +1,13 @@
 {
   "name": "@patternfly/react-icons",
-  "version": "5.0.0-alpha.4",
+  "version": "5.4.2",
   "description": "PatternFly 4 Icons as React Components",
   "main": "dist/js/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "sideEffects": false,
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -25,22 +24,20 @@
   },
   "homepage": "https://github.com/patternfly/patternfly-react#readme",
   "scripts": {
-    "generate": "rimraf dist/esm/icons dist/js/icons && node scripts/writeIcons.mjs",
-    "clean": "rimraf dist src/icons src/index.js src/index.d.ts"
+    "build:single:packages": "node ../../scripts/build-single-packages.js --config single-packages.config.json",
+    "clean": "rimraf dist src/icons src/index.js src/index.d.ts",
+    "generate": "rimraf dist/esm/icons dist/js/icons && node scripts/writeIcons.mjs"
   },
   "devDependencies": {
-    "@fortawesome/free-brands-svg-icons": "^5.14.0",
-    "@fortawesome/free-regular-svg-icons": "^5.14.0",
-    "@fortawesome/free-solid-svg-icons": "^5.14.0",
-    "@patternfly/patternfly": "5.0.0-alpha.24",
-    "fs-extra": "^11.1.0",
-    "glob": "^7.1.2",
-    "rimraf": "^2.6.2",
-    "tslib": "^2.0.0",
-    "typescript": "^4.7.4"
+    "@fortawesome/free-brands-svg-icons": "^5.15.4",
+    "@fortawesome/free-regular-svg-icons": "^5.15.4",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@patternfly/patternfly": "5.4.2",
+    "fs-extra": "^11.2.0",
+    "tslib": "^2.7.0"
   },
   "peerDependencies": {
-    "react": "^16.8 || ^17 || ^18",
-    "react-dom": "^16.8 || ^17 || ^18"
+    "react": "^17 || ^18",
+    "react-dom": "^17 || ^18"
   }
 }

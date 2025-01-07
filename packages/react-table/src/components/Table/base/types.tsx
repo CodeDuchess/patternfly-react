@@ -6,20 +6,16 @@
  */
 
 import * as React from 'react';
-import {
-  TooltipProps,
-  PopoverProps,
-  DropdownPosition,
-  DropdownDirection,
-  SelectOptionObject,
-  SelectProps
-} from '@patternfly/react-core';
-import { TableComposable } from '../../TableComposable/TableComposable';
-import { Thead } from '../../TableComposable/Thead';
-import { Tbody } from '../../TableComposable/Tbody';
-import { Tr } from '../../TableComposable/Tr';
-import { Th } from '../../TableComposable/Th';
-import { Td } from '../../TableComposable/Td';
+import { TooltipProps } from '@patternfly/react-core/dist/esm/components/Tooltip';
+import { PopoverProps } from '@patternfly/react-core/dist/esm/components/Popover';
+import { DropdownPosition, DropdownDirection } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown';
+import { SelectOptionObject, SelectProps } from '@patternfly/react-core/dist/esm/deprecated/components/Select';
+import { Table } from '../Table';
+import { Thead } from '../Thead';
+import { Tbody } from '../Tbody';
+import { Tr } from '../Tr';
+import { Th } from '../Th';
+import { Td } from '../Td';
 import {
   IActions,
   ISortBy,
@@ -49,8 +45,8 @@ export interface TdSelectType {
   onSelect?: OnSelect;
   /** Whether the cell is selected */
   isSelected: boolean;
-  /** Whether to disable the selection */
-  disable?: boolean;
+  /** Whether the selection is disabled */
+  isDisabled?: boolean;
   /** The row index */
   rowIndex: number;
   /** Additional props forwarded to select rowData */
@@ -62,8 +58,8 @@ export interface TdActionsType {
   rowIndex?: number;
   /** Cell actions */
   items: IActions;
-  /** Whether to disable the actions */
-  disable?: boolean;
+  /** Whether the actions are disabled */
+  isDisabled?: boolean;
   /** Actions dropdown position */
   dropdownPosition?: DropdownPosition;
   /** Actions dropdown direction */
@@ -206,7 +202,7 @@ export interface RowType {
 // Table Defaults
 export const TableDefaults = {
   renderers: {
-    table: TableComposable,
+    table: Table,
     header: {
       wrapper: Thead,
       row: Tr,

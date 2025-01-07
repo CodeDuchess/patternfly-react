@@ -13,11 +13,11 @@ export class TextInputDemo extends Component {
 
   ref = React.createRef<HTMLInputElement>();
 
-  handleTextInputChange = (value: string) => {
+  handleTextInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     this.setState({ value });
   };
 
-  handleValidatedTextInputChange = (value: string) => {
+  handleValidatedTextInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     // If the text input contains less than 5 characters, set validated to error. If empty set to warning.
     let validated = ValidatedOptions.default;
     if (value.length === 0) {
@@ -28,11 +28,14 @@ export class TextInputDemo extends Component {
     this.setState({ validatedTextInputValue: value, validated });
   };
 
-  handleLeftTruncatedTextInputChange = (leftTruncatedTextInputValue: string) => {
+  handleLeftTruncatedTextInputChange = (
+    _event: React.FormEvent<HTMLInputElement>,
+    leftTruncatedTextInputValue: string
+  ) => {
     this.setState({ leftTruncatedTextInputValue });
   };
 
-  handleTextUsingRefInputChange = (selectTextUsingRefValue: string) => {
+  handleTextUsingRefInputChange = (_event: React.FormEvent<HTMLInputElement>, selectTextUsingRefValue: string) => {
     this.setState({ selectTextUsingRefValue });
   };
 
@@ -46,7 +49,7 @@ export class TextInputDemo extends Component {
   };
 
   myReadOnlyTextInputProps: TextInputProps = {
-    isReadOnly: true,
+    readOnlyVariant: 'default',
     value: 'read only text input example'
   };
 
@@ -56,7 +59,7 @@ export class TextInputDemo extends Component {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         <Text>Simple Text Input Example</Text>
         <TextInput id="text" onChange={this.myTextInputProps.onChange} />
         <TextInput
@@ -66,13 +69,13 @@ export class TextInputDemo extends Component {
         />
         <TextInput
           id="text-read-only"
-          isReadOnly={this.myReadOnlyTextInputProps.isReadOnly}
+          readOnlyVariant={this.myReadOnlyTextInputProps.readOnlyVariant}
           value={this.myReadOnlyTextInputProps.value}
         />
         <Text>Text Input Truncated on Left Example</Text>
         <TextInput
           id="text-truncated-on-left"
-          isLeftTruncated
+          isStartTruncated
           onChange={this.handleLeftTruncatedTextInputChange}
           value={this.state.leftTruncatedTextInputValue}
         />
@@ -94,7 +97,7 @@ export class TextInputDemo extends Component {
           onChange={this.handleTextUsingRefInputChange}
           aria-label="select-all"
         />
-      </React.Fragment>
+      </>
     );
   }
 }

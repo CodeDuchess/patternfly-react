@@ -7,7 +7,6 @@ import ExclamationTriangleIcon from '@patternfly/react-icons/dist/esm/icons/excl
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 import { css } from '@patternfly/react-styles';
 import styles from '@patternfly/react-styles/css/components/NotificationDrawer/notification-drawer';
-import a11yStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
 
 import maxLines from '@patternfly/react-tokens/dist/esm/c_notification_drawer__list_item_header_title_max_lines';
 
@@ -18,7 +17,7 @@ export const variantIcons = {
   danger: ExclamationCircleIcon,
   warning: ExclamationTriangleIcon,
   info: InfoCircleIcon,
-  default: BellIcon
+  custom: BellIcon
 };
 
 export interface NotificationDrawerListItemHeaderProps extends React.HTMLProps<HTMLDivElement> {
@@ -33,7 +32,7 @@ export interface NotificationDrawerListItemHeaderProps extends React.HTMLProps<H
   /**  Notification drawer list item title */
   title: string;
   /**  Variant indicates the severity level */
-  variant?: 'success' | 'danger' | 'warning' | 'info' | 'default';
+  variant?: 'success' | 'danger' | 'warning' | 'info' | 'custom';
   /** Truncate title to number of lines */
   truncateTitle?: number;
   /** Position of the tooltip which is displayed if text is truncated */
@@ -62,7 +61,7 @@ export const NotificationDrawerListItemHeader: React.FunctionComponent<Notificat
   icon = null,
   srTitle,
   title,
-  variant = 'default',
+  variant = 'custom',
   truncateTitle = 0,
   tooltipPosition,
   headingLevel: HeadingLevel = 'h2',
@@ -87,7 +86,7 @@ export const NotificationDrawerListItemHeader: React.FunctionComponent<Notificat
       ref={titleRef}
       className={css(styles.notificationDrawerListItemHeaderTitle, truncateTitle && styles.modifiers.truncate)}
     >
-      {srTitle && <span className={css(a11yStyles.screenReader)}>{srTitle}</span>}
+      {srTitle && <span className="pf-v5-screen-reader">{srTitle}</span>}
       {title}
     </HeadingLevel>
   );

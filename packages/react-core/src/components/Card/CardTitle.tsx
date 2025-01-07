@@ -29,9 +29,11 @@ export const CardTitle: React.FunctionComponent<CardTitleProps> = ({
   }, [registerTitleId, titleId]);
 
   return (
-    <Component className={css(styles.cardTitle, className)} id={titleId || undefined} {...props}>
-      {children}
-    </Component>
+    <div className={css(styles.cardTitle)}>
+      <Component className={css(styles.cardTitleText, className)} id={titleId || undefined} {...props}>
+        {children}
+      </Component>
+    </div>
   );
 };
 CardTitle.displayName = 'CardTitle';

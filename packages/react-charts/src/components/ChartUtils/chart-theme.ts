@@ -1,15 +1,24 @@
+import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
-import { BlueColorTheme } from '../ChartTheme/themes/colors/blue-theme';
-import { CyanColorTheme } from '../ChartTheme/themes/colors/cyan-theme';
-import { GoldColorTheme } from '../ChartTheme/themes/colors/gold-theme';
-import { GrayColorTheme } from '../ChartTheme/themes/colors/gray-theme';
-import { GreenColorTheme } from '../ChartTheme/themes/colors/green-theme';
-import { MultiColorOrderedTheme } from '../ChartTheme/themes/colors/multi-ordered-theme';
-import { MultiColorUnorderedTheme } from '../ChartTheme/themes/colors/multi-unordered-theme';
-import { OrangeColorTheme } from '../ChartTheme/themes/colors/orange-theme';
-import { PurpleColorTheme } from '../ChartTheme/themes/colors/purple-theme';
-import { ChartBaseTheme, ChartThemeDefinition } from '../ChartTheme';
 import { ChartThemeColor } from '../ChartTheme/ChartThemeColor';
+import { ChartThemeDefinition, ChartComponentThemeDefinition } from '../ChartTheme/ChartTheme';
+import { ChartBaseTheme, ChartBaseComponentTheme } from '../ChartTheme/ChartThemeTypes';
+import { BlueColorTheme, BlueColorComponentTheme } from '../ChartTheme/themes/colors/blue-theme';
+import { CyanColorTheme, CyanColorComponentTheme } from '../ChartTheme/themes/colors/cyan-theme';
+import { GoldColorTheme, GoldColorComponentTheme } from '../ChartTheme/themes/colors/gold-theme';
+import { GrayColorTheme, GrayColorComponentTheme } from '../ChartTheme/themes/colors/gray-theme';
+import { GreenColorTheme, GreenColorComponentTheme } from '../ChartTheme/themes/colors/green-theme';
+import { SkeletonColorTheme, SkeletonColorComponentTheme } from '../ChartTheme/themes/colors/skeleton-theme';
+import {
+  MultiColorOrderedTheme,
+  MultiColorOrderedComponentTheme
+} from '../ChartTheme/themes/colors/multi-ordered-theme';
+import {
+  MultiColorUnorderedTheme,
+  MultiColorUnorderedComponentTheme
+} from '../ChartTheme/themes/colors/multi-unordered-theme';
+import { OrangeColorTheme, OrangeColorComponentTheme } from '../ChartTheme/themes/colors/orange-theme';
+import { PurpleColorTheme, PurpleColorComponentTheme } from '../ChartTheme/themes/colors/purple-theme';
 
 /**
  * Apply custom properties to base and color themes
@@ -26,18 +35,25 @@ export const getCustomTheme = (themeColor: string, customTheme: ChartThemeDefini
  * @public
  */
 export const getTheme = (themeColor: string): ChartThemeDefinition => {
-  // Deep clone
-  const baseTheme = {
-    ...JSON.parse(JSON.stringify(ChartBaseTheme))
-  };
+  const baseTheme = cloneDeep(ChartBaseTheme);
   return merge(baseTheme, getThemeColors(themeColor));
 };
 
 /**
- * Returns theme colors
+ * Returns base component theme for given color
  * @private
+ * @beta
  */
-const getThemeColors = (themeColor: string) => {
+export const getComponentTheme = (themeColor: string): ChartComponentThemeDefinition => {
+  const theme = cloneDeep(ChartBaseComponentTheme);
+  return merge(theme, getThemeComponentColors(themeColor));
+};
+
+/**
+ * Returns theme colors
+ * @public
+ */
+export const getThemeColors = (themeColor: string) => {
   switch (themeColor) {
     case ChartThemeColor.blue:
       return BlueColorTheme;
@@ -58,7 +74,42 @@ const getThemeColors = (themeColor: string) => {
       return OrangeColorTheme;
     case ChartThemeColor.purple:
       return PurpleColorTheme;
+    case ChartThemeColor.skeleton:
+      return SkeletonColorTheme;
     default:
       return BlueColorTheme;
+  }
+};
+
+/**
+ * Returns theme component colors
+ * @private
+ * @beta
+ */
+export const getThemeComponentColors = (themeColor: string) => {
+  switch (themeColor) {
+    case ChartThemeColor.blue:
+      return BlueColorComponentTheme;
+    case ChartThemeColor.cyan:
+      return CyanColorComponentTheme;
+    case ChartThemeColor.gold:
+      return GoldColorComponentTheme;
+    case ChartThemeColor.gray:
+      return GrayColorComponentTheme;
+    case ChartThemeColor.green:
+      return GreenColorComponentTheme;
+    case ChartThemeColor.multi:
+    case ChartThemeColor.multiOrdered:
+      return MultiColorOrderedComponentTheme;
+    case ChartThemeColor.multiUnordered:
+      return MultiColorUnorderedComponentTheme;
+    case ChartThemeColor.orange:
+      return OrangeColorComponentTheme;
+    case ChartThemeColor.purple:
+      return PurpleColorComponentTheme;
+    case ChartThemeColor.skeleton:
+      return SkeletonColorComponentTheme;
+    default:
+      return BlueColorComponentTheme;
   }
 };

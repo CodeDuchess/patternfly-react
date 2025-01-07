@@ -9,9 +9,10 @@ import {
   VictoryCursorContainer,
   VictoryCursorContainerProps
 } from 'victory-cursor-container';
-import { ChartLabel } from '../ChartLabel';
-import { ChartThemeDefinition } from '../ChartTheme';
-import { getClassName, getTheme } from '../ChartUtils';
+import { ChartLabel } from '../ChartLabel/ChartLabel';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getComponentTheme, getTheme } from '../ChartUtils/chart-theme';
+import { getClassName } from '../ChartUtils/chart-helpers';
 
 /**
  * ChartCursorContainer adds a cursor to a chart to inspect coordinates. The cursor moves with the mouse along the
@@ -22,7 +23,7 @@ import { getClassName, getTheme } from '../ChartUtils';
  */
 export interface ChartCursorContainerProps extends VictoryCursorContainerProps {
   /**
-   * he children prop specifies the child or children that will be rendered within the container. It will be set by
+   * The children prop specifies the child or children that will be rendered within the container. It will be set by
    * whatever Victory component is rendering the container.
    *
    * Note: This prop should not be set manually.
@@ -209,10 +210,12 @@ export const ChartCursorContainer: React.FunctionComponent<ChartCursorContainerP
   cursorLabelComponent = <ChartLabel />, // Note that Victory provides its own label component here
   ...rest
 }: ChartCursorContainerProps) => {
+  const componentTheme = getComponentTheme(themeColor);
   const chartClassName = getClassName({ className });
   const chartCursorLabelComponent = React.cloneElement(cursorLabelComponent, {
     theme,
-    ...cursorLabelComponent.props
+    ...cursorLabelComponent.props,
+    ...(componentTheme?.label && componentTheme.label) // override backgroundStyle
   });
 
   // Clone so users can override cursor container props
@@ -236,7 +239,6 @@ export const ChartCursorContainer: React.FunctionComponent<ChartCursorContainerP
   );
 };
 ChartCursorContainer.displayName = 'ChartCursorContainer';
-ChartCursorContainer.defaultProps = (VictoryCursorContainer as any).defaultProps;
 
 // Note: VictoryCursorContainer.defaultEvents & VictoryContainer.role must be hoisted
 hoistNonReactStatics(ChartCursorContainer, VictoryCursorContainer);

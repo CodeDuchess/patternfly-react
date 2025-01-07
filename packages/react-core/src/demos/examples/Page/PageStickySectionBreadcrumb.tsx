@@ -1,7 +1,5 @@
 import React from 'react';
 import {
-  ApplicationLauncher,
-  ApplicationLauncherItem,
   Avatar,
   Brand,
   Breadcrumb,
@@ -14,15 +12,16 @@ import {
   Dropdown,
   DropdownGroup,
   DropdownItem,
-  DropdownToggle,
+  DropdownList,
   Gallery,
   GalleryItem,
-  KebabToggle,
   Masthead,
   MastheadBrand,
   MastheadContent,
   MastheadMain,
   MastheadToggle,
+  MenuToggle,
+  MenuToggleElement,
   Nav,
   NavItem,
   NavList,
@@ -30,6 +29,7 @@ import {
   PageSection,
   PageSectionVariants,
   PageSidebar,
+  PageSidebarBody,
   PageToggleButton,
   SkipToContent,
   Text,
@@ -44,56 +44,47 @@ import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import CogIcon from '@patternfly/react-icons/dist/esm/icons/cog-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/esm/icons/question-circle-icon';
-import imgAvatar from '@patternfly/react-core/src/components/Avatar/examples/avatarImg.svg';
-
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import imgAvatar from '@patternfly/react-core/src/components/assets/avatarImg.svg';
+import pfLogo from '@patternfly/react-core/src/demos/assets/pf-logo.svg';
 interface NavOnSelectProps {
   groupId: number | string;
   itemId: number | string;
   to: string;
-  event: React.FormEvent<HTMLInputElement>;
 }
 
 export const PageStickySectionBreadcrumb: React.FunctionComponent = () => {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [isKebabDropdownOpen, setIsKebabDropdownOpen] = React.useState(false);
   const [isFullKebabDropdownOpen, setIsFullKebabDropdownOpen] = React.useState(false);
-  const [isAppLauncherOpen, setIsAppLauncherOpen] = React.useState(false);
   const [activeItem, setActiveItem] = React.useState(1);
 
-  const onNavSelect = (selectedItem: NavOnSelectProps) => {
+  const onNavSelect = (_event: React.FormEvent<HTMLInputElement>, selectedItem: NavOnSelectProps) => {
     typeof selectedItem.itemId === 'number' && setActiveItem(selectedItem.itemId);
   };
 
-  const onDropdownToggle = (_event: any, isOpen: boolean) => {
-    setIsDropdownOpen(isOpen);
-  };
-
-  const onDropdownSelect = () => {
+  const onDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const onKebabDropdownToggle = (_event: any, isOpen: boolean) => {
-    setIsKebabDropdownOpen(isOpen);
+  const onDropdownSelect = () => {
+    setIsDropdownOpen(false);
   };
 
-  const onKebabDropdownSelect = () => {
+  const onKebabDropdownToggle = () => {
     setIsKebabDropdownOpen(!isKebabDropdownOpen);
   };
 
-  const onFullKebabDropdownToggle = (_event: any, isOpen: boolean) => {
-    setIsFullKebabDropdownOpen(isOpen);
+  const onKebabDropdownSelect = () => {
+    setIsKebabDropdownOpen(false);
   };
 
-  const onFullKebabDropdownSelect = () => {
+  const onFullKebabDropdownToggle = () => {
     setIsFullKebabDropdownOpen(!isFullKebabDropdownOpen);
   };
 
-  const onAppLauncherToggle = (_event: any, isOpen: boolean) => {
-    setIsAppLauncherOpen(isOpen);
-  };
-
-  const onAppLauncherSelect = () => {
-    setIsAppLauncherOpen(!isAppLauncherOpen);
+  const onFullKebabDropdownSelect = () => {
+    setIsFullKebabDropdownOpen(false);
   };
 
   const dashboardBreadcrumb = (
@@ -107,50 +98,23 @@ export const PageStickySectionBreadcrumb: React.FunctionComponent = () => {
     </Breadcrumb>
   );
 
-  const kebabDropdownItems = [
-    <DropdownItem key="settings">
-      <CogIcon /> Settings
-    </DropdownItem>,
-    <DropdownItem key="help">
-      <HelpIcon /> Help
-    </DropdownItem>
-  ];
-
-  const fullKebabDropdownItems = [
-    <DropdownGroup key="group 2">
-      <DropdownItem key="group 2 profile">My profile</DropdownItem>
-      <DropdownItem key="group 2 user" component="button">
-        User management
+  const kebabDropdownItems = (
+    <>
+      <DropdownItem>
+        <CogIcon /> Settings
       </DropdownItem>
-      <DropdownItem key="group 2 logout">Logout</DropdownItem>
-    </DropdownGroup>,
-    <Divider key="divider" />,
-    <DropdownItem key="settings">
-      <CogIcon /> Settings
-    </DropdownItem>,
-    <DropdownItem key="help">
-      <HelpIcon /> Help
-    </DropdownItem>
-  ];
-
-  const userDropdownItems = [
-    <DropdownGroup key="group 2">
-      <DropdownItem key="group 2 profile">My profile</DropdownItem>
-      <DropdownItem key="group 2 user" component="button">
-        User management
+      <DropdownItem>
+        <HelpIcon /> Help
       </DropdownItem>
+    </>
+  );
+  const userDropdownItems = (
+    <>
+      <DropdownItem key="group 2 profile">My profile</DropdownItem>
+      <DropdownItem key="group 2 user">User management</DropdownItem>
       <DropdownItem key="group 2 logout">Logout</DropdownItem>
-    </DropdownGroup>
-  ];
-
-  const appLauncherItems = [
-    <ApplicationLauncherItem key="application_1a" href="#">
-      Application 1 (anchor link)
-    </ApplicationLauncherItem>,
-    <ApplicationLauncherItem key="application_2a" component="button" onClick={() => alert('Clicked item 2')}>
-      Application 2 (button with onClick)
-    </ApplicationLauncherItem>
-  ];
+    </>
+  );
 
   const headerToolbar = (
     <Toolbar id="toolbar" isFullHeight isStatic>
@@ -164,14 +128,6 @@ export const PageStickySectionBreadcrumb: React.FunctionComponent = () => {
             <Button aria-label="Notifications" variant={ButtonVariant.plain} icon={<BellIcon />} />
           </ToolbarItem>
           <ToolbarGroup variant="icon-button-group" visibility={{ default: 'hidden', lg: 'visible' }}>
-            <ToolbarItem visibility={{ default: 'hidden', md: 'hidden', lg: 'visible' }}>
-              <ApplicationLauncher
-                onSelect={onAppLauncherSelect}
-                onToggle={onAppLauncherToggle}
-                isOpen={isAppLauncherOpen}
-                items={appLauncherItems}
-              />
-            </ToolbarItem>
             <ToolbarItem>
               <Button aria-label="Settings" variant={ButtonVariant.plain} icon={<CogIcon />} />
             </ToolbarItem>
@@ -181,37 +137,71 @@ export const PageStickySectionBreadcrumb: React.FunctionComponent = () => {
           </ToolbarGroup>
           <ToolbarItem visibility={{ default: 'hidden', md: 'visible', lg: 'hidden' }}>
             <Dropdown
-              isPlain
-              position="right"
-              onSelect={onKebabDropdownSelect}
-              toggle={<KebabToggle onToggle={onKebabDropdownToggle} />}
               isOpen={isKebabDropdownOpen}
-              dropdownItems={kebabDropdownItems}
-            />
+              onSelect={onKebabDropdownSelect}
+              onOpenChange={(isOpen: boolean) => setIsKebabDropdownOpen(isOpen)}
+              popperProps={{ position: 'right' }}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={onKebabDropdownToggle}
+                  isExpanded={isKebabDropdownOpen}
+                  variant="plain"
+                  aria-label="Settings and help"
+                >
+                  <EllipsisVIcon aria-hidden="true" />
+                </MenuToggle>
+              )}
+            >
+              <DropdownList>{kebabDropdownItems}</DropdownList>
+            </Dropdown>
           </ToolbarItem>
           <ToolbarItem visibility={{ md: 'hidden' }}>
             <Dropdown
-              isPlain
-              position="right"
-              onSelect={onFullKebabDropdownSelect}
-              toggle={<KebabToggle onToggle={onFullKebabDropdownToggle} />}
               isOpen={isFullKebabDropdownOpen}
-              dropdownItems={fullKebabDropdownItems}
-            />
+              onSelect={onFullKebabDropdownSelect}
+              onOpenChange={(isOpen: boolean) => setIsFullKebabDropdownOpen(isOpen)}
+              popperProps={{ position: 'right' }}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={onFullKebabDropdownToggle}
+                  isExpanded={isFullKebabDropdownOpen}
+                  variant="plain"
+                  aria-label="Toolbar menu"
+                >
+                  <EllipsisVIcon aria-hidden="true" />
+                </MenuToggle>
+              )}
+            >
+              <DropdownGroup key="group 2" aria-label="User actions">
+                <DropdownList>{userDropdownItems}</DropdownList>
+              </DropdownGroup>
+              <Divider />
+              <DropdownList>{kebabDropdownItems}</DropdownList>
+            </Dropdown>
           </ToolbarItem>
         </ToolbarGroup>
         <ToolbarItem visibility={{ default: 'hidden', md: 'visible' }}>
           <Dropdown
-            isFullHeight
-            onSelect={onDropdownSelect}
             isOpen={isDropdownOpen}
-            toggle={
-              <DropdownToggle icon={<Avatar src={imgAvatar} alt="Avatar" />} onToggle={onDropdownToggle}>
+            onSelect={onDropdownSelect}
+            onOpenChange={(isOpen: boolean) => setIsDropdownOpen(isOpen)}
+            popperProps={{ position: 'right' }}
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={onDropdownToggle}
+                isFullHeight
+                isExpanded={isDropdownOpen}
+                icon={<Avatar src={imgAvatar} alt="" />}
+              >
                 Ned Username
-              </DropdownToggle>
-            }
-            dropdownItems={userDropdownItems}
-          />
+              </MenuToggle>
+            )}
+          >
+            <DropdownList>{userDropdownItems}</DropdownList>
+          </Dropdown>
         </ToolbarItem>
       </ToolbarContent>
     </Toolbar>
@@ -226,14 +216,7 @@ export const PageStickySectionBreadcrumb: React.FunctionComponent = () => {
       </MastheadToggle>
       <MastheadMain>
         <MastheadBrand>
-          <Brand
-            widths={{ default: '180px', md: '180px', '2xl': '220px' }}
-            src="/assets/images/logo__pf--reverse--base.png"
-            alt="Fallback patternFly default logo"
-          >
-            <source media="(min-width: 768px)" srcSet="/assets/images/logo__pf--reverse-on-md.svg" />
-            <source srcSet="/assets/images/logo__pf--reverse--base.svg" />
-          </Brand>
+          <Brand src={pfLogo} alt="PatternFly" heights={{ default: '36px' }} />
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>{headerToolbar}</MastheadContent>
@@ -262,7 +245,11 @@ export const PageStickySectionBreadcrumb: React.FunctionComponent = () => {
     </Nav>
   );
 
-  const sidebar = <PageSidebar nav={pageNav} />;
+  const sidebar = (
+    <PageSidebar>
+      <PageSidebarBody>{pageNav}</PageSidebarBody>
+    </PageSidebar>
+  );
 
   const mainContainerId = 'main-content';
 
@@ -291,8 +278,8 @@ export const PageStickySectionBreadcrumb: React.FunctionComponent = () => {
       </PageSection>
       <PageSection isWidthLimited>
         <Gallery hasGutter>
-          {Array.apply(0, Array(50)).map((_x, i) => (
-            <GalleryItem key={i}>
+          {Array.from({ length: 50 }).map((_value, index) => (
+            <GalleryItem key={index}>
               <Card>
                 <CardBody>This is a card</CardBody>
               </Card>

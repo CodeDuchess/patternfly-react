@@ -5,12 +5,14 @@ module.exports = {
   hasFooter: false,
   hasVersionSwitcher: false,
   hasDarkThemeSwitcher: true,
+  hasRTLSwitcher: true,
   hasDesignGuidelines: false,
   sideNavItems: [
+    { section: 'get-started' },
     { section: 'developer-resources' },
     { section: 'charts' },
     { section: 'components' },
-    { section: 'demos' },
+    { section: 'patterns' },
     { section: 'layouts' }
   ],
   topNavItems: [{ text: 'Icons', path: '/icons' }],

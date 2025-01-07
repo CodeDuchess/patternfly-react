@@ -2,14 +2,16 @@ import React from 'react';
 import {
   Button,
   ButtonVariant,
-  Dropdown,
-  DropdownItem,
   DualListSelector,
   DualListSelectorProps,
-  KebabToggle
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle
 } from '@patternfly/react-core';
 import PficonSortCommonDescIcon from '@patternfly/react-icons/dist/esm/icons/pficon-sort-common-desc-icon';
 import PficonSortCommonAscIcon from '@patternfly/react-icons/dist/esm/icons/pficon-sort-common-asc-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 interface DualListSelectorState {
   availableOptions: React.ReactNode[];
@@ -23,10 +25,14 @@ interface DualListSelectorState {
 export class DualListSelectorWithActionsDemo extends React.Component<DualListSelectorProps, DualListSelectorState> {
   static displayName = 'DualListSelectorDemo';
   onSort: (panel: string) => void;
-  onListChange: (newAvailableOptions: React.ReactNode[], newChosenOptions: React.ReactNode[]) => void;
-  onToggle: (isOpen: boolean, pane: string) => void;
+  onListChange: (
+    event: React.MouseEvent<HTMLElement> | undefined,
+    newAvailableOptions: React.ReactNode[],
+    newChosenOptions: React.ReactNode[]
+  ) => void;
+  onToggle: (pane: string) => void;
   filterOption: (option: React.ReactNode, input: string) => boolean;
-  onOptionSelect: (e: React.MouseEvent | React.ChangeEvent) => void;
+  onOptionSelect: (event: React.MouseEvent | React.ChangeEvent | React.KeyboardEvent) => void;
 
   constructor(props: DualListSelectorProps) {
     super(props);
@@ -46,7 +52,7 @@ export class DualListSelectorWithActionsDemo extends React.Component<DualListSel
 
     this.onSort = (panel: string) => {
       if (panel === 'available') {
-        this.setState(prevState => {
+        this.setState((prevState) => {
           const available = prevState.availableOptions.sort((a: any, b: any) => {
             let returnValue = 0;
             if (a.props.children > b.props.children) {
@@ -68,7 +74,7 @@ export class DualListSelectorWithActionsDemo extends React.Component<DualListSel
       }
 
       if (panel === 'chosen') {
-        this.setState(prevState => {
+        this.setState((prevState) => {
           const chosen = prevState.chosenOptions.sort((a: any, b: any) => {
             let returnValue = 0;
             if (a.props.children > b.props.children) {
@@ -90,23 +96,23 @@ export class DualListSelectorWithActionsDemo extends React.Component<DualListSel
       }
     };
 
-    this.onListChange = (newAvailableOptions, newChosenOptions) => {
+    this.onListChange = (_event, newAvailableOptions, newChosenOptions) => {
       this.setState({
         availableOptions: newAvailableOptions,
         chosenOptions: newChosenOptions
       });
     };
 
-    this.onToggle = (isOpen, pane) => {
+    this.onToggle = (pane) => {
       this.setState((prevState: DualListSelectorState) => ({
-        isAvailableKebabOpen: pane === 'available' ? isOpen : prevState.isAvailableKebabOpen,
-        isChosenKebabOpen: pane === 'chosen' ? isOpen : prevState.isChosenKebabOpen
+        isAvailableKebabOpen: pane === 'available' ? !prevState.isAvailableKebabOpen : prevState.isAvailableKebabOpen,
+        isChosenKebabOpen: pane === 'chosen' ? !prevState.isChosenKebabOpen : prevState.isChosenKebabOpen
       }));
     };
 
     this.filterOption = (option: any, input: string) => option.props.children.includes(input);
 
-    this.onOptionSelect = (e: React.MouseEvent | React.ChangeEvent) => {
+    this.onOptionSelect = (e) => {
       // eslint-disable-next-line no-console
       console.log(e.currentTarget.children.toString());
     };
@@ -115,12 +121,8 @@ export class DualListSelectorWithActionsDemo extends React.Component<DualListSel
   render() {
     const dropdownItems = [
       <DropdownItem key="link">Link</DropdownItem>,
-      <DropdownItem key="action" component="button">
-        Action
-      </DropdownItem>,
-      <DropdownItem key="second action" component="button">
-        Second Action
-      </DropdownItem>
+      <DropdownItem key="action">Action</DropdownItem>,
+      <DropdownItem key="second action">Second Action</DropdownItem>
     ];
 
     const availableOptionsActions = [
@@ -133,12 +135,23 @@ export class DualListSelectorWithActionsDemo extends React.Component<DualListSel
         {this.state.availableDescending ? <PficonSortCommonDescIcon /> : <PficonSortCommonAscIcon />}
       </Button>,
       <Dropdown
-        toggle={<KebabToggle onToggle={(_event: any, isOpen) => this.onToggle(isOpen, 'available')} id="toggle-id-6" />}
-        isOpen={this.state.isAvailableKebabOpen}
-        isPlain
-        dropdownItems={dropdownItems}
         key="availableDropdown"
-      />
+        isOpen={this.state.isAvailableKebabOpen}
+        onOpenChange={(isOpen) => this.setState({ isAvailableKebabOpen: isOpen })}
+        toggle={(toggleRef) => (
+          <MenuToggle
+            variant="plain"
+            id="available-dropdown-toggle"
+            ref={toggleRef}
+            isExpanded={this.state.isAvailableKebabOpen}
+            onClick={() => this.onToggle('available')}
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
+        )}
+      >
+        <DropdownList>{dropdownItems}</DropdownList>
+      </Dropdown>
     ];
 
     const chosenOptionsActions = [
@@ -151,12 +164,23 @@ export class DualListSelectorWithActionsDemo extends React.Component<DualListSel
         {this.state.chosenDescending ? <PficonSortCommonDescIcon /> : <PficonSortCommonAscIcon />}
       </Button>,
       <Dropdown
-        toggle={<KebabToggle onToggle={(_event: any, isOpen) => this.onToggle(isOpen, 'chosen')} id="toggle-id-6" />}
         isOpen={this.state.isChosenKebabOpen}
-        isPlain
-        dropdownItems={dropdownItems}
+        onOpenChange={(isOpen) => this.setState({ isChosenKebabOpen: isOpen })}
         key="chosenDropdown"
-      />
+        toggle={(toggleRef) => (
+          <MenuToggle
+            variant="plain"
+            id="chosen-dropdown-toggle"
+            ref={toggleRef}
+            isExpanded={this.state.isChosenKebabOpen}
+            onClick={() => this.onToggle('chosen')}
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
+        )}
+      >
+        <DropdownList>{dropdownItems}</DropdownList>
+      </Dropdown>
     ];
 
     return (
@@ -175,13 +199,21 @@ export class DualListSelectorWithActionsDemo extends React.Component<DualListSel
         chosenOptionsActions={chosenOptionsActions}
         chosenOptionsSearchAriaLabel="Demo chosen options search"
         controlsAriaLabel="Demo action controls"
-        addAll={this.onListChange}
+        addAll={(newAvailableOptions, newChosenOptions) =>
+          this.onListChange(undefined, newAvailableOptions, newChosenOptions)
+        }
         addAllAriaLabel="Demo add all"
-        removeAll={this.onListChange}
+        removeAll={(newAvailableOptions, newChosenOptions) =>
+          this.onListChange(undefined, newAvailableOptions, newChosenOptions)
+        }
         removeAllAriaLabel="Demo remove all"
-        addSelected={this.onListChange}
+        addSelected={(newAvailableOptions, newChosenOptions) =>
+          this.onListChange(undefined, newAvailableOptions, newChosenOptions)
+        }
         addSelectedAriaLabel="Demo add selected"
-        removeSelected={this.onListChange}
+        removeSelected={(newAvailableOptions, newChosenOptions) =>
+          this.onListChange(undefined, newAvailableOptions, newChosenOptions)
+        }
         removeSelectedAriaLabel="Demo remove selected"
         onListChange={this.onListChange}
         filterOption={this.filterOption}

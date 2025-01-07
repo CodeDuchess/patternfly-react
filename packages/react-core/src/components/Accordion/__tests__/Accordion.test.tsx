@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 
 import { Accordion } from '../Accordion';
 import { AccordionContext } from '../AccordionContext';
+import styles from '@patternfly/react-styles/css/components/Accordion/accordion';
 
 test('Renders without children', () => {
   render(<Accordion data-testid="accordion" />);
@@ -34,10 +35,10 @@ test('Renders with inherited element props spread to the component', () => {
   expect(screen.getByText('Test')).toHaveAccessibleName('Label');
 });
 
-test('Renders with class name pf-c-accordion', () => {
+test(`Renders with class name ${styles.accordion}`, () => {
   render(<Accordion>Test</Accordion>);
 
-  expect(screen.getByText('Test')).toHaveClass('pf-c-accordion');
+  expect(screen.getByText('Test')).toHaveClass(styles.accordion);
 });
 
 test('Renders with custom class names provided via prop', () => {
@@ -132,6 +133,18 @@ test('Renders with pf-m-display-lg when displaySize="lg"', () => {
   render(<Accordion displaySize="lg">Test</Accordion>);
 
   expect(screen.getByText('Test')).toHaveClass('pf-m-display-lg');
+});
+
+test(`Renders without class ${styles.modifiers.toggleStart} by default`, () => {
+  render(<Accordion>Test</Accordion>);
+
+  expect(screen.getByText('Test')).not.toHaveClass(styles.modifiers.toggleStart);
+});
+
+test(`Renders with class ${styles.modifiers.toggleStart} when togglePosition='start'`, () => {
+  render(<Accordion togglePosition="start">Test</Accordion>);
+
+  expect(screen.getByText('Test')).toHaveClass(styles.modifiers.toggleStart);
 });
 
 test('Matches the snapshot', () => {

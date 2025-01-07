@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileUpload } from '@patternfly/react-core';
+import { FileUpload, DropEvent } from '@patternfly/react-core';
 
 export const TextFileWithEditsAllowed: React.FunctionComponent = () => {
   const [value, setValue] = React.useState('');
@@ -10,7 +10,11 @@ export const TextFileWithEditsAllowed: React.FunctionComponent = () => {
     setFilename(file.name);
   };
 
-  const handleTextOrDataChange = (value: string) => {
+  const handleTextChange = (_event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
+    setValue(value);
+  };
+
+  const handleDataChange = (_event: DropEvent, value: string) => {
     setValue(value);
   };
 
@@ -19,11 +23,11 @@ export const TextFileWithEditsAllowed: React.FunctionComponent = () => {
     setValue('');
   };
 
-  const handleFileReadStarted = (_fileHandle: File) => {
+  const handleFileReadStarted = (_event: DropEvent, _fileHandle: File) => {
     setIsLoading(true);
   };
 
-  const handleFileReadFinished = (_fileHandle: File) => {
+  const handleFileReadFinished = (_event: DropEvent, _fileHandle: File) => {
     setIsLoading(false);
   };
 
@@ -35,8 +39,8 @@ export const TextFileWithEditsAllowed: React.FunctionComponent = () => {
       filename={filename}
       filenamePlaceholder="Drag and drop a file or upload one"
       onFileInputChange={handleFileInputChange}
-      onDataChange={handleTextOrDataChange}
-      onTextChange={handleTextOrDataChange}
+      onDataChange={handleDataChange}
+      onTextChange={handleTextChange}
       onReadStarted={handleFileReadStarted}
       onReadFinished={handleFileReadFinished}
       onClearClick={handleClear}

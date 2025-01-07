@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { createIcon, IconSize } from '../createIcon';
+import { createIcon } from '../createIcon';
 
 const iconDef = {
   name: 'IconName',
@@ -21,19 +21,7 @@ test('sets correct viewBox', () => {
 
 test('sets correct svgPath', () => {
   render(<SVGIcon />);
-  expect(
-    screen
-      .getByRole('img', { hidden: true })
-      .querySelector('path')
-  ).toHaveAttribute('d', iconDef.svgPath);
-});
-
-test('height and width are set from size', () => {
-  render(<SVGIcon size={IconSize.sm} />);
-
-  const svg = screen.getByRole('img', { hidden: true });
-  expect(svg).toHaveAttribute('width', '1em');
-  expect(svg).toHaveAttribute('height', '1em');
+  expect(screen.getByRole('img', { hidden: true }).querySelector('path')).toHaveAttribute('d', iconDef.svgPath);
 });
 
 test('aria-hidden is true if no title is specified', () => {
@@ -43,7 +31,7 @@ test('aria-hidden is true if no title is specified', () => {
 
 test('title is not renderd if a title is not passed', () => {
   render(<SVGIcon />);
-  expect(screen.getByRole('img', { hidden: true }).querySelector('title')).toBeNull();
+  expect(screen.queryByRole('img', { hidden: true })?.querySelector('title')).toBeNull();
 });
 
 test('aria-labelledby is null if a title is not passed', () => {
@@ -63,7 +51,7 @@ test('aria-labelledby matches title id', () => {
 
   const svg = screen.getByRole('img', { hidden: true });
   const labelledby = svg.getAttribute('aria-labelledby');
-  const titleId = svg.querySelector('title').getAttribute('id');
+  const titleId = svg.querySelector('title')?.getAttribute('id');
 
   expect(labelledby).toEqual(titleId);
 });

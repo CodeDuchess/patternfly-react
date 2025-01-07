@@ -1,18 +1,16 @@
 import React from 'react';
-import { FileUpload } from '@patternfly/react-core';
+import { FileUpload, DropEvent } from '@patternfly/react-core';
 
 export class FileUploadDemo extends React.Component {
   static displayName = 'FileUploadDemo';
 
   state = { value: '', filename: '', isLoading: false };
-  /* eslint-disable-next-line no-console */
-  handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>, file: File) =>
-    this.setState({ value: file, filename: file.name });
-  handleDataChange = (value: string) => this.setState({ value });
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  handleFileReadStarted = (fileHandle: File) => this.setState({ isLoading: true });
-  handleFileReadFinished = (fileHandle: File) => this.setState({ isLoading: false });
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+
+  handleFileInputChange = (_event: DropEvent, file: File) => this.setState({ value: file, filename: file.name });
+  handleDataChange = (_event: DropEvent, value: string) => this.setState({ value });
+
+  handleFileReadStarted = (_event: DropEvent, _fileHandle: File) => this.setState({ isLoading: true });
+  handleFileReadFinished = (_event: DropEvent, _fileHandle: File) => this.setState({ isLoading: false });
 
   render() {
     const { value, filename, isLoading } = this.state;

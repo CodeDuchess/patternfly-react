@@ -2,6 +2,7 @@ import * as React from 'react';
 import { css } from '@patternfly/react-styles';
 import { Button, ButtonVariant } from '../Button';
 import { Badge } from '../Badge';
+import { Icon } from '../Icon';
 import AngleDownIcon from '@patternfly/react-icons/dist/esm/icons/angle-down-icon';
 import AngleUpIcon from '@patternfly/react-icons/dist/esm/icons/angle-up-icon';
 import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
@@ -10,8 +11,9 @@ import CaretDownIcon from '@patternfly/react-icons/dist/esm/icons/caret-down-ico
 import ArrowRightIcon from '@patternfly/react-icons/dist/esm/icons/arrow-right-icon';
 import { AdvancedSearchMenu } from './AdvancedSearchMenu';
 import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '../TextInputGroup';
-import { InputGroup } from '../InputGroup';
+import { InputGroup, InputGroupItem } from '../InputGroup';
 import { Popper } from '../../helpers';
+import textInputGroupStyles from '@patternfly/react-styles/css/components/TextInputGroup/text-input-group';
 
 /** Properties for adding search attributes to an advanced search input. These properties must
  * be passed in as an object within an array to the search input component's attribute properrty.
@@ -57,6 +59,9 @@ export interface SearchInputProps extends Omit<React.HTMLProps<HTMLDivElement>, 
   appendTo?: HTMLElement | (() => HTMLElement) | 'inline';
   /** An accessible label for the search input. */
   'aria-label'?: string;
+  /** Flag to indicate utilities should be displayed. By default if this prop is undefined or false, utilities will only be displayed when the search input has a value. */
+
+  areUtilitiesDisplayed?: boolean;
   /** Array of attribute values used for dynamically generated advanced search. */
   attributes?: string[] | SearchInputSearchAttribute[];
   /** Additional classes added to the search input. */
@@ -70,19 +75,8 @@ export interface SearchInputProps extends Omit<React.HTMLProps<HTMLDivElement>, 
   hasWordsAttrLabel?: React.ReactNode;
   /** A suggestion for autocompleting. */
   hint?: string;
-  /** Type of the input */
-  type?:
-    | 'text'
-    | 'date'
-    | 'datetime-local'
-    | 'email'
-    | 'month'
-    | 'number'
-    | 'password'
-    | 'search'
-    | 'tel'
-    | 'time'
-    | 'url';
+  /** Id for the search input */
+  searchInputId?: string;
   /** @hide A reference object to attach to the input box. */
   innerRef?: React.RefObject<any>;
   /** A flag for controlling the open state of a custom advanced search implementation. */
@@ -134,6 +128,7 @@ export interface SearchInputProps extends Omit<React.HTMLProps<HTMLDivElement>, 
 
 const SearchInputBase: React.FunctionComponent<SearchInputProps> = ({
   className,
+  searchInputId,
   value = '',
   attributes = [] as string[],
   formAdditionalItems,
@@ -162,8 +157,8 @@ const SearchInputBase: React.FunctionComponent<SearchInputProps> = ({
   isDisabled = false,
   appendTo,
   zIndex = 9999,
-  type = 'text',
   name,
+  areUtilitiesDisplayed,
   ...props
 }: SearchInputProps) => {
   const [isSearchMenuOpen, setIsSearchMenuOpen] = React.useState(false);
@@ -305,14 +300,14 @@ const SearchInputBase: React.FunctionComponent<SearchInputProps> = ({
         aria-label={ariaLabel}
         onKeyDown={onEnter}
         onChange={onChangeHandler}
-        type={type}
         name={name}
+        inputId={searchInputId}
       />
-      {renderUtilities && (
+      {(renderUtilities || areUtilitiesDisplayed) && (
         <TextInputGroupUtilities>
           {resultsCount && <Badge isRead>{resultsCount}</Badge>}
           {!!onNextClick && !!onPreviousClick && (
-            <div className="pf-c-text-input-group__group">
+            <div className={textInputGroupStyles.textInputGroupGroup}>
               <Button
                 variant={ButtonVariant.plain}
                 aria-label={previousNavigationButtonAriaLabel}
@@ -359,8 +354,8 @@ const SearchInputBase: React.FunctionComponent<SearchInputProps> = ({
 
   const buildExpandableSearchInput = ({ ...searchInputProps } = {}) => (
     <InputGroup {...searchInputProps}>
-      {buildTextInputGroup()}
-      {expandableToggle}
+      <InputGroupItem isFill>{buildTextInputGroup()} </InputGroupItem>
+      <InputGroupItem isPlain>{expandableToggle}</InputGroupItem>
     </InputGroup>
   );
 
@@ -374,31 +369,37 @@ const SearchInputBase: React.FunctionComponent<SearchInputProps> = ({
 
   const buildSearchTextInputGroupWithExtraButtons = ({ ...searchInputProps } = {}) => (
     <InputGroup ref={triggerRef} {...searchInputProps}>
-      {buildTextInputGroup()}
+      <InputGroupItem isFill>{buildTextInputGroup()}</InputGroupItem>
       {(attributes.length > 0 || onToggleAdvancedSearch) && (
-        <Button
-          className={isSearchMenuOpen && 'pf-m-expanded'}
-          variant={ButtonVariant.control}
-          aria-label={openMenuButtonAriaLabel}
-          onClick={onToggle}
-          isDisabled={isDisabled}
-          aria-expanded={isSearchMenuOpen}
-        >
-          <CaretDownIcon />
-        </Button>
+        <InputGroupItem isPlain>
+          <Button
+            className={isSearchMenuOpen && 'pf-m-expanded'}
+            variant={ButtonVariant.control}
+            aria-label={openMenuButtonAriaLabel}
+            onClick={onToggle}
+            isDisabled={isDisabled}
+            aria-expanded={isSearchMenuOpen}
+          >
+            <CaretDownIcon />
+          </Button>
+        </InputGroupItem>
       )}
       {!!onSearch && (
-        <Button
-          type="submit"
-          variant={ButtonVariant.control}
-          aria-label={submitSearchButtonLabel}
-          onClick={onSearchHandler}
-          isDisabled={isDisabled}
-        >
-          <ArrowRightIcon />
-        </Button>
+        <InputGroupItem>
+          <Button
+            type="submit"
+            variant={ButtonVariant.control}
+            aria-label={submitSearchButtonLabel}
+            onClick={onSearchHandler}
+            isDisabled={isDisabled}
+          >
+            <Icon shouldMirrorRTL>
+              <ArrowRightIcon />
+            </Icon>
+          </Button>
+        </InputGroupItem>
       )}
-      {expandableInput && expandableToggle}
+      {expandableInput && <InputGroupItem>{expandableToggle}</InputGroupItem>}
     </InputGroup>
   );
 
@@ -409,7 +410,11 @@ const SearchInputBase: React.FunctionComponent<SearchInputProps> = ({
   };
 
   if (!!expandableInput && !isExpanded) {
-    return <InputGroup {...searchInputProps}>{expandableToggle}</InputGroup>;
+    return (
+      <InputGroup {...searchInputProps}>
+        <InputGroupItem>{expandableToggle}</InputGroupItem>
+      </InputGroup>
+    );
   }
 
   if (!!onSearch || attributes.length > 0 || !!onToggleAdvancedSearch) {

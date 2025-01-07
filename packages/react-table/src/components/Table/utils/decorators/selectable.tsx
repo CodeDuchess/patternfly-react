@@ -7,7 +7,7 @@ import checkStyles from '@patternfly/react-styles/css/components/Check/check';
 
 export const selectable: ITransform = (
   label: IFormatterValueType,
-  { rowIndex, columnIndex, rowData, column, property }: IExtra
+  { rowIndex, columnIndex, rowData, column, property, tooltip }: IExtra
 ) => {
   const {
     extraParams: { onSelect, selectVariant, allRowsSelected, isHeaderSelectDisabled }
@@ -61,7 +61,7 @@ export const selectable: ITransform = (
 
   return {
     className: css(styles.tableCheck),
-    component: 'td',
+    component: rowId !== -1 ? 'td' : 'th',
     isVisible: !rowData || !rowData.fullWidth,
     children: (
       <SelectColumn
@@ -69,6 +69,7 @@ export const selectable: ITransform = (
         selectVariant={selectVariant as RowSelectVariant}
         onSelect={selectClick}
         name={selectName}
+        tooltip={tooltip}
       >
         {label as React.ReactNode}
       </SelectColumn>

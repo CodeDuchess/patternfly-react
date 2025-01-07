@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, ModalVariant, Button, Title, TitleSizes } from '@patternfly/react-core';
 import WarningTriangleIcon from '@patternfly/react-icons/dist/esm/icons/warning-triangle-icon';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 interface ModalDemoState {
   isModalOpen: boolean;
@@ -15,10 +16,12 @@ interface ModalDemoState {
   isModalCustomEscapeOpen: boolean;
   isModalAlertVariantOpen: boolean;
   customEscapePressed: boolean;
+  isCustomFocusModalOpen: boolean;
 }
 
 export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, ModalDemoState> {
   static displayName = 'ModalDemo';
+
   state = {
     isModalOpen: false,
     isModalDescriptionOpen: false,
@@ -31,10 +34,11 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
     isNoHeaderModalOpen: false,
     isModalCustomEscapeOpen: false,
     isModalAlertVariantOpen: false,
-    customEscapePressed: false
+    customEscapePressed: false,
+    isCustomFocusModalOpen: false
   };
 
-  handleModalToggle = () => {
+  handleModalToggle = (_event: KeyboardEvent | React.MouseEvent) => {
     this.setState(({ isModalOpen }) => ({
       isModalOpen: !isModalOpen
     }));
@@ -88,17 +92,23 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
     }));
   };
 
-  handleModalCustomEscapeToggle = (event?: any, customEscapePressed?: boolean) => {
+  handleModalCustomEscapeToggle = (_event?: any, customEscapePressed?: boolean) => {
     this.setState(({ isModalCustomEscapeOpen }) => ({
       isModalCustomEscapeOpen: !isModalCustomEscapeOpen,
-      customEscapePressed
+      customEscapePressed: customEscapePressed ?? false
     }));
   };
 
-  handleModalAlertVariantToggle = (event?: any, customEscapePressed?: boolean) => {
+  handleModalAlertVariantToggle = (_event?: any, customEscapePressed?: boolean) => {
     this.setState(({ isModalAlertVariantOpen }) => ({
       isModalAlertVariantOpen: !isModalAlertVariantOpen,
-      customEscapePressed
+      customEscapePressed: customEscapePressed ?? false
+    }));
+  };
+
+  handleCustomFocusModalToggle = () => {
+    this.setState(({ isCustomFocusModalOpen }) => ({
+      isCustomFocusModalOpen: !isCustomFocusModalOpen
     }));
   };
 
@@ -150,6 +160,7 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
             Confirm
           </Button>
         ]}
+        id="test-modal-id"
       >
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
         magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
@@ -273,20 +284,20 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
     const { isCustomHeaderFooterModalOpen } = this.state;
 
     const header = (
-      <React.Fragment>
+      <>
         <Title id="customHeaderTitle" headingLevel="h1" size={TitleSizes['2xl']}>
           Custom Modal Header/Footer
         </Title>
-        <p id="customHeaderDescription" className="pf-u-pt-sm">
+        <p id="customHeaderDescription" className={spacing.ptSm}>
           Allows for custom content in the header and/or footer by passing components.
         </p>
-      </React.Fragment>
+      </>
     );
 
     const footer = (
       <Title id="customFooterTitle" headingLevel="h4" size={TitleSizes.md}>
         <WarningTriangleIcon />
-        <span className="pf-u-pl-sm">Custom modal footer.</span>
+        <span className={spacing.plSm}>Custom modal footer.</span>
       </Title>
     );
 
@@ -426,6 +437,43 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
     );
   }
 
+  renderCustomFocusModal() {
+    const { isCustomFocusModalOpen } = this.state;
+
+    return (
+      <Modal
+        elementToFocus="#modal-custom-focus-confirm-button"
+        title="Modal with custom focus"
+        isOpen={isCustomFocusModalOpen}
+        onClose={this.handleCustomFocusModalToggle}
+        actions={[
+          <Button
+            id="modal-custom-focus-confirm-button"
+            key="confirm"
+            variant="primary"
+            onClick={this.handleCustomFocusModalToggle}
+          >
+            Confirm
+          </Button>,
+          <Button
+            id="modal-custom-focus-cancel-button"
+            key="cancel"
+            variant="link"
+            onClick={this.handleCustomFocusModalToggle}
+          >
+            Cancel
+          </Button>
+        ]}
+      >
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+        laborum.
+      </Modal>
+    );
+  }
+
   render() {
     const buttonStyle = {
       marginRight: 20,
@@ -433,7 +481,7 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
     };
 
     return (
-      <React.Fragment>
+      <>
         <div id="tabstop-test" tabIndex={0} style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
           <Button style={buttonStyle} variant="primary" onClick={this.handleModalToggle} id="showDefaultModalButton">
             Show Modal
@@ -505,6 +553,14 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
           <Button style={buttonStyle} variant="primary" onClick={this.handleHelpModalToggle} id="showHelpModalButton">
             Show Help Modal
           </Button>
+          <Button
+            style={buttonStyle}
+            variant="primary"
+            onClick={this.handleCustomFocusModalToggle}
+            id="showCustomFocusModalButton"
+          >
+            Show Custom Focus Modal
+          </Button>
         </div>
         {this.renderModal()}
         {this.renderSmallModal()}
@@ -517,7 +573,8 @@ export class ModalDemo extends React.Component<React.HTMLProps<HTMLDivElement>, 
         {this.renderModalWithCustomEscape()}
         {this.renderModalWithAlertVariant()}
         {this.renderHelpModal()}
-      </React.Fragment>
+        {this.renderCustomFocusModal()}
+      </>
     );
   }
 }

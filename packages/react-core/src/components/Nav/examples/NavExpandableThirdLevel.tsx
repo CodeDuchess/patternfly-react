@@ -5,12 +5,18 @@ export const NavExpandableThirdLevel: React.FunctionComponent = () => {
   const [activeGroup, setActiveGroup] = React.useState('nav-expand3rd-group-1');
   const [activeItem, setActiveItem] = React.useState('nav-expand3rd-group-1_item-1');
 
-  const onSelect = (result: { itemId: number | string; groupId: number | string }) => {
+  const onSelect = (
+    _event: React.FormEvent<HTMLInputElement>,
+    result: { itemId: number | string; groupId: number | string }
+  ) => {
     setActiveGroup(result.groupId as string);
     setActiveItem(result.itemId as string);
   };
 
-  const onToggle = (result: { groupId: number | string; isExpanded: boolean }) => {
+  const onToggle = (
+    _event: React.MouseEvent<HTMLButtonElement>,
+    result: { groupId: number | string; isExpanded: boolean }
+  ) => {
     // eslint-disable-next-line no-console
     console.log(`Group ${result.groupId} expanded? ${result.isExpanded}`);
   };
@@ -56,7 +62,7 @@ export const NavExpandableThirdLevel: React.FunctionComponent = () => {
           </NavItem>
         </NavExpandable>
         <NavExpandable
-          title="Expandable section title 2"
+          title={'Expandable section title 2'}
           groupId="nav-expand3rd-group-2"
           isActive={activeGroup === 'nav-expand3rd-group-2'}
           isExpanded
