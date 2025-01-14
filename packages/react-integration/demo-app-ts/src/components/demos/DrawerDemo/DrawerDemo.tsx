@@ -15,12 +15,16 @@ import {
 
 export interface DrawerDemoState {
   isExpanded: boolean;
+  isFocusTrapExpanded: boolean;
+  isCustomFocusExpanded: boolean;
 }
 
 export class DrawerDemo extends React.Component<DrawerProps, DrawerDemoState> {
   static displayName = 'DrawerDemo';
   state = {
-    isExpanded: false
+    isExpanded: false,
+    isFocusTrapExpanded: false,
+    isCustomFocusExpanded: false
   };
 
   drawerRef = React.createRef<HTMLButtonElement>();
@@ -36,14 +40,30 @@ export class DrawerDemo extends React.Component<DrawerProps, DrawerDemoState> {
     });
   };
 
+  onFocusTrapClick = () => {
+    this.setState((prevState) => ({ isFocusTrapExpanded: !prevState.isFocusTrapExpanded }));
+  };
+
+  onCustomFocusClick = () => {
+    this.setState((prevState) => ({ isCustomFocusExpanded: !prevState.isCustomFocusExpanded }));
+  };
+
   onCloseClick = () => {
     this.setState({
       isExpanded: false
     });
   };
 
+  onFocusTrapCloseClick = () => {
+    this.setState({ isFocusTrapExpanded: false });
+  };
+
+  onCustomFocusCloseClick = () => {
+    this.setState({ isCustomFocusExpanded: false });
+  };
+
   render() {
-    const { isExpanded } = this.state;
+    const { isExpanded, isFocusTrapExpanded, isCustomFocusExpanded } = this.state;
     const panelContent = (
       <DrawerPanelContent
         widths={{
@@ -56,10 +76,40 @@ export class DrawerDemo extends React.Component<DrawerProps, DrawerDemoState> {
       >
         <DrawerHead>
           <span ref={this.drawerRef} tabIndex={isExpanded ? 0 : -1}>
-            drawer-panel
+            drawer-panel in demo with onExpand
           </span>
           <DrawerActions>
             <DrawerCloseButton onClick={this.onCloseClick} />
+          </DrawerActions>
+        </DrawerHead>
+      </DrawerPanelContent>
+    );
+
+    const focusTrapPanelContent = (
+      <DrawerPanelContent
+        focusTrap={{ enabled: true }}
+        id="focusTrap-panelContent"
+        colorVariant={DrawerColorVariant.light200}
+      >
+        <DrawerHead>
+          <span>drawer-panel</span>
+          <DrawerActions>
+            <DrawerCloseButton onClick={this.onFocusTrapCloseClick} />
+          </DrawerActions>
+        </DrawerHead>
+      </DrawerPanelContent>
+    );
+
+    const customFocusPanelContent = (
+      <DrawerPanelContent
+        focusTrap={{ enabled: true, elementToFocusOnExpand: '#customFocus-panelContent' }}
+        id="customFocus-panelContent"
+        colorVariant={DrawerColorVariant.light200}
+      >
+        <DrawerHead>
+          <span>drawer-panel</span>
+          <DrawerActions>
+            <DrawerCloseButton onClick={this.onCustomFocusCloseClick} />
           </DrawerActions>
         </DrawerHead>
       </DrawerPanelContent>
@@ -69,17 +119,37 @@ export class DrawerDemo extends React.Component<DrawerProps, DrawerDemoState> {
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium est a porttitor vehicula. Quisque vel commodo urna. Morbi mattis rutrum ante, id vehicula ex accumsan ut. Morbi viverra, eros vel porttitor facilisis, eros purus aliquet erat,nec lobortis felis elit pulvinar sem. Vivamus vulputate, risus eget commodo eleifend, eros nibh porta quam, vitae lacinia leo libero at magna. Maecenas aliquam sagittis orci, et posuere nisi ultrices sit amet. Aliquam ex odio, malesuada sed posuere quis, pellentesque at mauris. Phasellus venenatis massa ex, eget pulvinar libero auctor pretium. Aliquam erat volutpat. Duis euismod justo in quam ullamcorper, in commodo massa vulputate.';
 
     return (
-      <React.Fragment>
+      <>
         <Button id="toggleButton" onClick={this.onClick}>
           Toggle Drawer
         </Button>
-        <Drawer isExpanded={isExpanded} onExpand={this.onExpand} position="bottom">
+        <Drawer id="basic-drawer" isExpanded={isExpanded} onExpand={this.onExpand} position="bottom">
           <DrawerSection colorVariant={DrawerColorVariant.default}>drawer-section</DrawerSection>
           <DrawerContent colorVariant={DrawerColorVariant.default} panelContent={panelContent}>
             <DrawerContentBody>{drawerContent}</DrawerContentBody>
           </DrawerContent>
         </Drawer>
-      </React.Fragment>
+        <br />
+        <br />
+        <Button id="toggleFocusTrapButton" onClick={this.onFocusTrapClick}>
+          Toggle Drawer with focus trap
+        </Button>
+        <Drawer isExpanded={isFocusTrapExpanded}>
+          <DrawerContent colorVariant={DrawerColorVariant.default} panelContent={focusTrapPanelContent}>
+            <DrawerContentBody>{drawerContent}</DrawerContentBody>
+          </DrawerContent>
+        </Drawer>
+        <br />
+        <br />
+        <Button id="toggleCustomFocusButton" onClick={this.onCustomFocusClick}>
+          Toggle Drawer with custom focus
+        </Button>
+        <Drawer isExpanded={isCustomFocusExpanded}>
+          <DrawerContent colorVariant={DrawerColorVariant.default} panelContent={customFocusPanelContent}>
+            <DrawerContentBody>{drawerContent}</DrawerContentBody>
+          </DrawerContent>
+        </Drawer>
+      </>
     );
   }
 }

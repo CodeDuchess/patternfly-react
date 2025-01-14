@@ -15,14 +15,11 @@ import {
   CustomActionsToggleProps,
   fitContent,
   headerCol,
-  TableProps,
   IActions,
   IActionsResolver,
-  Table,
-  TableBody,
-  TableHeader,
   TableText
 } from '@patternfly/react-table';
+import { Table, TableBody, TableHeader, TableProps } from '@patternfly/react-table/deprecated';
 
 interface Repository {
   name: string;
@@ -54,7 +51,7 @@ export const LegacyTableActions: React.FunctionComponent = () => {
 
   // This state is just for the ToggleGroup in this example and isn't necessary for Table usage.
   const [propToUse, setPropToUse] = React.useState<ExampleType>('actions');
-  const onPropToUseChange: ToggleGroupItemProps['onChange'] = (_isSelected, event) => {
+  const onPropToUseChange: ToggleGroupItemProps['onChange'] = (event, _isSelected) => {
     const id = event.currentTarget.id;
     setPropToUse(id as ExampleType);
   };
@@ -76,7 +73,7 @@ export const LegacyTableActions: React.FunctionComponent = () => {
     { title: '', dataLabel: 'Action', cellTransforms: [fitContent] }
   ];
 
-  const rows: TableProps['rows'] = repositories.map(repo => {
+  const rows: TableProps['rows'] = repositories.map((repo) => {
     let singleActionButton: React.ReactNode = null;
     if (repo.singleAction !== '') {
       singleActionButton = (
@@ -194,7 +191,7 @@ export const LegacyTableActions: React.FunctionComponent = () => {
         rows={rows}
         {...(propToUse === 'actions' && { actions })}
         {...(propToUse === 'actionResolver' && { actionResolver })}
-        areActionsDisabled={rowData => !!rowData.disableActions}
+        areActionsDisabled={(rowData) => !!rowData.disableActions}
         dropdownPosition="left"
         dropdownDirection="down"
         actionsToggle={useCustomToggle ? customActionsToggle : undefined}

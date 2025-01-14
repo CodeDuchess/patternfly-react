@@ -3,7 +3,9 @@ id: Banner
 section: components
 ---
 
-import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
+import { css } from '@patternfly/react-styles';
+import display from '@patternfly/react-styles/css/utilities/Display/display';
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
 
 ## Demos
 
@@ -23,7 +25,10 @@ import {
   TextContent,
   Text
 } from '@patternfly/react-core';
-import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
+
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
+import { css } from '@patternfly/react-styles';
+import display from '@patternfly/react-styles/css/utilities/Display/display';
 
 class BannerDemo extends React.Component {
   render() {
@@ -35,12 +40,12 @@ class BannerDemo extends React.Component {
               justifyContent={{ default: 'justifyContentCenter', lg: 'justifyContentSpaceBetween' }}
               flexWrap={{ default: 'nowrap' }}
             >
-              <div className="pf-u-display-none pf-u-display-block-on-lg">Localhost</div>
-              <div className="pf-u-display-none pf-u-display-block-on-lg">
+              <div className={css(display.displayNone, display.displayBlockOnLg)}>Localhost</div>
+              <div className={css(display.displayNone, display.displayBlockOnLg)}>
                 This message is sticky to the top of the page.
               </div>
-              <div className="pf-u-display-none-on-lg">Drop some text on mobile, truncate if needed.</div>
-              <div className="pf-u-display-none pf-u-display-block-on-lg">Ned Username</div>
+              <div className={css(display.displayNoneOnLg)}>Drop some text on mobile, truncate if needed.</div>
+              <div className={css(display.displayNone, display.displayBlockOnLg)}>Ned Username</div>
             </Flex>
           </Banner>
           <PageSection variant={PageSectionVariants.light}>
@@ -54,9 +59,9 @@ class BannerDemo extends React.Component {
           </PageSection>
           <PageSection>
             <Gallery hasGutter>
-              {Array.apply(0, Array(30)).map((x, i) => (
-                <GalleryItem key={i}>
-                  <Card key={i}>
+              {Array.from({ length: 30 }).map((_value, index) => (
+                <GalleryItem key={index}>
+                  <Card key={index}>
                     <CardBody>This is a card</CardBody>
                   </Card>
                 </GalleryItem>
@@ -87,7 +92,9 @@ import {
   TextContent,
   Text
 } from '@patternfly/react-core';
-import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
+import { css } from '@patternfly/react-styles';
+import display from '@patternfly/react-styles/css/utilities/Display/display';
 
 class BannerDemo extends React.Component {
   render() {
@@ -105,12 +112,12 @@ class BannerDemo extends React.Component {
                 justifyContent={{ default: 'justifyContentCenter', lg: 'justifyContentSpaceBetween' }}
                 flexWrap={{ default: 'nowrap' }}
               >
-                <div className="pf-u-display-none pf-u-display-block-on-lg">Localhost</div>
-                <div className="pf-u-display-none pf-u-display-block-on-lg">
+                <div className={css(display.displayNone, display.displayBlockOnLg)}>Localhost</div>
+                <div className={css(display.displayNone, display.displayBlockOnLg)}>
                   This message is sticky to the top of the page.
                 </div>
-                <div className="pf-u-display-none-on-lg">Drop some text on mobile, truncate if needed.</div>
-                <div className="pf-u-display-none pf-u-display-block-on-lg">Ned Username</div>
+                <div className={css(display.displayNoneOnLg)}>Drop some text on mobile, truncate if needed.</div>
+                <div className={css(display.displayNone, display.displayBlockOnLg)}>Ned Username</div>
               </Flex>
             </Banner>
           </FlexItem>
@@ -127,9 +134,9 @@ class BannerDemo extends React.Component {
               </PageSection>
               <PageSection>
                 <Gallery hasGutter>
-                  {Array.apply(0, Array(30)).map((x, i) => (
-                    <GalleryItem key={i}>
-                      <Card key={i}>
+                  {Array.from({ length: 30 }).map((_value, index) => (
+                    <GalleryItem key={index}>
+                      <Card key={index}>
                         <CardBody>This is a card</CardBody>
                       </Card>
                     </GalleryItem>
@@ -144,12 +151,12 @@ class BannerDemo extends React.Component {
                 justifyContent={{ default: 'justifyContentCenter', lg: 'justifyContentSpaceBetween' }}
                 flexWrap={{ default: 'nowrap' }}
               >
-                <div className="pf-u-display-none pf-u-display-block-on-lg">Localhost</div>
-                <div className="pf-u-display-none pf-u-display-block-on-lg">
+                <div className={css(display.displayNone, display.displayBlockOnLg)}>Localhost</div>
+                <div className={css(display.displayNone, display.displayBlockOnLg)}>
                   This message is sticky to the bottom of the page.
                 </div>
-                <div className="pf-u-display-none-on-lg">Drop some text on mobile, truncate if needed.</div>
-                <div className="pf-u-display-none pf-u-display-block-on-lg">Ned Username</div>
+                <div className={css(display.displayNoneOnLg)}>Drop some text on mobile, truncate if needed.</div>
+                <div className={css(display.displayNone, display.displayBlockOnLg)}>Ned Username</div>
               </Flex>
             </Banner>
           </FlexItem>

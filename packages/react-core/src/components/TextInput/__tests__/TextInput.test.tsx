@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { TextInput, TextInputBase } from '../TextInput';
 import { ValidatedOptions } from '../../../helpers/constants';
+import * as ReactCoreUtils from '../../../helpers/util';
 
 const props = {
   onChange: jest.fn(),
@@ -18,7 +19,7 @@ describe('TextInput', () => {
     render(<TextInputBase {...props} value="" aria-label="test input" />);
 
     await user.type(screen.getByLabelText('test input'), 'a');
-    expect(props.onChange).toHaveBeenCalledWith('a', expect.any(Object));
+    expect(props.onChange).toHaveBeenCalledWith(expect.any(Object), 'a');
   });
 
   test('simple text input', () => {
@@ -32,7 +33,9 @@ describe('TextInput', () => {
   });
 
   test('read only text input using isReadOnly', () => {
-    const { asFragment } = render(<TextInput isReadOnly value="read only" aria-label="read only text input" />);
+    const { asFragment } = render(
+      <TextInput readOnlyVariant="default" value="read only" aria-label="read only text input" />
+    );
     expect(asFragment()).toMatchSnapshot();
   });
 
@@ -59,12 +62,12 @@ describe('TextInput', () => {
 
   test('validated text input success', () => {
     render(<TextInput {...props} required validated={ValidatedOptions.success} aria-label="validated text input" />);
-    expect(screen.getByLabelText('validated text input')).toHaveClass('pf-m-success');
+    expect(screen.getByLabelText('validated text input').parentElement).toHaveClass('pf-m-success');
   });
 
   test('validated text input warning', () => {
     render(<TextInput {...props} required validated={ValidatedOptions.warning} aria-label="validated text input" />);
-    expect(screen.getByLabelText('validated text input')).toHaveClass('pf-m-warning');
+    expect(screen.getByLabelText('validated text input').parentElement).toHaveClass('pf-m-warning');
   });
 
   test('validated text input error', () => {
@@ -108,5 +111,28 @@ describe('TextInput', () => {
     render(<TextInput {...props} aria-labelledby="test input" />);
 
     expect(myMock).not.toHaveBeenCalled();
+  });
+
+  test('trimLeft is called when isStartTruncated is true', async () => {
+    const trimLeftFn = jest.spyOn(ReactCoreUtils, 'trimLeft').mockImplementation();
+
+    render(<TextInput isStartTruncated aria-label="start truncated text input" />);
+    expect(trimLeftFn).toHaveBeenCalled();
+  });
+
+  test('trimLeft is called when isLeftTruncated is true', async () => {
+    const trimLeftFn = jest.spyOn(ReactCoreUtils, 'trimLeft').mockImplementation();
+
+    render(<TextInput isLeftTruncated aria-label="start truncated text input" />);
+    expect(trimLeftFn).toHaveBeenCalled();
+  });
+
+  test('has aria-expanded set to true when ariaProps.isExpanded is true', () => {
+    render(<TextInput expandedProps={{ isExpanded: true, ariaControls: 'test' }} aria-label="isExpanded" />);
+
+    const input = screen.getByLabelText('isExpanded');
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+    expect(input).toHaveAttribute('role', 'combobox');
+    expect(input).toHaveAttribute('aria-controls', 'test');
   });
 });

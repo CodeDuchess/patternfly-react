@@ -1,9 +1,8 @@
 ---
 id: Icon
 section: components
-cssPrefix: pf-c-icon
+cssPrefix: pf-v5-c-icon
 propComponents: ['Icon']
-beta: true
 ---
 
 import LongArrowAltDownIcon from '@patternfly/react-icons/dist/esm/icons/long-arrow-alt-down-icon';

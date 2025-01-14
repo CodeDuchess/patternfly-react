@@ -10,14 +10,15 @@ import {
   TextArea,
   InputGroup,
   InputGroupText,
-  InputGroupTextVariant,
+  InputGroupItem,
   TextInput,
-  Dropdown,
-  DropdownToggle,
-  DropdownItem,
   Popover,
   PopoverPosition,
-  ValidatedOptions
+  ValidatedOptions,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle
 } from '@patternfly/react-core';
 
 interface InputGroupState {
@@ -27,7 +28,7 @@ interface InputGroupState {
 
 export class InputGroupDemo extends React.Component<{}, InputGroupState> {
   static displayName = 'InputGroupDemo';
-  onToggle: (event: any, isOpen: boolean) => void;
+  onToggle: () => void;
   onSelect: (event: any) => void;
   constructor(props: {}) {
     super(props);
@@ -35,12 +36,12 @@ export class InputGroupDemo extends React.Component<{}, InputGroupState> {
       isOpen: false,
       selected: ''
     };
-    this.onToggle = (_event, isOpen) => {
-      this.setState({
-        isOpen
-      });
+    this.onToggle = () => {
+      this.setState((prevState) => ({
+        isOpen: !prevState.isOpen
+      }));
     };
-    this.onSelect = event => {
+    this.onSelect = (event) => {
       this.setState({
         isOpen: false,
         selected: event.currentTarget.value
@@ -50,59 +51,79 @@ export class InputGroupDemo extends React.Component<{}, InputGroupState> {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         <InputGroup>
-          <Button id="textAreaButton1" variant={ButtonVariant.control}>
-            Button
-          </Button>
-          <TextArea name="textarea1" id="textarea1" aria-label="textarea with buttons" />
-          <Button variant={ButtonVariant.control}>Button</Button>
+          <InputGroupItem>
+            <Button id="textAreaButton1" variant={ButtonVariant.control}>
+              Button
+            </Button>
+          </InputGroupItem>
+          <InputGroupItem isFill>
+            <TextArea name="textarea1" id="textarea1" aria-label="textarea with buttons" />
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button variant={ButtonVariant.control}>Button</Button>
+          </InputGroupItem>
         </InputGroup>
         <br />
         <br />
         <InputGroup>
-          <TextArea name="textarea2" id="textarea2" aria-label="textarea with button" />
-          <Button id="textAreaButton2" variant={ButtonVariant.control}>
-            Button
-          </Button>
+          <InputGroupItem isFill>
+            <TextArea name="textarea2" id="textarea2" aria-label="textarea with button" />
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button id="textAreaButton2" variant={ButtonVariant.control}>
+              Button
+            </Button>
+          </InputGroupItem>
         </InputGroup>
         <br />
         <br />
         <InputGroup>
-          <Button id="textAreaButton3" variant={ButtonVariant.control}>
-            Button
-          </Button>
-          <Button variant={ButtonVariant.control}>Button</Button>
-          <TextArea name="textarea3" id="textarea3" aria-label="textarea with 3 buttons" />
-          <Button variant={ButtonVariant.control}>Button</Button>
+          <InputGroupItem>
+            <Button id="textAreaButton3" variant={ButtonVariant.control}>
+              Button
+            </Button>
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button variant={ButtonVariant.control}>Button</Button>
+          </InputGroupItem>
+          <InputGroupItem isFill>
+            <TextArea name="textarea3" id="textarea3" aria-label="textarea with 3 buttons" />
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button variant={ButtonVariant.control}>Button</Button>
+          </InputGroupItem>
         </InputGroup>
         <br />
         <br />
         <InputGroup>
-          <Dropdown
-            onSelect={this.onSelect}
-            toggle={
-              <DropdownToggle onToggle={this.onToggle}>
-                {this.state.selected ? this.state.selected : 'Dropdown'}
-              </DropdownToggle>
-            }
-            isOpen={this.state.isOpen}
-            dropdownItems={[
-              <DropdownItem key="opt-1" value="Option 1" component="button">
-                Option 1
-              </DropdownItem>,
-              <DropdownItem key="opt-2" value="Option 2" component="button">
-                Option 2
-              </DropdownItem>,
-              <DropdownItem key="opt-3" value="Option 3" component="button">
-                Option 3
-              </DropdownItem>
-            ]}
-          ></Dropdown>
-          <TextInput id="textInput3" aria-label="input with dropdown and button" />
-          <Button id="inputDropdownButton1" variant={ButtonVariant.control}>
-            Button
-          </Button>
+          <InputGroupItem>
+            <Dropdown
+              onSelect={this.onSelect}
+              isOpen={this.state.isOpen}
+              onOpenChange={(isOpen) => this.setState({ isOpen })}
+              toggle={(toggleRef) => (
+                <MenuToggle ref={toggleRef} onClick={this.onToggle} isExpanded={this.state.isOpen}>
+                  {this.state.selected ? this.state.selected : 'Dropdown'}
+                </MenuToggle>
+              )}
+            >
+              <DropdownList>
+                <DropdownItem key="opt-1">Option 1</DropdownItem>
+                <DropdownItem key="opt-2">Option 2</DropdownItem>
+                <DropdownItem key="opt-3">Option 3</DropdownItem>
+              </DropdownList>
+            </Dropdown>
+          </InputGroupItem>
+          <InputGroupItem isFill>
+            <TextInput id="textInput3" aria-label="input with dropdown and button" />
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button id="inputDropdownButton1" variant={ButtonVariant.control}>
+              Button
+            </Button>
+          </InputGroupItem>
         </InputGroup>
         <br />
         <br />
@@ -110,13 +131,17 @@ export class InputGroupDemo extends React.Component<{}, InputGroupState> {
           <InputGroupText>
             <DollarSignIcon />
           </InputGroupText>
-          <TextInput id="textInput5" type="number" aria-label="Dollar amount input example" />
+          <InputGroupItem isFill>
+            <TextInput id="textInput5" type="number" aria-label="Dollar amount input example" />
+          </InputGroupItem>
           <InputGroupText>.00</InputGroupText>
         </InputGroup>
         <br />
         <br />
         <InputGroup>
-          <TextInput id="textInput6" type="email" aria-label="email input field" />
+          <InputGroupItem isFill>
+            <TextInput id="textInput6" type="email" aria-label="email input field" />
+          </InputGroupItem>
           <InputGroupText id="email-example">@example.com</InputGroupText>
         </InputGroup>
         <br />
@@ -125,12 +150,14 @@ export class InputGroupDemo extends React.Component<{}, InputGroupState> {
           <InputGroupText id="username" aria-label="@">
             <AtIcon />
           </InputGroupText>
-          <TextInput
-            validated={ValidatedOptions.error}
-            id="textInput7"
-            type="email"
-            aria-label="Error state username example"
-          />
+          <InputGroupItem isFill>
+            <TextInput
+              validated={ValidatedOptions.error}
+              id="textInput7"
+              type="email"
+              aria-label="Error state username example"
+            />
+          </InputGroupItem>
         </InputGroup>
         <br />
         <br />
@@ -138,39 +165,51 @@ export class InputGroupDemo extends React.Component<{}, InputGroupState> {
           <InputGroupText component="label" htmlFor="textInput9">
             <CalendarAltIcon />
           </InputGroupText>
-          <TextInput name="textInput9" id="textInput9" type="date" aria-label="Date input example" />
+          <InputGroupItem>
+            <TextInput name="textInput9" id="textInput9" type="date" aria-label="Date input example" />
+          </InputGroupItem>
         </InputGroup>
         <br />
         <br />
         <InputGroup>
-          <TextInput name="textInput11" id="textInput11" type="search" aria-label="search input example" />
-          <Button variant={ButtonVariant.control} aria-label="search button for search input">
-            <SearchIcon />
-          </Button>
-        </InputGroup>
-        <br />
-        <br />
-        <InputGroup>
-          <TextInput name="textInput10" id="textInput10" type="search" aria-label="input example with popover" />
-          <Popover
-            aria-label="popover example"
-            position={PopoverPosition.top}
-            bodyContent="This field is an example of input group with popover"
-          >
-            <Button variant={ButtonVariant.control} aria-label="popover for input">
-              <QuestionCircleIcon />
+          <InputGroupItem isFill>
+            <TextInput name="textInput11" id="textInput11" type="search" aria-label="search input example" />
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button variant={ButtonVariant.control} aria-label="search button for search input">
+              <SearchIcon />
             </Button>
-          </Popover>
+          </InputGroupItem>
         </InputGroup>
         <br />
         <br />
         <InputGroup>
-          <TextInput name="textIndex12" id="textInput12" type="text" aria-label="percentage" />
-          <InputGroupText id="plain-example" variant={InputGroupTextVariant.plain}>
+          <InputGroupItem isFill>
+            <TextInput name="textInput10" id="textInput10" type="search" aria-label="input example with popover" />
+          </InputGroupItem>
+          <InputGroupItem>
+            <Popover
+              aria-label="popover example"
+              position={PopoverPosition.top}
+              bodyContent="This field is an example of input group with popover"
+            >
+              <Button variant={ButtonVariant.control} aria-label="popover for input">
+                <QuestionCircleIcon />
+              </Button>
+            </Popover>
+          </InputGroupItem>
+        </InputGroup>
+        <br />
+        <br />
+        <InputGroup>
+          <InputGroupItem isFill>
+            <TextInput name="textIndex12" id="textInput12" type="text" aria-label="percentage" />
+          </InputGroupItem>
+          <InputGroupText isPlain id="plain-example">
             %
           </InputGroupText>
         </InputGroup>
-      </React.Fragment>
+      </>
     );
   }
 }

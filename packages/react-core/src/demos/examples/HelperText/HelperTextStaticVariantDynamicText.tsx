@@ -5,7 +5,7 @@ export const HelperTextStaticVariantDynamicText: React.FunctionComponent = () =>
   const [value, setValue] = React.useState('');
   const [inputValidation, setInputValidation] = React.useState('default');
 
-  const handleInputChange = (inputValue: string) => {
+  const handleInputChange = (_event, inputValue: string) => {
     setValue(inputValue);
   };
 
@@ -32,7 +32,7 @@ export const HelperTextStaticVariantDynamicText: React.FunctionComponent = () =>
           aria-invalid={inputValidation === 'error'}
           value={value}
         />
-        <FormHelperText isHidden={false} component="div">
+        <FormHelperText>
           <HelperText id="helper-text2" aria-live="polite">
             {inputValidation !== 'success' && (
               <HelperTextItem variant={inputValidation as any} hasIcon={inputValidation === 'error'}>

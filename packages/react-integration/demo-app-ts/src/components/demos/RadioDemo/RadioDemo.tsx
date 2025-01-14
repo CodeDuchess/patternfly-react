@@ -5,7 +5,7 @@ export class RadioDemo extends Component {
     value: '4'
   };
 
-  handleChange = (_checked: boolean, event: React.FormEvent<HTMLInputElement>) => {
+  handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     this.setState({ value });
   };
@@ -68,7 +68,7 @@ export class RadioDemo extends Component {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         <Radio
           id={this.myUncheckedControlledRadioProps.id}
           isChecked={this.state.value === '3'}
@@ -124,7 +124,7 @@ export class RadioDemo extends Component {
             aria-label={this.myStandaloneRadioProps['aria-label']}
           />
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

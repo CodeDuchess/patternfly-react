@@ -12,13 +12,12 @@ import {
   DrawerCloseButton,
   DrawerPanelBody,
   Dropdown,
+  DropdownList,
   Flex,
   FlexItem,
-  KebabToggle,
   Label,
   LabelGroup,
-  OptionsMenu,
-  OptionsMenuToggle,
+  MenuToggle,
   OverflowMenu,
   OverflowMenuContent,
   OverflowMenuControl,
@@ -28,8 +27,6 @@ import {
   PageSectionVariants,
   Progress,
   ProgressSize,
-  Select,
-  SelectVariant,
   Tabs,
   Tab,
   TabContent,
@@ -42,7 +39,7 @@ import {
   ToolbarToggleGroup
 } from '@patternfly/react-core';
 import {
-  TableComposable,
+  Table,
   Thead,
   Tbody,
   Tr,
@@ -52,12 +49,15 @@ import {
   ActionsColumn,
   CustomActionsToggleProps
 } from '@patternfly/react-table';
-import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 import CodeIcon from '@patternfly/react-icons/dist/esm/icons/code-icon';
 import CodeBranchIcon from '@patternfly/react-icons/dist/esm/icons/code-branch-icon';
 import CubeIcon from '@patternfly/react-icons/dist/esm/icons/cube-icon';
 import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 import SortAmountDownIcon from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
+import { KeyTypes } from '../../../helpers';
+import display from '@patternfly/react-styles/css/utilities/Display/display';
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
 
 interface Repository {
   name: string;
@@ -95,32 +95,24 @@ export const TablesAndTabs = () => {
     lastCommit: 'Last commit'
   };
 
-  const [selectedRepoNames, setSelectedRepoNames] = React.useState<string[]>([]);
-  const setRepoSelected = (event: React.FormEvent<HTMLInputElement>, repo: Repository, isSelecting = true) => {
-    setSelectedRepoNames(prevSelected => {
-      const otherSelectedRepoNames = prevSelected.filter(r => r !== repo.name);
-      return isSelecting ? [...otherSelectedRepoNames, repo.name] : otherSelectedRepoNames;
-    });
-    event.stopPropagation();
+  const [selectedRepoName, setSelectedRepoName] = React.useState<string>(repositories[0].name);
+  const isRepoSelected = (repo: Repository) => repo.name === selectedRepoName;
+  const setRepoSelected = (_event: React.FormEvent<HTMLInputElement>, repo: Repository) => {
+    setSelectedRepoName(repo.name);
+    setIsExpanded(true);
   };
-  const onSelectAll = (isSelecting = true) => setSelectedRepoNames(isSelecting ? repositories.map(r => r.name) : []);
-  const allRowsSelected = selectedRepoNames.length === repositories.length;
-  const isRepoSelected = (repo: Repository) => selectedRepoNames.includes(repo.name);
-
-  const [rowClicked, setRowClicked] = React.useState<string>('Node 1');
-  const isRowClicked = (repo: Repository) => rowClicked === repo.name;
 
   const defaultActions: IAction[] = [
     {
       title: 'Some action',
-      onClick: event => {
+      onClick: (event) => {
         event.stopPropagation();
         console.log('clicked on Some action');
       }
     },
     {
       title: <a href="https://www.patternfly.org">Link action</a>,
-      onClick: event => {
+      onClick: (event) => {
         event.stopPropagation();
         console.log('clicked on Link action');
       }
@@ -130,21 +122,60 @@ export const TablesAndTabs = () => {
     },
     {
       title: 'Third action',
-      onClick: event => {
+      onClick: (event) => {
         event.stopPropagation();
         console.log('clicked on Third action');
       }
     }
   ];
 
-  const customActionsToggle = (props: CustomActionsToggleProps) => (
-    <KebabToggle
+  const firstActionRef = React.useRef<HTMLButtonElement>(null);
+
+  /** Handles when the user clicks on the custom action toggle, stops propagation to prevent the drawer from opening */
+  const handleActionsToggleClick = (event: React.MouseEvent, ActionsToggleProps: CustomActionsToggleProps) => {
+    const { onToggle } = ActionsToggleProps;
+
+    onToggle(event);
+    event.stopPropagation();
+  };
+
+  /** Enables keyboard navigation of the custom actions toggle */
+  const handleActionsToggleKeyDown = (event: React.KeyboardEvent, ActionsToggleProps: CustomActionsToggleProps) => {
+    const { onToggle } = ActionsToggleProps;
+    const { Enter, Space, Escape, ArrowDown, ArrowUp } = KeyTypes;
+
+    const shouldToggle = [Enter, Space, Escape].includes(event.key);
+    const shouldFocus = [ArrowDown, ArrowUp, Enter, Space].includes(event.key);
+
+    if (shouldToggle) {
+      onToggle(event);
+    }
+
+    if (shouldFocus) {
+      setTimeout(() => {
+        firstActionRef.current?.focus();
+      }, 0);
+    }
+  };
+
+  const handleDrawerClose = () => {
+    setIsExpanded(false);
+    setSelectedRepoName('');
+  };
+
+  const customActionsToggle = (props: CustomActionsToggleProps, toggleName: string) => (
+    <MenuToggle
       isDisabled={props.isDisabled}
-      onToggle={(event: any, value: boolean) => {
-        props.onToggle(value);
-        event.stopPropagation();
-      }}
-    />
+      onClick={(event: React.MouseEvent) => handleActionsToggleClick(event, props)}
+      onKeyDown={(event: React.KeyboardEvent) => handleActionsToggleKeyDown(event, props)}
+      variant="plain"
+      aria-label={`${toggleName} actions`}
+      aria-haspopup="menu"
+      isExpanded={props.isOpen}
+      ref={props.toggleRef}
+    >
+      <EllipsisVIcon />
+    </MenuToggle>
   );
 
   const toolbar = (
@@ -152,30 +183,16 @@ export const TablesAndTabs = () => {
       <ToolbarContent>
         <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
           <ToolbarItem>
-            <Select
-              onToggle={() => {}}
-              variant={SelectVariant.single}
-              aria-label="Select Input"
-              placeholderText="Name"
-            />
+            <MenuToggle>Name</MenuToggle>
           </ToolbarItem>
         </ToolbarToggleGroup>
         <ToolbarItem>
-          <OptionsMenu
-            id="page-layout-table-column-management-action-toolbar-top-options-menu-toggle"
-            isPlain
-            menuItems={[]}
-            toggle={
-              <OptionsMenuToggle
-                toggleTemplate={<SortAmountDownIcon aria-hidden="true" />}
-                aria-label="Sort"
-                hideCaret
-              />
-            }
-          />
+          <MenuToggle variant="plain" aria-label="Sort columns">
+            <SortAmountDownIcon aria-hidden="true" />
+          </MenuToggle>
         </ToolbarItem>
         <OverflowMenu breakpoint="md">
-          <OverflowMenuContent className="pf-u-display-none pf-u-display-block-on-lg">
+          <OverflowMenuContent className={`${display.displayNone} ${display.displayBlockOnLg}`}>
             <OverflowMenuGroup groupType="button" isPersistent>
               <OverflowMenuItem isPersistent>
                 <Button variant="primary">Generate</Button>
@@ -188,27 +205,32 @@ export const TablesAndTabs = () => {
           <OverflowMenuControl hasAdditionalOptions>
             <Dropdown
               onSelect={() => {}}
-              toggle={<KebabToggle onToggle={() => {}} />}
+              toggle={(toggleRef) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  aria-label="overflow menu"
+                  variant="plain"
+                  onClick={() => {}}
+                  isExpanded={false}
+                >
+                  <EllipsisVIcon />
+                </MenuToggle>
+              )}
               isOpen={false}
-              isPlain
-              dropdownItems={[]}
-            />
+            >
+              <DropdownList>{[]}</DropdownList>
+            </Dropdown>
           </OverflowMenuControl>
         </OverflowMenu>
       </ToolbarContent>
     </Toolbar>
   );
 
-  const tableComposable = (
-    <TableComposable aria-label="`Composable` table">
+  const table = (
+    <Table aria-label="`Composable` table">
       <Thead noWrap>
         <Tr>
-          <Th
-            select={{
-              onSelect: (_event, isSelecting) => onSelectAll(isSelecting),
-              isSelected: allRowsSelected
-            }}
-          />
+          <Th screenReaderText="Row select" />
           <Th>{columnNames.name}</Th>
           <Th>{columnNames.branches}</Th>
           <Th>{columnNames.prs}</Th>
@@ -218,29 +240,23 @@ export const TablesAndTabs = () => {
       </Thead>
       <Tbody>
         {repositories.map((repo, rowIndex) => (
-          <Tr
-            key={repo.name}
-            onRowClick={event => {
-              if ((event?.target as HTMLInputElement).type !== 'checkbox') {
-                setRowClicked(rowClicked === repo.name ? '' : repo.name);
-                setIsExpanded(!isRowClicked(repo));
-              }
-            }}
-            isHoverable
-            isRowSelected={repo.name === rowClicked}
-          >
+          <Tr key={repo.name}>
             <Td
               key={`${rowIndex}_0`}
               select={{
                 rowIndex,
-                onSelect: (event, isSelected) => setRepoSelected(event, repo, isSelected),
-                isSelected: isRepoSelected(repo)
+                onSelect: (event) => setRepoSelected(event, repo),
+                isSelected: isRepoSelected(repo),
+                variant: 'radio'
               }}
             />
             <Td dataLabel={columnNames.name}>
               {repo.name}
               <div>
-                <a href="#">siemur/test-space</a>
+                {/** Preventing default behavior for demo purposes only */}
+                <a onClick={(event) => event.preventDefault()} href="#">
+                  siemur/test-space
+                </a>
               </div>
             </Td>
             <Td dataLabel={columnNames.branches}>
@@ -269,33 +285,35 @@ export const TablesAndTabs = () => {
             </Td>
             <Td dataLabel={columnNames.lastCommit}>{repo.lastCommit}</Td>
             <Td key={`${rowIndex}_5`}>
-              <ActionsColumn items={defaultActions} actionsToggle={customActionsToggle} />
+              <ActionsColumn
+                items={defaultActions}
+                actionsToggle={(props: CustomActionsToggleProps) => customActionsToggle(props, repo.name)}
+                firstActionItemRef={firstActionRef}
+              />
             </Td>
           </Tr>
         ))}
       </Tbody>
-    </TableComposable>
+    </Table>
   );
 
   const panelContent = (
     <DrawerPanelContent widths={{ default: 'width_33', xl: 'width_33' }}>
       <DrawerHead>
         <DrawerActions>
-          <DrawerCloseButton
-            onClick={() => {
-              setRowClicked('');
-              setIsExpanded(false);
-            }}
-          />
+          <DrawerCloseButton onClick={handleDrawerClose} />
         </DrawerActions>
         <Flex spaceItems={{ default: 'spaceItemsSm' }} direction={{ default: 'column' }}>
           <FlexItem>
             <Title headingLevel="h2" size="lg">
-              {rowClicked}
+              {selectedRepoName}
             </Title>
           </FlexItem>
           <FlexItem>
-            <a href="#">siemur/test-space</a>
+            {/** Preventing default behavior for demo purposes only */}
+            <a onClick={(event) => event.preventDefault()} href="#">
+              siemur/test-space
+            </a>
           </FlexItem>
         </Flex>
       </DrawerHead>
@@ -340,7 +358,7 @@ export const TablesAndTabs = () => {
                 </FlexItem>
                 <FlexItem>
                   <LabelGroup>
-                    {[1, 2, 3, 4, 5].map(labelNumber => (
+                    {[1, 2, 3, 4, 5].map((labelNumber) => (
                       <Label variant="outline" key={`label-${labelNumber}`}>{`Tag ${labelNumber}`}</Label>
                     ))}
                   </LabelGroup>
@@ -365,7 +383,7 @@ export const TablesAndTabs = () => {
   const tabContent = (
     <Drawer isExpanded={isExpanded} isInline>
       <DrawerContent panelContent={panelContent}>
-        <DrawerContentBody>{tableComposable}</DrawerContentBody>
+        <DrawerContentBody>{table}</DrawerContentBody>
       </DrawerContent>
     </Drawer>
   );

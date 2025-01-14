@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 
 import { AccordionToggle } from '../AccordionToggle';
 import { AccordionContext } from '../AccordionContext';
+import styles from '@patternfly/react-styles/css/components/Accordion/accordion';
 
 jest.mock('@patternfly/react-icons/dist/esm/icons/angle-right-icon', () => () => 'Icon mock');
 
@@ -42,7 +43,7 @@ test('Renders with inherited element props spread to the component', () => {
   expect(screen.getByRole('button')).toHaveAccessibleName('Label');
 });
 
-test('Renders the accordion toggle with class pf-c-accordion__toggle', () => {
+test(`Renders the accordion toggle with class ${styles.accordionToggle}`, () => {
   render(
     <AccordionContext.Provider value={{ ToggleContainer: 'h3' }}>
       <AccordionToggle id="accordion-toggle" aria-label="Accordion test">
@@ -51,7 +52,7 @@ test('Renders the accordion toggle with class pf-c-accordion__toggle', () => {
     </AccordionContext.Provider>
   );
 
-  expect(screen.getByRole('button')).toHaveClass('pf-c-accordion__toggle');
+  expect(screen.getByRole('button')).toHaveClass(styles.accordionToggle);
 });
 
 test('Renders the accordion toggle with custom class names provided via prop', () => {
@@ -66,7 +67,7 @@ test('Renders the accordion toggle with custom class names provided via prop', (
   expect(screen.getByRole('button')).toHaveClass('test-class');
 });
 
-test('Renders with children inside class pf-c-accordion__toggle-text', () => {
+test(`Renders with children inside class ${styles.accordionToggleText}`, () => {
   render(
     <AccordionContext.Provider value={{ ToggleContainer: 'h3' }}>
       <AccordionToggle id="accordion-toggle" aria-label="Accordion test">
@@ -75,10 +76,10 @@ test('Renders with children inside class pf-c-accordion__toggle-text', () => {
     </AccordionContext.Provider>
   );
 
-  expect(screen.getByText('Test')).toHaveClass('pf-c-accordion__toggle-text');
+  expect(screen.getByText('Test')).toHaveClass(styles.accordionToggleText);
 });
 
-test('Renders with the toggle icon inside class pf-c-accordion__toggle-icon', () => {
+test(`Renders with the toggle icon inside class ${styles.accordionToggleIcon}`, () => {
   render(
     <AccordionContext.Provider value={{ ToggleContainer: 'h3' }}>
       <AccordionToggle id="accordion-toggle" aria-label="Accordion test">
@@ -87,7 +88,7 @@ test('Renders with the toggle icon inside class pf-c-accordion__toggle-icon', ()
     </AccordionContext.Provider>
   );
 
-  expect(screen.getByText('Icon mock')).toHaveClass('pf-c-accordion__toggle-icon');
+  expect(screen.getByText('Icon mock')).toHaveClass(styles.accordionToggleIcon);
 });
 
 test('Renders with the id prop passed to the toggle', () => {
@@ -152,6 +153,34 @@ test('Renders the toggle with pf-m-expanded and aria-expanded=true when isExpand
 
   expect(toggle).toHaveClass('pf-m-expanded');
   expect(toggle).toHaveAttribute('aria-expanded', 'true');
+});
+
+test('Renders toggle text before toggle icon by default', () => {
+  render(
+    <AccordionContext.Provider value={{ ToggleContainer: 'h3' }}>
+      <AccordionToggle id="accordion-toggle" isExpanded>
+        Test
+      </AccordionToggle>
+    </AccordionContext.Provider>
+  );
+
+  const toggle = screen.getByRole('button');
+
+  expect(toggle.firstChild).toHaveClass(styles.accordionToggleText);
+});
+
+test('Renders toggle icon before toggle text when togglePosition from context = "start"', () => {
+  render(
+    <AccordionContext.Provider value={{ ToggleContainer: 'h3', togglePosition: 'start' }}>
+      <AccordionToggle id="accordion-toggle" isExpanded>
+        Test
+      </AccordionToggle>
+    </AccordionContext.Provider>
+  );
+
+  const toggle = screen.getByRole('button');
+
+  expect(toggle.firstChild).toHaveClass(styles.accordionToggleIcon);
 });
 
 test('Matches the snapshot', () => {

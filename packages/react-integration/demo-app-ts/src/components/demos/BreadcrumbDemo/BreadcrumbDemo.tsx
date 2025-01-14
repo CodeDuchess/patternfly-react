@@ -1,14 +1,17 @@
 import React from 'react';
 import {
+  Badge,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbHeading,
   BreadcrumbItemRenderArgs,
   Dropdown,
-  BadgeToggle,
-  DropdownItem
+  DropdownItem,
+  DropdownList,
+  MenuToggle
 } from '@patternfly/react-core';
 import AngleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-left-icon';
+import CaretDownIcon from '@patternfly/react-icons/dist/esm/icons/caret-down-icon';
 
 export class BreadcrumbDemo extends React.Component {
   static displayName = 'BreadcrumbDemo';
@@ -20,9 +23,9 @@ export class BreadcrumbDemo extends React.Component {
     window.scrollTo(0, 0);
   }
 
-  onToggle = (_event: any, isOpen: boolean) => {
+  onToggle = () => {
     this.setState({
-      isOpen
+      isOpen: !this.state.isOpen
     });
   };
   onSelect = () => {
@@ -34,13 +37,13 @@ export class BreadcrumbDemo extends React.Component {
   render() {
     const { isOpen } = this.state;
     const dropdownItems = [
-      <DropdownItem key="edit" component="button" icon={<AngleLeftIcon />}>
+      <DropdownItem icon={<AngleLeftIcon />} key="edit">
         Edit
       </DropdownItem>,
-      <DropdownItem key="action" component="button" icon={<AngleLeftIcon />}>
+      <DropdownItem icon={<AngleLeftIcon />} key="action">
         Deployment
       </DropdownItem>,
-      <DropdownItem key="apps" component="button" icon={<AngleLeftIcon />}>
+      <DropdownItem icon={<AngleLeftIcon />} key="apps">
         Applications
       </DropdownItem>
     ];
@@ -65,14 +68,21 @@ export class BreadcrumbDemo extends React.Component {
         <BreadcrumbItem isDropdown id="badge-dropdown">
           <Dropdown
             onSelect={this.onSelect}
-            toggle={
-              <BadgeToggle id="toggle-id" onToggle={this.onToggle}>
-                {dropdownItems.length}
-              </BadgeToggle>
-            }
+            onOpenChange={(isOpen) => this.setState({ isOpen })}
+            toggle={(toggleRef) => (
+              <MenuToggle ref={toggleRef} onClick={this.onToggle} isExpanded={isOpen} variant="plain">
+                <Badge isRead screenReaderText="additional items">
+                  {dropdownItems.length}
+                  <span>
+                    <CaretDownIcon />
+                  </span>
+                </Badge>
+              </MenuToggle>
+            )}
             isOpen={isOpen}
-            dropdownItems={dropdownItems}
-          />
+          >
+            <DropdownList>{dropdownItems.map((dropdownItem) => dropdownItem)}</DropdownList>
+          </Dropdown>
         </BreadcrumbItem>{' '}
         <BreadcrumbItem to="#">Section Title</BreadcrumbItem>
         <BreadcrumbHeading to="#">Section Title</BreadcrumbHeading>

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styles from '@patternfly/react-styles/css/components/Toolbar/toolbar';
 import { css } from '@patternfly/react-styles';
+import cssWidth from '@patternfly/react-tokens/dist/esm/c_toolbar__item_Width';
 
 import { formatBreakpointMods, toCamel } from '../../helpers/util';
 import { Divider } from '../Divider';
@@ -47,8 +48,10 @@ export interface ToolbarItemProps extends React.HTMLProps<HTMLDivElement> {
     xl?: 'alignRight' | 'alignLeft';
     '2xl'?: 'alignRight' | 'alignLeft';
   };
+  /** Vertical alignment of children */
+  alignItems?: 'start' | 'center' | 'baseline' | 'default';
   /** Vertical alignment */
-  alignSelf?: 'center' | 'baseline' | 'default';
+  alignSelf?: 'start' | 'center' | 'baseline' | 'default';
   /** Spacers at various breakpoints. */
   spacer?: {
     default?: 'spacerNone' | 'spacerSm' | 'spacerMd' | 'spacerLg';
@@ -70,6 +73,8 @@ export interface ToolbarItemProps extends React.HTMLProps<HTMLDivElement> {
   id?: string;
   /** Flag indicating if the expand-all variant is expanded or not */
   isAllExpanded?: boolean;
+  /** Flag that modifies the toolbar item to hide overflow and respond to available space. Used for horizontal navigation. */
+  isOverflowContainer?: boolean;
   /** Content to be rendered inside the data toolbar item */
   children?: React.ReactNode;
 }
@@ -82,9 +87,11 @@ export const ToolbarItem: React.FunctionComponent<ToolbarItemProps> = ({
   widths,
   align,
   alignSelf,
+  alignItems,
   id,
   children,
   isAllExpanded,
+  isOverflowContainer,
   ...props
 }: ToolbarItemProps) => {
   if (variant === ToolbarItemVariant.separator) {
@@ -95,7 +102,7 @@ export const ToolbarItem: React.FunctionComponent<ToolbarItemProps> = ({
   if (widths) {
     Object.entries(widths || {}).map(
       ([breakpoint, value]) =>
-        (widthStyles[`--pf-c-toolbar__item--Width${breakpoint !== 'default' ? `-on-${breakpoint}` : ''}`] = value)
+        (widthStyles[`${cssWidth.name}${breakpoint !== 'default' ? `-on-${breakpoint}` : ''}`] = value)
     );
   }
 
@@ -116,9 +123,14 @@ export const ToolbarItem: React.FunctionComponent<ToolbarItemProps> = ({
                   | 'chipGroup'
               ],
             isAllExpanded && styles.modifiers.expanded,
+            isOverflowContainer && styles.modifiers.overflowContainer,
             formatBreakpointMods(visibility, styles, '', getBreakpoint(width)),
             formatBreakpointMods(align, styles, '', getBreakpoint(width)),
             formatBreakpointMods(spacer, styles, '', getBreakpoint(width)),
+            alignItems === 'start' && styles.modifiers.alignItemsStart,
+            alignItems === 'center' && styles.modifiers.alignItemsCenter,
+            alignItems === 'baseline' && styles.modifiers.alignItemsBaseline,
+            alignSelf === 'start' && styles.modifiers.alignSelfStart,
             alignSelf === 'center' && styles.modifiers.alignSelfCenter,
             alignSelf === 'baseline' && styles.modifiers.alignSelfBaseline,
             className

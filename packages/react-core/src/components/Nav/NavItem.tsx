@@ -27,7 +27,7 @@ export interface NavItemProps extends Omit<React.HTMLProps<HTMLAnchorElement>, '
   /** Callback for item click */
   onClick?: NavSelectClickHandler;
   /** Component used to render NavItems if  React.isValidElement(children) is false */
-  component?: React.ReactNode;
+  component?: React.ElementType<any> | React.ComponentType<any>;
   /** Flyout of a nav item. This should be a Menu component. Should not be used if the to prop is defined. */
   flyout?: React.ReactElement;
   /** Callback when flyout is opened or closed */
@@ -38,6 +38,8 @@ export interface NavItemProps extends Omit<React.HTMLProps<HTMLAnchorElement>, '
   ouiaId?: number | string;
   /** Set the value of data-ouia-safe. Only set to true when the component is in a static state, i.e. no animations are occurring. At all other times, this value must be false. */
   ouiaSafe?: boolean;
+  /** @beta Adds a wrapper around the nav link text. Improves the layout when the text is a react node. */
+  hasNavLinkWrapper?: boolean;
 }
 
 export const NavItem: React.FunctionComponent<NavItemProps> = ({
@@ -49,17 +51,18 @@ export const NavItem: React.FunctionComponent<NavItemProps> = ({
   groupId = null as string,
   itemId = null as string,
   preventDefault = false,
-  onClick = null as NavSelectClickHandler,
+  onClick,
   component = 'a',
   flyout,
   onShowFlyout,
   ouiaId,
   ouiaSafe,
   zIndex = 9999,
+  hasNavLinkWrapper,
   ...props
 }: NavItemProps) => {
   const { flyoutRef, setFlyoutRef, navRef } = React.useContext(NavContext);
-  const { isNavOpen } = React.useContext(PageSidebarContext);
+  const { isSidebarOpen } = React.useContext(PageSidebarContext);
   const [flyoutTarget, setFlyoutTarget] = React.useState(null);
   const [isHovered, setIsHovered] = React.useState(false);
   const ref = React.useRef<HTMLLIElement>();
@@ -85,7 +88,7 @@ export const NavItem: React.FunctionComponent<NavItemProps> = ({
   };
 
   const onMouseOver = (event: React.MouseEvent) => {
-    const evtContainedInFlyout = (event.target as HTMLElement).closest('.pf-c-nav__item.pf-m-flyout');
+    const evtContainedInFlyout = (event.target as HTMLElement).closest(`.${styles.navItem}.pf-m-flyout`);
     if (hasFlyout && !flyoutVisible) {
       showFlyout(true);
     } else if (flyoutRef !== null && !evtContainedInFlyout) {
@@ -120,7 +123,10 @@ export const NavItem: React.FunctionComponent<NavItemProps> = ({
 
     // We only want the NavItem to handle closing a flyout menu if only the first level flyout is open.
     // Otherwise, MenuItem should handle closing its flyouts
-    if ((key === 'Escape' || key === 'ArrowLeft') && popperRef?.current?.querySelectorAll('.pf-c-menu').length === 1) {
+    if (
+      (key === 'Escape' || key === 'ArrowLeft') &&
+      popperRef?.current?.querySelectorAll(`.${styles.menu}`).length === 1
+    ) {
       if (flyoutVisible) {
         event.stopPropagation();
         event.preventDefault();
@@ -145,7 +151,7 @@ export const NavItem: React.FunctionComponent<NavItemProps> = ({
       if (flyoutVisible) {
         const flyoutItems = Array.from(
           (popperRef.current as HTMLElement).getElementsByTagName('UL')[0].children
-        ).filter((el) => !(el.classList.contains('pf-m-disabled') || el.classList.contains('pf-c-divider')));
+        ).filter((el) => !(el.classList.contains('pf-m-disabled') || el.classList.contains(styles.divider)));
         (flyoutItems[0].firstChild as HTMLElement).focus();
       } else {
         flyoutTarget.focus();
@@ -166,7 +172,7 @@ export const NavItem: React.FunctionComponent<NavItemProps> = ({
     'aria-expanded': flyoutVisible
   };
 
-  const tabIndex = isNavOpen ? null : -1;
+  const tabIndex = isSidebarOpen ? null : -1;
 
   const renderDefaultLink = (context: any): React.ReactNode => {
     const preventLinkDefault = preventDefault || !to;
@@ -185,7 +191,7 @@ export const NavItem: React.FunctionComponent<NavItemProps> = ({
         {...(hasFlyout && { ...ariaFlyoutProps })}
         {...props}
       >
-        {children}
+        {hasNavLinkWrapper ? <span className={css(`${styles.nav}__link-text`)}>{children}</span> : children}
         {flyout && flyoutButton}
       </Component>
     );

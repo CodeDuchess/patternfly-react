@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styles from '@patternfly/react-styles/css/components/Spinner/spinner';
 import { css } from '@patternfly/react-styles';
+import cssDiameter from '@patternfly/react-tokens/dist/esm/c_spinner_diameter';
 
 export enum spinnerSize {
   sm = 'sm',
@@ -27,7 +28,6 @@ export interface SpinnerProps extends React.SVGProps<SVGSVGElement> {
 }
 
 export const Spinner: React.FunctionComponent<SpinnerProps> = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   className = '',
   size = 'xl',
   'aria-valuetext': ariaValueText = 'Loading...',
@@ -42,7 +42,7 @@ export const Spinner: React.FunctionComponent<SpinnerProps> = ({
     role="progressbar"
     aria-valuetext={ariaValueText}
     viewBox="0 0 100 100"
-    {...(diameter && { style: { ['--pf-c-spinner--diameter']: diameter } as React.CSSProperties })}
+    {...(diameter && { style: { [cssDiameter.name]: diameter } as React.CSSProperties })}
     {...(ariaLabel && { 'aria-label': ariaLabel })}
     {...(ariaLabelledBy && { 'aria-labelledBy': ariaLabelledBy })}
     {...(!ariaLabel && !ariaLabelledBy && { 'aria-label': 'Contents' })}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Slider, Button, Text, TextVariants } from '@patternfly/react-core';
+import { Slider, SliderOnChangeEvent, Button, Text, TextVariants } from '@patternfly/react-core';
 import MinusIcon from '@patternfly/react-icons/dist/esm/icons/minus-icon';
 import PlusIcon from '@patternfly/react-icons/dist/esm/icons/plus-icon';
 import LockIcon from '@patternfly/react-icons/dist/esm/icons/lock-icon';
@@ -11,11 +11,12 @@ export const SliderActions: React.FunctionComponent = () => {
   const [inputValue, setInputValue] = React.useState(50);
   const [isDisabled, setIsDisabled] = React.useState(false);
 
-  const onChange1 = (value: number) => {
+  const onChange1 = (_event: SliderOnChangeEvent, value: number) => {
     setValue1(Math.floor(Number(value)));
   };
 
   const onChange2 = (
+    _event: SliderOnChangeEvent,
     value: number,
     inputValue: number,
     setLocalInputValue: React.Dispatch<React.SetStateAction<number>>
@@ -64,12 +65,12 @@ export const SliderActions: React.FunctionComponent = () => {
       <Slider
         value={value1}
         onChange={onChange1}
-        leftActions={
+        startActions={
           <Button variant="plain" aria-label="Minus" onClick={onMinusClick}>
             <MinusIcon />
           </Button>
         }
-        rightActions={
+        endActions={
           <Button variant="plain" aria-label="Plus" onClick={onPlusClick}>
             <PlusIcon />
           </Button>
@@ -84,7 +85,7 @@ export const SliderActions: React.FunctionComponent = () => {
         inputLabel="%"
         isInputVisible
         isDisabled={isDisabled}
-        rightActions={buildAction(isDisabled)}
+        endActions={buildAction(isDisabled)}
       />
     </>
   );

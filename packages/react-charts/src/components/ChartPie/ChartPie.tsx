@@ -23,35 +23,18 @@ import {
   VictorySliceLabelPositionType,
   VictorySliceTTargetType
 } from 'victory-pie';
-import { ChartContainer } from '../ChartContainer';
-import { ChartLegend, ChartLegendOrientation } from '../ChartLegend';
-import { ChartCommonStyles, ChartThemeDefinition } from '../ChartTheme';
-import { ChartTooltip } from '../ChartTooltip';
-import {
-  getComputedLegend,
-  useDefaultPatternProps,
-  getPaddingForSide,
-  getPatternDefs,
-  getTheme,
-  getLegendItemsExtraHeight
-} from "../ChartUtils";
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartLegend } from '../ChartLegend/ChartLegend';
+import { ChartCommonStyles } from '../ChartTheme/ChartStyles';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { ChartTooltip } from '../ChartTooltip/ChartTooltip';
+import { getComputedLegend, getLegendItemsExtraHeight, getLegendMaxTextWidth } from '../ChartUtils/chart-legend';
+import { getPaddingForSide } from '../ChartUtils/chart-padding';
+import { getPatternDefs, useDefaultPatternProps } from '../ChartUtils/chart-patterns';
+import { getTheme } from '../ChartUtils/chart-theme';
 import { useEffect } from 'react';
-
-export enum ChartPieLabelPosition {
-  centroid = 'centroid',
-  endAngle = 'endAngle',
-  startAngle = 'startAngle'
-}
-
-export enum ChartPieLegendPosition {
-  bottom = 'bottom',
-  right = 'right'
-}
-
-export enum ChartPieSortOrder {
-  ascending = 'ascending',
-  descending = 'descending'
-}
+import { ChartPoint } from '../ChartPoint/ChartPoint';
+import { ChartLabel } from '../ChartLabel/ChartLabel';
 
 /**
  * ChartPie renders a dataset as a pie chart.
@@ -235,7 +218,6 @@ export interface ChartPieProps extends VictoryPieProps {
    *
    * @example hasPatterns={ true }
    * @example hasPatterns={[ true, true, false ]}
-   * @beta
    */
   hasPatterns?: boolean | boolean[];
   /**
@@ -354,6 +336,10 @@ export interface ChartPieProps extends VictoryPieProps {
    */
   legendPosition?: 'bottom' | 'right';
   /**
+   * @beta Text direction of the legend labels.
+   */
+  legendDirection?: 'ltr' | 'rtl';
+  /**
    * The name prop is typically used to reference a component instance when defining shared events. However, this
    * optional prop may also be applied to child elements as an ID prefix. This is a workaround to ensure Victory
    * based components output unique IDs when multiple charts appear in a page.
@@ -391,7 +377,6 @@ export interface ChartPieProps extends VictoryPieProps {
    * Note: Not all components are supported; for example, ChartLine, ChartBullet, ChartThreshold, etc.
    *
    * @example patternScale={[ 'url("#pattern1")', 'url("#pattern2")', null ]}
-   * @beta
    */
   patternScale?: string[];
   /**
@@ -518,25 +503,22 @@ export const ChartPie: React.FunctionComponent<ChartPieProps> = ({
   legendAllowWrap = false,
   legendComponent = <ChartLegend />,
   legendData,
-  legendPosition = ChartCommonStyles.legend.position as ChartPieLegendPosition,
+  legendPosition = ChartCommonStyles.legend.position,
+  legendDirection = 'ltr',
   name,
   patternScale,
   patternUnshiftIndex,
-
   padding,
   radius,
   standalone = true,
   style,
   themeColor,
-
   // destructure last
   theme = getTheme(themeColor),
   labelComponent = allowTooltip ? (
     <ChartTooltip constrainToVisibleArea={constrainToVisibleArea} theme={theme} />
-  ) : (
-    undefined
-  ),
-  legendOrientation = theme.legend.orientation as ChartLegendOrientation,
+  ) : undefined,
+  legendOrientation = theme.legend.orientation as any,
   height = theme.pie.height,
   width = theme.pie.width,
   ...rest
@@ -599,6 +581,11 @@ export const ChartPie: React.FunctionComponent<ChartPieProps> = ({
     />
   );
 
+  let legendXOffset = 0;
+  if (legendDirection === 'rtl') {
+    legendXOffset = getLegendMaxTextWidth(legendData, theme);
+  }
+
   const legend = React.cloneElement(legendComponent, {
     colorScale,
     data: legendData,
@@ -606,6 +593,21 @@ export const ChartPie: React.FunctionComponent<ChartPieProps> = ({
     key: 'pf-chart-pie-legend',
     orientation: legendOrientation,
     theme,
+    themeColor,
+    ...(legendDirection === 'rtl' && {
+      dataComponent: legendComponent.props.dataComponent ? (
+        React.cloneElement(legendComponent.props.dataComponent, { transform: `translate(${legendXOffset})` })
+      ) : (
+        <ChartPoint transform={`translate(${legendXOffset})`} />
+      )
+    }),
+    ...(legendDirection === 'rtl' && {
+      labelComponent: legendComponent.props.labelComponent ? (
+        React.cloneElement(legendComponent.props.labelComponent, { direction: 'rtl', dx: legendXOffset - 30 })
+      ) : (
+        <ChartLabel direction="rtl" dx={legendXOffset - 30} />
+      )
+    }),
     ...legendComponent.props
   });
 
@@ -650,7 +652,7 @@ export const ChartPie: React.FunctionComponent<ChartPieProps> = ({
   // Callback to compliment legendAllowWrap
   const computedLegend = getLegend();
   useEffect(() => {
-    if (typeof legendAllowWrap === 'function') {
+    if (computedLegend?.props && typeof legendAllowWrap === 'function') {
       const extraHeight = getLegendItemsExtraHeight({
         legendData: computedLegend.props.data,
         legendOrientation: computedLegend.props.orientation,

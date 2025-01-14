@@ -16,6 +16,8 @@ export interface PaginationOptionsMenuProps extends React.HTMLProps<HTMLDivEleme
   isDisabled?: boolean;
   /** Menu will open up or open down from the options menu toggle. */
   dropDirection?: 'up' | 'down';
+  /** Minimum width of the pagination options menu. If set to "trigger", the minimum width will be set to the toggle width. */
+  minWidth?: string | 'trigger';
   /** Array of titles and values which will be the options on the options menu dropdown. */
   perPageOptions?: PerPageOptions[];
   /** The title of the pagination options menu. */
@@ -50,6 +52,14 @@ export interface PaginationOptionsMenuProps extends React.HTMLProps<HTMLDivEleme
   onPerPageSelect?: OnPerPageSelect;
   /** Label for the English word "of". */
   ofWord?: string;
+  /** React ref for the container to append the options menu to. This is a static ref provided by the main pagination component. */
+  containerRef?: React.RefObject<HTMLDivElement>;
+  /** @beta The container to append the pagination options menu to. Overrides the containerRef prop. */
+  appendTo?: HTMLElement | (() => HTMLElement) | 'inline';
+  /** Flag indicating if scroll on focus of the first menu item should occur. */
+  shouldPreventScrollOnItemFocus?: boolean;
+  /** Time in ms to wait before firing the toggles' focus event. Defaults to 0 */
+  focusTimeoutDelay?: number;
 }
 
 export const PaginationOptionsMenu: React.FunctionComponent<PaginationOptionsMenuProps> = ({
@@ -58,6 +68,7 @@ export const PaginationOptionsMenu: React.FunctionComponent<PaginationOptionsMen
   page: pageProp,
   itemCount,
   isDisabled = false,
+  minWidth,
   dropDirection = 'down',
   perPageOptions = [] as PerPageOptions[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -69,14 +80,17 @@ export const PaginationOptionsMenu: React.FunctionComponent<PaginationOptionsMen
   firstIndex = 0,
   lastIndex = 0,
   isLastFullPageShown = false,
-  itemsTitle = 'items',
+  itemsTitle = '',
   toggleTemplate,
-  onPerPageSelect = () => null as any
+  onPerPageSelect = () => null as any,
+  containerRef,
+  appendTo,
+  shouldPreventScrollOnItemFocus = true,
+  focusTimeoutDelay = 0
 }: PaginationOptionsMenuProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const toggleRef = React.useRef<HTMLButtonElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const onToggle = () => {
     setIsOpen((prevState) => !prevState);
@@ -121,14 +135,12 @@ export const PaginationOptionsMenu: React.FunctionComponent<PaginationOptionsMen
     };
 
     const handleClick = (event: MouseEvent) => {
-      // If the event is on the toggle and was fired via keyboard 'click', focus the first
-      // non-disabled menu item
-      // https://developer.mozilla.org/en-US/docs/Web/API/UIEvent/detail
-      if (event.detail === 0 && isOpen && toggleRef.current?.contains(event.target as Node)) {
+      // Focus the first non-disabled menu item on toggle 'click'
+      if (isOpen && toggleRef.current?.contains(event.target as Node)) {
         setTimeout(() => {
           const firstElement = menuRef?.current?.querySelector('li button:not(:disabled)');
-          firstElement && (firstElement as HTMLElement).focus();
-        }, 0);
+          firstElement && (firstElement as HTMLElement).focus({ preventScroll: shouldPreventScrollOnItemFocus });
+        }, focusTimeoutDelay);
       }
 
       // If the event is not on the toggle, close the menu
@@ -148,7 +160,7 @@ export const PaginationOptionsMenu: React.FunctionComponent<PaginationOptionsMen
       window.removeEventListener('keydown', handleMenuKeys);
       window.removeEventListener('click', handleClick);
     };
-  }, [isOpen, menuRef]);
+  }, [focusTimeoutDelay, isOpen, menuRef, shouldPreventScrollOnItemFocus]);
 
   const renderItems = () =>
     perPageOptions.map(({ value, title }) => (
@@ -174,9 +186,19 @@ export const PaginationOptionsMenu: React.FunctionComponent<PaginationOptionsMen
       variant="plainText"
       aria-haspopup="listbox"
     >
-      {typeof toggleTemplate === 'string' ? (
-        fillTemplate(toggleTemplate, { firstIndex, lastIndex, ofWord, itemCount, itemsTitle })
-      ) : (
+      {toggleTemplate &&
+        typeof toggleTemplate === 'string' &&
+        fillTemplate(toggleTemplate, { firstIndex, lastIndex, ofWord, itemCount, itemsTitle })}
+      {toggleTemplate &&
+        typeof toggleTemplate !== 'string' &&
+        (toggleTemplate as (props: PaginationToggleTemplateProps) => React.ReactElement)({
+          firstIndex,
+          lastIndex,
+          ofWord,
+          itemCount,
+          itemsTitle
+        })}
+      {!toggleTemplate && (
         <ToggleTemplate
           firstIndex={firstIndex}
           lastIndex={lastIndex}
@@ -196,19 +218,18 @@ export const PaginationOptionsMenu: React.FunctionComponent<PaginationOptionsMen
     </Menu>
   );
 
+  const containerToAppendTo = appendTo ?? (containerRef?.current || undefined);
   return (
-    <div ref={containerRef}>
-      <Popper
-        trigger={toggle}
-        triggerRef={toggleRef}
-        popper={menu}
-        popperRef={menuRef}
-        isVisible={isOpen}
-        direction={dropDirection}
-        appendTo={containerRef.current || undefined}
-        popperMatchesTriggerWidth={false}
-      />
-    </div>
+    <Popper
+      trigger={toggle}
+      triggerRef={toggleRef}
+      popper={menu}
+      popperRef={menuRef}
+      isVisible={isOpen}
+      direction={dropDirection}
+      appendTo={containerToAppendTo}
+      minWidth={minWidth !== undefined ? minWidth : 'revert'}
+    />
   );
 };
 

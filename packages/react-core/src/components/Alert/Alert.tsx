@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useState } from 'react';
 import { css } from '@patternfly/react-styles';
 import styles from '@patternfly/react-styles/css/components/Alert/alert';
-import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
 import { AlertIcon } from './AlertIcon';
 import { capitalize, useOUIAProps, OUIAProps } from '../../helpers';
 import { AlertContext } from './AlertContext';
@@ -15,7 +14,7 @@ export enum AlertVariant {
   danger = 'danger',
   warning = 'warning',
   info = 'info',
-  default = 'default'
+  custom = 'custom'
 }
 
 /** The main alert component. */
@@ -55,8 +54,6 @@ export interface AlertProps extends Omit<React.HTMLProps<HTMLDivElement>, 'actio
   timeoutAnimation?: number;
   /** Title of the alert.  */
   title: React.ReactNode;
-  /** @deprecated Sets the heading level to use for the alert title. Default is h4. */
-  titleHeadingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   /** Sets the element to use as the alert title. Default is h4. */
   component?: keyof JSX.IntrinsicElements;
   /** Adds accessible text to the alert toggle. */
@@ -80,7 +77,7 @@ export interface AlertProps extends Omit<React.HTMLProps<HTMLDivElement>, 'actio
   /** Truncate title to number of lines. */
   truncateTitle?: number;
   /** Adds alert variant styles.  */
-  variant?: 'success' | 'danger' | 'warning' | 'info' | 'default';
+  variant?: 'success' | 'danger' | 'warning' | 'info' | 'custom';
   /** Variant label text for screen readers. */
   variantLabel?: string;
   /** Value to overwrite the randomly generated data-ouia-component-id.*/
@@ -90,7 +87,7 @@ export interface AlertProps extends Omit<React.HTMLProps<HTMLDivElement>, 'actio
 }
 
 export const Alert: React.FunctionComponent<AlertProps> = ({
-  variant = AlertVariant.default,
+  variant = AlertVariant.custom,
   isInline = false,
   isPlain = false,
   isLiveRegion = false,
@@ -98,7 +95,6 @@ export const Alert: React.FunctionComponent<AlertProps> = ({
   actionClose,
   actionLinks,
   title,
-  titleHeadingLevel,
   component = 'h4',
   children = '',
   className = '',
@@ -120,19 +116,13 @@ export const Alert: React.FunctionComponent<AlertProps> = ({
   const ouiaProps = useOUIAProps(Alert.displayName, ouiaId, ouiaSafe, variant);
   const getHeadingContent = (
     <React.Fragment>
-      <span className={css(accessibleStyles.screenReader)}>{variantLabel}</span>
+      <span className="pf-v5-screen-reader">{variantLabel}</span>
       {title}
     </React.Fragment>
   );
 
   const titleRef = React.useRef(null);
-  const TitleComponent = (titleHeadingLevel || component) as any;
-  if (titleHeadingLevel !== undefined) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      'Alert: titleHeadingLevel is deprecated, please use the newer component prop instead to set the alert title element.'
-    );
-  }
+  const TitleComponent = component as any;
 
   const divRef = React.useRef<HTMLDivElement>();
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
@@ -223,7 +213,7 @@ export const Alert: React.FunctionComponent<AlertProps> = ({
         isPlain && styles.modifiers.plain,
         isExpandable && styles.modifiers.expandable,
         isExpanded && styles.modifiers.expanded,
-        styles.modifiers[variant as 'success' | 'danger' | 'warning' | 'info'],
+        styles.modifiers[variant],
         className
       )}
       {...ouiaProps}

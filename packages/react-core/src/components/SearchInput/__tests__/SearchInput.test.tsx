@@ -6,7 +6,12 @@ import userEvent from '@testing-library/user-event';
 import { SearchInput } from '../SearchInput';
 import { FormGroup } from '../../Form';
 import { Button } from '../../Button';
-import { ExternalLinkSquareAltIcon } from '@patternfly/react-icons';
+import ExternalLinkSquareAltIcon from '@patternfly/react-icons/dist/esm/icons/external-link-square-alt-icon';
+import badgeStyles from '@patternfly/react-styles/css/components/Badge/badge';
+import textInputGroupStyles from '@patternfly/react-styles/css/components/TextInputGroup/text-input-group';
+
+jest.mock('../../../helpers/OUIA/ouia');
+jest.mock('../../../helpers/GenerateId/GenerateId');
 
 const props = {
   onChange: jest.fn(),
@@ -30,7 +35,7 @@ describe('SearchInput', () => {
 
   test('result count', () => {
     render(<SearchInput {...props} resultsCount={3} aria-label="simple text input" data-testid="test-id" />);
-    expect(screen.getByTestId('test-id').querySelector('.pf-c-badge')).toBeInTheDocument();
+    expect(screen.getByTestId('test-id').querySelector(`.${badgeStyles.badge}`)).toBeInTheDocument();
   });
 
   test('renders search input in strict mode', async () => {
@@ -64,8 +69,8 @@ describe('SearchInput', () => {
     render(<SearchInput {...props} resultsCount="3 / 7" aria-label="simple text input" data-testid="test-id" />);
 
     const input = screen.getByTestId('test-id');
-    expect(input.querySelector('.pf-c-text-input-group__group')).toBeInTheDocument();
-    expect(input.querySelector('.pf-c-badge')).toBeInTheDocument();
+    expect(input.querySelector(`.${textInputGroupStyles.textInputGroupGroup}`)).toBeInTheDocument();
+    expect(input.querySelector(`.${badgeStyles.badge}`)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Previous' }));
     expect(props.onPreviousClick).toHaveBeenCalled();
@@ -78,9 +83,9 @@ describe('SearchInput', () => {
   });
 
   test('hide clear button', () => {
-    const { onClear, ...testProps } = props;
-
-    render(<SearchInput {...testProps} resultsCount="3" aria-label="simple text input without on clear" />);
+    render(
+      <SearchInput {...props} onClear={undefined} resultsCount="3" aria-label="simple text input without on clear" />
+    );
     expect(screen.queryByRole('button', { name: 'Reset' })).not.toBeInTheDocument();
   });
 
@@ -144,9 +149,7 @@ describe('SearchInput', () => {
   test('advanced search with custom attributes and appendTo="inline', async () => {
     const user = userEvent.setup();
 
-    const { container } = render(
-      <SearchInput data-testid="test-id" attributes={[{ attr: 'test', display: 'test' }]} appendTo="inline" />
-    );
+    render(<SearchInput data-testid="test-id" attributes={[{ attr: 'test', display: 'test' }]} appendTo="inline" />);
 
     await user.click(screen.getByRole('button', { name: 'Open advanced search' }));
 
@@ -156,7 +159,7 @@ describe('SearchInput', () => {
   test('advanced search with custom attributes and appendTo external DOM element', async () => {
     const user = userEvent.setup();
 
-    const { container } = render(
+    render(
       <SearchInput data-testid="test-id" attributes={[{ attr: 'test', display: 'test' }]} appendTo={document.body} />
     );
 
@@ -247,4 +250,9 @@ test('toggleAriaLabel is applied to the expandable toggle', () => {
   );
 
   expect(screen.getByRole('button')).toHaveAccessibleName('Test label');
+});
+
+test('Utilities are rendered when areUtilitiesDisplayed is set', () => {
+  render(<SearchInput {...props} areUtilitiesDisplayed resetButtonLabel="test-util-display" />);
+  expect(screen.getByLabelText('test-util-display')).toBeVisible();
 });

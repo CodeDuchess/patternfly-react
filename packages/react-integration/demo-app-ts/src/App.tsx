@@ -1,21 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import { Avatar } from '@patternfly/react-core/dist/esm/components/Avatar';
+import { Brand } from '@patternfly/react-core/dist/esm/components/Brand';
+import { Nav, NavList, NavItem } from '@patternfly/react-core/dist/esm/components/Nav';
+import { Page, PageSection, PageSidebar, PageSidebarBody } from '@patternfly/react-core/dist/esm/components/Page';
+import { Radio } from '@patternfly/react-core/dist/esm/components/Radio';
+import { SkipToContent } from '@patternfly/react-core/dist/esm/components/SkipToContent';
 import {
-  Page,
-  Nav,
-  NavList,
-  NavItem,
-  PageSection,
-  SkipToContent,
-  PageSidebar,
-  Avatar,
-  Brand,
   PageHeader,
   PageHeaderTools,
   PageHeaderToolsItem,
-  PageHeaderToolsGroup,
-  Radio
-} from '@patternfly/react-core';
+  PageHeaderToolsGroup
+} from '@patternfly/react-core/dist/esm/deprecated/components/PageHeader';
 import imgBrand from './assets/images/imgBrand.svg';
 import imgAvatar from './assets/images/imgAvatar.svg';
 import Demos from './Demos';
@@ -34,8 +30,12 @@ class App extends React.Component<{}, AppState> {
     isDarkTheme: false
   };
 
-  private onNavSelect = (selectedItem: { itemId: number | string }) => {
+  private onNavSelect = (_event: React.FormEvent<HTMLInputElement>, selectedItem: { itemId: number | string }) => {
     this.setState({ activeItem: selectedItem.itemId });
+  };
+
+  private onNavToggle = (_event: React.MouseEvent) => {
+    this.setState({ isNavOpen: !this.state.isNavOpen });
   };
 
   private onThemeSelect = (isDarkTheme: boolean) => {
@@ -51,10 +51,10 @@ class App extends React.Component<{}, AppState> {
   };
 
   private getPages = () => {
-    const defaultDemo = Demos.find(demo => demo.isDefault);
+    const defaultDemo = Demos.find((demo) => demo.isDefault);
     return (
       <Switch>
-        {Demos.map(demo => (
+        {Demos.map((demo) => (
           <Route
             path={`/${demo.id}-nav-link`}
             render={() => (
@@ -96,7 +96,9 @@ class App extends React.Component<{}, AppState> {
               label={`Light theme`}
               name="light-theme"
               isChecked={!isDarkTheme}
-              onChange={checked => checked && this.onThemeSelect(false)}
+              onChange={(_event: React.FormEvent<HTMLInputElement>, checked: boolean) =>
+                checked && this.onThemeSelect(false)
+              }
             />
           </PageHeaderToolsItem>
           <PageHeaderToolsItem>
@@ -106,7 +108,9 @@ class App extends React.Component<{}, AppState> {
               aria-label="Dark theme"
               name="dark-theme"
               isChecked={isDarkTheme}
-              onChange={checked => checked && this.onThemeSelect(true)}
+              onChange={(_event: React.FormEvent<HTMLInputElement>, checked: boolean) =>
+                checked && this.onThemeSelect(true)
+              }
             />
           </PageHeaderToolsItem>
         </PageHeaderToolsGroup>
@@ -120,7 +124,7 @@ class App extends React.Component<{}, AppState> {
         headerTools={AppToolbar}
         showNavToggle
         isNavOpen={isNavOpen}
-        onNavToggle={() => this.setState({ isNavOpen: !isNavOpen })}
+        onNavToggle={this.onNavToggle}
       />
     );
 
@@ -138,7 +142,11 @@ class App extends React.Component<{}, AppState> {
       </Nav>
     );
 
-    const AppSidebar = <PageSidebar isNavOpen={isNavOpen} nav={nav} />;
+    const AppSidebar = (
+      <PageSidebar isSidebarOpen={isNavOpen}>
+        <PageSidebarBody>{nav}</PageSidebarBody>
+      </PageSidebar>
+    );
 
     return (
       <Router>

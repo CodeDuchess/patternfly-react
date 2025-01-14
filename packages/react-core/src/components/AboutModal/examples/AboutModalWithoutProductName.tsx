@@ -1,11 +1,11 @@
 import React from 'react';
 import { AboutModal, Button, TextContent, TextList, TextListItem } from '@patternfly/react-core';
-import brandImg from './brandImg.svg';
+import brandImg from '../../assets/brandImg.svg';
 
 export const AboutModalWithoutProductName: React.FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const toggleModal = (_event: React.MouseEvent) => {
+  const toggleModal = (_event: React.MouseEvent<Element, MouseEvent> | KeyboardEvent | MouseEvent) => {
     setIsModalOpen(!isModalOpen);
   };
 
@@ -16,10 +16,11 @@ export const AboutModalWithoutProductName: React.FunctionComponent = () => {
       </Button>
       <AboutModal
         isOpen={isModalOpen}
-        onClose={(event: any) => toggleModal(event)}
+        onClose={(e: React.MouseEvent<Element, MouseEvent> | KeyboardEvent | MouseEvent) => toggleModal(e)}
         trademark="Trademark and copyright information here"
         brandImageSrc={brandImg}
         brandImageAlt="Patternfly Logo"
+        backgroundImageSrc="/assets/images/pfbg-icon.svg"
         aria-label="No product name about modal"
       >
         <TextContent>

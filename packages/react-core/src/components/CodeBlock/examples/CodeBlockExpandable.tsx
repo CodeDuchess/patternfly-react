@@ -14,7 +14,7 @@ export const ExpandableCodeBlock: React.FunctionComponent = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
 
-  const onToggle = isExpanded => {
+  const onToggle = (isExpanded) => {
     setIsExpanded(isExpanded);
   };
 
@@ -27,7 +27,7 @@ export const ExpandableCodeBlock: React.FunctionComponent = () => {
     setCopied(true);
   };
 
-  const copyBlock = `apiVersion: helm.openshift.io/v1beta1/
+  const copyBlock = String.raw`apiVersion: helm.openshift.io/v1beta1/
 kind: HelmChartRepository
 metadata:
 name: azure-sample-repo
@@ -35,11 +35,11 @@ spec:
 connectionConfig:
 url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docs`;
 
-  const code = `apiVersion: helm.openshift.io/v1beta1/
+  const code = String.raw`apiVersion: helm.openshift.io/v1beta1/
 kind: HelmChartRepository
 metadata:
 name: azure-sample-repo`;
-  const expandedCode = `spec:
+  const expandedCode = String.raw`spec:
 connectionConfig:
 url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docs`;
 
@@ -50,7 +50,7 @@ url: https://raw.githubusercontent.com/Azure-Samples/helm-charts/master/docs`;
           id="expandable-copy-button"
           textId="code-content"
           aria-label="Copy to clipboard"
-          onClick={e => onClick(e, copyBlock)}
+          onClick={(e) => onClick(e, copyBlock)}
           exitDelay={copied ? 1500 : 600}
           maxWidth="110px"
           variant="plain"

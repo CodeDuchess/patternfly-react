@@ -1,7 +1,8 @@
 ---
 id: Calendar month
 section: components
-cssPrefix: pf-c-calendar-month
+subsection: date-and-time
+cssPrefix: pf-v5-c-calendar-month
 propComponents: ['CalendarMonth', 'CalendarFormat', 'CalendarMonthInlineProps']
 ---
 

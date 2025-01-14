@@ -3,14 +3,12 @@ import { CodeEditor, Language } from '@patternfly/react-code-editor';
 
 export const CodeEditorSizeToFit: React.FunctionComponent = () => {
   const onEditorDidMount = (editor, monaco) => {
-    // eslint-disable-next-line no-console
-    console.log(editor.getValue());
     editor.layout();
     editor.focus();
     monaco.editor.getModels()[0].updateOptions({ tabSize: 5 });
   };
 
-  const onChange = value => {
+  const onChange = (value) => {
     // eslint-disable-next-line no-console
     console.log(value);
   };

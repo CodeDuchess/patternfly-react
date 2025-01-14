@@ -20,9 +20,9 @@ import {
   VictoryStyleInterface
 } from 'victory-core';
 import { VictoryBar, VictoryBarAlignmentType, VictoryBarProps, VictoryBarTTargetType } from 'victory-bar';
-import { ChartContainer } from '../ChartContainer';
-import { ChartThemeDefinition } from '../ChartTheme';
-import { getTheme } from '../ChartUtils';
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getTheme } from '../ChartUtils/chart-theme';
 
 /**
  * ChartBar renders a dataset as series of bars. ChartBar can be composed with Chart to create bar charts.
@@ -482,4 +482,4 @@ export const ChartBar: React.FunctionComponent<ChartBarProps> = ({
 ChartBar.displayName = 'ChartBar';
 
 // Note: VictoryBar.getDomain & VictoryBar.role must be hoisted
-hoistNonReactStatics(ChartBar, VictoryBar);
+hoistNonReactStatics(ChartBar, VictoryBar, { getBaseProps: true });

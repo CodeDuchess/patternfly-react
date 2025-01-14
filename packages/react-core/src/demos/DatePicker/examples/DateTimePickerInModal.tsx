@@ -1,12 +1,20 @@
 import React from 'react';
-import { DatePicker, Modal, ModalVariant, Button, TimePicker, InputGroup } from '@patternfly/react-core';
+import {
+  DatePicker,
+  Modal,
+  ModalVariant,
+  Button,
+  TimePicker,
+  InputGroup,
+  InputGroupItem
+} from '@patternfly/react-core';
 
 export const SimpleModal = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isTimePickerOpen, setIsTimePickerOpen] = React.useState(false);
   const dateRef = React.useRef(null);
 
-  const handleModalToggle = () => {
+  const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent) => {
     setIsModalOpen(!isModalOpen);
   };
 
@@ -16,7 +24,7 @@ export const SimpleModal = () => {
     } else if (isTimePickerOpen) {
       setIsTimePickerOpen(false);
     } else {
-      handleModalToggle();
+      handleModalToggle(event);
     }
   };
 
@@ -42,8 +50,12 @@ export const SimpleModal = () => {
         ]}
       >
         <InputGroup>
-          <DatePicker ref={dateRef} appendTo={() => document.getElementById('date-time-picker-modal')} />
-          <TimePicker menuAppendTo="parent" isOpen={isTimePickerOpen} setIsOpen={setIsTimePickerOpen} />
+          <InputGroupItem>
+            <DatePicker ref={dateRef} appendTo={() => document.getElementById('date-time-picker-modal')} />
+          </InputGroupItem>
+          <InputGroupItem>
+            <TimePicker menuAppendTo="parent" isOpen={isTimePickerOpen} setIsOpen={setIsTimePickerOpen} />
+          </InputGroupItem>
         </InputGroup>
       </Modal>
     </React.Fragment>

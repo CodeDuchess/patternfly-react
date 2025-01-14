@@ -5,8 +5,10 @@ import {
   getPrimarySegmentedMeasureData,
   getQualitativeRangeData
 } from './chart-bullet-data';
-import { ChartThemeDefinition } from '../../ChartTheme';
-import { getBulletTheme } from '../../ChartUtils';
+import { ChartThemeDefinition } from '../../ChartTheme/ChartTheme';
+import { getBulletTheme } from '../../ChartUtils/chart-theme-types';
+import { ChartThemeColor } from '../../ChartTheme/ChartThemeColor';
+import { SkeletonColorTheme } from '../../ChartTheme/themes/colors/skeleton-theme';
 
 interface ChartBulletThemeInterface {
   comparativeErrorMeasureData?: any[];
@@ -23,6 +25,10 @@ interface ChartBulletThemeInterface {
   themeColor?: string;
 }
 
+/**
+ * Returns legend color scale
+ * @private
+ */
 const getLegendColorScale = (computedData: any, legendData: any) => {
   const colorScale: string[] = [];
   legendData.forEach((data: any, index: number) => {
@@ -35,6 +41,10 @@ const getLegendColorScale = (computedData: any, legendData: any) => {
   return colorScale;
 };
 
+/**
+ * Returns color scale
+ * @private
+ */
 export const getColorScale = ({
   comparativeErrorMeasureData,
   comparativeErrorMeasureLegendData,
@@ -91,7 +101,10 @@ export const getColorScale = ({
   return colorScale;
 };
 
-// Get bullet chart theme with legend color scale
+/**
+ * Returns bullet chart theme with legend color scale
+ * @private
+ */
 export const getBulletThemeWithLegendColorScale = ({
   comparativeErrorMeasureData,
   comparativeErrorMeasureLegendData,
@@ -123,5 +136,8 @@ export const getBulletThemeWithLegendColorScale = ({
 
   const theme = getBulletTheme(themeColor);
   theme.legend.colorScale = [...colorScale];
+  if (themeColor === ChartThemeColor.skeleton) {
+    theme.legend.colorScale = SkeletonColorTheme.legend.colorScale;
+  }
   return theme;
 };

@@ -7,6 +7,8 @@ import { FormFieldGroupExpandable } from '../FormFieldGroupExpandable';
 import { FormFieldGroupHeader } from '../FormFieldGroupHeader';
 import { Button } from '../../Button';
 
+jest.mock('../../../helpers/GenerateId/GenerateId');
+
 test('Check form field group example against snapshot', () => {
   const FieldGroup = (
     <FormFieldGroup
@@ -50,7 +52,7 @@ test('Verify console error logged when there is no aria-label or title', () => {
       header={<FormFieldGroupHeader titleDescription="Field group 4 description text." actions={<Button />} />}
     />
   );
-  const { asFragment } = render(FieldGroup);
+  render(FieldGroup);
   expect(consoleErrorMock).toHaveBeenCalled();
 });
 

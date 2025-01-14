@@ -3,9 +3,13 @@
 exports[`CardTitle renders with PatternFly Core styles 1`] = `
 <DocumentFragment>
   <div
-    class="pf-c-card__title"
+    class="pf-v5-c-card__title"
   >
-    text
+    <div
+      class="pf-v5-c-card__title-text"
+    >
+      text
+    </div>
   </div>
 </DocumentFragment>
 `;

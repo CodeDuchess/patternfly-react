@@ -3,7 +3,7 @@ import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput'
 import inlineStyles from '@patternfly/react-styles/css/components/InlineEdit/inline-edit';
 import formStyles from '@patternfly/react-styles/css/components/Form/form';
 import { css } from '@patternfly/react-styles';
-import { EditableTextCellProps } from './base';
+import { EditableTextCellProps } from './base/types';
 
 export interface IEditableTextCell extends React.HTMLProps<HTMLDivElement> {
   /** The current value of the text input */
@@ -44,7 +44,7 @@ export const EditableTextCell: React.FunctionComponent<IEditableTextCell> = ({
         value={props.editableValue !== undefined ? props.editableValue : value}
         validated={props.isValid !== false ? 'default' : 'error'}
         type="text"
-        onChange={(newValue, event) => {
+        onChange={(event, newValue) => {
           handleTextInputChange(newValue, event, rowIndex, cellIndex);
         }}
         aria-label={inputAriaLabel}

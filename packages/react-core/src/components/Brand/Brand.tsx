@@ -2,6 +2,9 @@ import * as React from 'react';
 import { css } from '@patternfly/react-styles';
 import styles from '@patternfly/react-styles/css/components/Brand/brand';
 import { setBreakpointCssVars } from '../../helpers';
+import cssBrandHeight from '@patternfly/react-tokens/dist/esm/c_brand_Height';
+import cssBrandWidth from '@patternfly/react-tokens/dist/esm/c_brand_Width';
+
 export interface BrandProps
   extends React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement> {
   /** Transforms the Brand into a <picture> element from an <img> element. Container for <source> child elements. */
@@ -42,29 +45,39 @@ export const Brand: React.FunctionComponent<BrandProps> = ({
   style,
   ...props
 }: BrandProps) => {
-  if (children !== undefined && widths !== undefined) {
-    style = {
-      ...style,
-      ...setBreakpointCssVars(widths, '--pf-c-brand--Width')
+  let responsiveStyles;
+  if (widths !== undefined) {
+    responsiveStyles = {
+      ...setBreakpointCssVars(widths, cssBrandWidth.name)
     };
   }
 
-  if (children !== undefined && heights !== undefined) {
-    style = {
-      ...style,
-      ...setBreakpointCssVars(heights, '--pf-c-brand--Height')
+  if (heights !== undefined) {
+    responsiveStyles = {
+      ...responsiveStyles,
+      ...setBreakpointCssVars(heights, cssBrandHeight.name)
     };
   }
 
   return (
-    /** the brand component currently contains no styling the 'pf-c-brand' string will be used for the className */
+    /** the brand component currently contains no styling the 'pf-v5-c-brand' string will be used for the className */
     children !== undefined ? (
-      <picture className={css(styles.brand, styles.modifiers.picture, className)} style={style} {...props}>
+      <picture
+        className={css(styles.brand, styles.modifiers.picture, className)}
+        style={{ ...style, ...responsiveStyles }}
+        {...props}
+      >
         {children}
         <img src={src} alt={alt} />
       </picture>
     ) : (
-      <img {...props} className={css(styles.brand, className)} src={src} alt={alt} />
+      <img
+        {...props}
+        className={css(styles.brand, className)}
+        style={{ ...style, ...responsiveStyles }}
+        src={src}
+        alt={alt}
+      />
     )
   );
 };

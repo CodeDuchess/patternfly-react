@@ -13,10 +13,12 @@ export interface NotificationDrawerListItemProps extends React.HTMLProps<HTMLLIE
   isRead?: boolean;
   /**  Callback for when a list item is clicked */
   onClick?: (event: any) => void;
+  /**  Visually hidden text that conveys the current read state of the notification list item */
+  readStateScreenReaderText?: string;
   /**  Tab index for the list item */
   tabIndex?: number;
   /**  Variant indicates the severity level */
-  variant?: 'default' | 'success' | 'danger' | 'warning' | 'info';
+  variant?: 'custom' | 'success' | 'danger' | 'warning' | 'info';
 }
 
 export const NotificationDrawerListItem: React.FunctionComponent<NotificationDrawerListItemProps> = ({
@@ -26,16 +28,27 @@ export const NotificationDrawerListItem: React.FunctionComponent<NotificationDra
   isRead = false,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onClick = (event: React.MouseEvent) => undefined as any,
+  readStateScreenReaderText,
   tabIndex = 0,
-  variant = 'default',
+  variant = 'custom',
   ...props
 }: NotificationDrawerListItemProps) => {
   const onKeyDown = (event: React.KeyboardEvent) => {
-    // Accessibility function. Click on the list item when pressing Enter or Space on it.
-    if (event.key === 'Enter' || event.key === ' ') {
-      (event.target as HTMLElement).click();
+    if (!(event.target as HTMLElement).parentElement.classList.contains(styles.notificationDrawerListItemAction)) {
+      // Accessibility function. Click on the list item when pressing Enter or Space on it.
+      if (event.key === 'Enter' || event.key === ' ') {
+        (event.target as HTMLElement).click();
+      }
     }
   };
+
+  let readStateSRText;
+  if (readStateScreenReaderText) {
+    readStateSRText = readStateScreenReaderText;
+  } else {
+    readStateSRText = isRead ? 'read' : 'unread';
+  }
+
   return (
     <li
       {...props}
@@ -47,9 +60,10 @@ export const NotificationDrawerListItem: React.FunctionComponent<NotificationDra
         className
       )}
       tabIndex={tabIndex}
-      onClick={e => onClick(e)}
+      onClick={(e) => onClick(e)}
       onKeyDown={onKeyDown}
     >
+      <span className="pf-v5-screen-reader">{readStateSRText}</span>
       {children}
     </li>
   );

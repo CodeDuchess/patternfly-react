@@ -18,11 +18,15 @@ import {
 } from 'victory-core';
 import { SliceProps, VictoryPie, VictorySliceLabelPositionType } from 'victory-pie';
 import { getDonutTheme } from '../ChartUtils/chart-theme-types';
-import { ChartContainer } from '../ChartContainer';
-import { ChartLabel } from '../ChartLabel';
-import { ChartPie, ChartPieLegendPosition, ChartPieProps } from '../ChartPie';
-import { ChartCommonStyles, ChartDonutStyles, ChartThemeDefinition } from '../ChartTheme';
-import { getPieLabelX, getPieLabelY, getPaddingForSide } from '../ChartUtils';
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartLabel } from '../ChartLabel/ChartLabel';
+import { ChartPie, ChartPieProps } from '../ChartPie/ChartPie';
+import { ChartDonutStyles } from '../ChartTheme/ChartStyles';
+import { ChartCommonStyles } from '../ChartTheme/ChartStyles';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getPaddingForSide } from '../ChartUtils/chart-padding';
+import { getPieLabelX, getPieLabelY } from '../ChartUtils/chart-label';
+import { getComponentTheme } from '../ChartUtils/chart-theme';
 
 interface ChartDonutSubTitleInterface {
   dy?: number;
@@ -33,23 +37,6 @@ interface ChartDonutTitleInterface {
   dy?: number;
   styles?: any;
   titles?: string | string[];
-}
-
-export enum ChartDonutLabelPosition {
-  centroid = 'centroid',
-  endAngle = 'endAngle',
-  startAngle = 'startAngle'
-}
-
-export enum ChartDonutSortOrder {
-  ascending = 'ascending',
-  descending = 'descending'
-}
-
-export enum ChartDonutSubTitlePosition {
-  bottom = 'bottom',
-  center = 'center',
-  right = 'right'
 }
 
 /**
@@ -244,7 +231,6 @@ export interface ChartDonutProps extends ChartPieProps {
    *
    * @example hasPatterns={ true }
    * @example hasPatterns={[ true, true, false ]}
-   * @beta
    */
   hasPatterns?: boolean | boolean[];
   /**
@@ -361,6 +347,10 @@ export interface ChartDonutProps extends ChartPieProps {
    */
   legendPosition?: 'bottom' | 'right';
   /**
+   * @beta Text direction of the legend labels.
+   */
+  legendDirection?: 'ltr' | 'rtl';
+  /**
    * The name prop is typically used to reference a component instance when defining shared events. However, this
    * optional prop may also be applied to child elements as an ID prefix. This is a workaround to ensure Victory
    * based components output unique IDs when multiple charts appear in a page.
@@ -389,7 +379,6 @@ export interface ChartDonutProps extends ChartPieProps {
    * Note: Not all components are supported; for example, ChartLine, ChartBullet, ChartThreshold, etc.
    *
    * @example patternScale={[ 'url("#pattern1")', 'url("#pattern2")', null ]}
-   * @beta
    */
   patternScale?: string[];
   /**
@@ -588,7 +577,8 @@ export const ChartDonut: React.FunctionComponent<ChartDonutProps> = ({
   capHeight = 1.1,
   containerComponent = <ChartContainer />,
   innerRadius,
-  legendPosition = ChartCommonStyles.legend.position as ChartPieLegendPosition,
+  legendPosition = ChartCommonStyles.legend.position,
+  legendDirection = 'ltr',
   name,
   padAngle,
   padding,
@@ -607,6 +597,8 @@ export const ChartDonut: React.FunctionComponent<ChartDonutProps> = ({
   width = theme.pie.width,
   ...rest
 }: ChartDonutProps) => {
+  const componentTheme = getComponentTheme(themeColor);
+
   const defaultPadding = {
     bottom: getPaddingForSide('bottom', padding, theme.pie.padding),
     left: getPaddingForSide('left', padding, theme.pie.padding),
@@ -614,14 +606,14 @@ export const ChartDonut: React.FunctionComponent<ChartDonutProps> = ({
     top: getPaddingForSide('top', padding, theme.pie.padding)
   };
   const chartRadius = radius
-    ? radius
+    ? Helpers.evaluateProp(radius, undefined)
     : Helpers.getRadius({
         height,
         width,
         padding: defaultPadding
       });
-  const chartInnerRadius = innerRadius ? innerRadius : chartRadius - 9; // Todo: Add pf-core variable
-  const centerSubTitle = subTitle && subTitlePosition === ChartDonutSubTitlePosition.center;
+  const chartInnerRadius = innerRadius ? Helpers.evaluateProp(innerRadius, undefined) : chartRadius - 9; // Todo: Add pf-core variable
+  const centerSubTitle = subTitle && subTitlePosition === 'center';
 
   // Returns title and subtitle
   const getAllTitles = () => {
@@ -670,7 +662,8 @@ export const ChartDonut: React.FunctionComponent<ChartDonutProps> = ({
         padding: defaultPadding,
         width
       }),
-      ...subTitleProps
+      ...subTitleProps,
+      ...(componentTheme?.label && componentTheme.label) // override backgroundStyle
     });
   };
 
@@ -703,7 +696,8 @@ export const ChartDonut: React.FunctionComponent<ChartDonutProps> = ({
         padding: defaultPadding,
         width
       }),
-      ...titleProps
+      ...titleProps,
+      ...(componentTheme?.label && componentTheme.label) // override backgroundStyle
     });
   };
 
@@ -714,12 +708,14 @@ export const ChartDonut: React.FunctionComponent<ChartDonutProps> = ({
       innerRadius={chartInnerRadius > 0 ? chartInnerRadius : 0}
       key="pf-chart-donut-pie"
       legendPosition={legendPosition}
+      legendDirection={legendDirection}
       name={name}
       padAngle={padAngle !== undefined ? padAngle : getPadAngle}
       padding={padding}
       radius={chartRadius > 0 ? chartRadius : 0}
       standalone={false}
       theme={theme}
+      themeColor={themeColor}
       width={width}
       {...rest}
     />

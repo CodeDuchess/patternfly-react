@@ -18,38 +18,12 @@ import {
 } from 'victory-core';
 import { SliceProps, VictoryPie } from 'victory-pie';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { ChartContainer } from '../ChartContainer';
-import { ChartDonut, ChartDonutProps } from '../ChartDonut';
-import { ChartDonutStyles, ChartThemeDefinition } from '../ChartTheme';
-import { getDonutThresholdDynamicTheme, getDonutThresholdStaticTheme, getPaddingForSide } from '../ChartUtils';
-
-export enum ChartDonutThresholdDonutOrientation {
-  left = 'left',
-  right = 'right',
-  top = 'top'
-}
-
-export enum ChartDonutThresholdLabelOrientation {
-  horizontal = 'horizontal',
-  vertical = 'vertical'
-}
-
-export enum ChartDonutThresholdLabelPosition {
-  centroid = 'centroid',
-  endAngle = 'endAngle',
-  startAngle = 'startAngle'
-}
-
-export enum ChartDonutThresholdSortOrder {
-  ascending = 'ascending',
-  descending = 'descending'
-}
-
-export enum ChartDonutThresholdSubTitlePosition {
-  bottom = 'bottom',
-  center = 'center',
-  right = 'right'
-}
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartDonut, ChartDonutProps } from '../ChartDonut/ChartDonut';
+import { ChartDonutStyles } from '../ChartTheme/ChartStyles';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getPaddingForSide } from '../ChartUtils/chart-padding';
+import { getDonutThresholdDynamicTheme, getDonutThresholdStaticTheme } from '../ChartUtils/chart-theme-types';
 
 /**
  * ChartDonutThreshold renders a dataset as a donut threshold chart.
@@ -255,7 +229,6 @@ export interface ChartDonutThresholdProps extends ChartDonutProps {
    *
    * @example hasPatterns={ true }
    * @example hasPatterns={[ true, true, false ]}
-   * @beta
    */
   hasPatterns?: boolean | boolean[];
   /**
@@ -333,7 +306,6 @@ export interface ChartDonutThresholdProps extends ChartDonutProps {
    * Note: Not all components are supported; for example, ChartLine, ChartBullet, ChartThreshold, etc.
    *
    * @example patternScale={[ 'url("#pattern1")', 'url("#pattern2")', null ]}
-   * @beta
    */
   patternScale?: string[];
   /**
@@ -472,7 +444,7 @@ export const ChartDonutThreshold: React.FunctionComponent<ChartDonutThresholdPro
   padding,
   radius,
   standalone = true,
-  subTitlePosition = ChartDonutStyles.label.subTitlePosition as ChartDonutThresholdSubTitlePosition,
+  subTitlePosition = ChartDonutStyles.label.subTitlePosition,
   themeColor,
   x,
   y,
@@ -490,7 +462,7 @@ export const ChartDonutThreshold: React.FunctionComponent<ChartDonutThresholdPro
     top: getPaddingForSide('top', padding, theme.pie.padding)
   };
   const chartRadius =
-    radius ||
+    Helpers.evaluateProp(radius, undefined) ||
     Helpers.getRadius({
       height,
       width,
@@ -552,6 +524,7 @@ export const ChartDonutThreshold: React.FunctionComponent<ChartDonutThresholdPro
           standalone: false,
           subTitlePosition: childProps.subTitlePosition || subTitlePosition,
           theme: dynamicTheme,
+          themeColor,
           width,
           ...childProps
         });
@@ -574,6 +547,7 @@ export const ChartDonutThreshold: React.FunctionComponent<ChartDonutThresholdPro
       padding={defaultPadding}
       standalone={false}
       theme={theme}
+      themeColor={themeColor}
       width={width}
       {...rest}
     />

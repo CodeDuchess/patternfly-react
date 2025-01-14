@@ -31,9 +31,9 @@ You can find the complete description on the [OUIA website](https://ouia.readthe
 
 ### Usage
 
-PatternFly 4 generates a `data-ouia-component-type` attribute for selected components automatically
+PatternFly generates a `data-ouia-component-type` attribute for selected components automatically
 based on the name. For example, the `data-ouia-component-type` attribute for the
-[button component](/components/button) is `PF4/Button`. The id of the `data-ouia-component-id`
+[button component](/components/button) is `PF5/Button`. The id of the `data-ouia-component-id`
 attribute is random by default. To specify the concrete id, add an `ouiaId` prop to the
 component.
 
@@ -51,7 +51,7 @@ import { Button } from '@patternfly/react-core';
 </React.Fragment>
 ```
 
-## OUIA-compliant PatternFly 4 components
+## OUIA-compliant PatternFly 5 components
 
 ### react-core package
 
@@ -59,38 +59,28 @@ import { Button } from '@patternfly/react-core';
 * [Breadcrumb](/components/breadcrumb)
 * [Button](/components/button)
 * [Card](/components/card)
-* [Checkbox](/components/checkbox)
+* [Checkbox](/components/forms/checkbox)
 * [Chip](/components/chip)
-* [ChipGroup](/components/chipg-roup)
-* [ContextSelector](/components/context-selector)
-* [Dropdown](/components/dropdown)
-* [DropdownItem](/components/dropdown)
-* [DropdownSeparator](/components/dropdown)
-* [DropdownToggle](/components/dropdown)
-* [DropdownToggleCheckbox](/components/dropdown)
-* [FormSelect](/components/form-select)
-* [Menu](/components/menu)
+* [Dropdown](/components/menus/dropdown)
+* [DropdownItem](/components/menus/dropdown)
+* [FormSelect](/components/forms/form-select)
+* [Menu](/components/menus/menu)
 * [Modal](/components/modal)
-* [ModalBoxCloseButton](/components/modal)
-* [ModalContent](/components/modal)
-* [Nav](/components/navigation)
+* [Navigation](/components/navigation)
 * [NavExpandable](/components/navigation)
 * [NavItem](/components/navigation)
-* [OptionsMenu](/components/options-menu)
 * [Pagination](/components/pagination)
-* [Radio](/components/radio)
-* [Select](/components/select)
+* [Radio](/components/forms/radio)
+* [Select](/components/menus/select)
 * [Switch](/components/switch)
 * [TabContent](/components/tabs)
 * [Tabs](/components/tabs)
 * [Text](/components/text)
-* [TextInput](/components/text-input)
+* [TextInput](/components/forms/text-input)
 * [Title](/components/title)
 * [Toolbar](/components/toolbar)
 
 ### react-table package
 
-* [RowWrapper](/components/table)
 * [Table](/components/table)
-* [TableComposable](/components/table)
 * [Tr](/components/table)

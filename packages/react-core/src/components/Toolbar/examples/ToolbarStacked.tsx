@@ -2,19 +2,17 @@ import React from 'react';
 import {
   Button,
   ButtonVariant,
-  KebabToggle,
   Select,
+  SelectList,
   SelectOption,
-  SelectOptionObject,
-  SelectVariant,
   Pagination,
   Dropdown,
-  DropdownSeparator,
-  DropdownToggle,
-  DropdownToggleCheckbox,
   DropdownItem,
-  DropdownPosition,
+  DropdownList,
   Divider,
+  MenuToggle,
+  MenuToggleCheckbox,
+  MenuToggleElement,
   OverflowMenu,
   OverflowMenuContent,
   OverflowMenuControl,
@@ -26,55 +24,45 @@ import {
   ToolbarItem
 } from '@patternfly/react-core';
 import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 export const ToolbarStacked: React.FunctionComponent = () => {
   // toggle group - three option menus with labels, two icon buttons, Kebab menu - right aligned
   // pagination - right aligned
-  const resourceOptions = [
-    { value: 'All resources', disabled: false },
-    { value: 'Deployment', disabled: false },
-    { value: 'Pod', disabled: false }
-  ];
-
-  const statusOptions = [
-    { value: 'Running', disabled: false },
-    { value: 'New', disabled: false },
-    { value: 'Pending', disabled: false },
-    { value: 'Cancelled', disabled: false }
-  ];
+  const resourceOptions = ['All resources', 'Deployment', 'Pod'];
+  const statusOptions = ['New', 'Pending', 'Running', 'Cancelled'];
 
   const [kebabIsOpen, setKebabIsOpen] = React.useState(false);
   const [resourceIsExpanded, setResourceIsExpanded] = React.useState(false);
-  const [resourceSelected, setResourceSelected] = React.useState<string | SelectOptionObject>();
+  const [resourceSelected, setResourceSelected] = React.useState('');
   const [statusIsExpanded, setStatusIsExpanded] = React.useState(false);
-  const [statusSelected, setStatusSelected] = React.useState<string | SelectOptionObject>();
-  const [splitButtonDropdownIsOpen, setSplitButtonDropdownIsOpen] = React.useState(false);
+  const [statusSelected, setStatusSelected] = React.useState('');
+  const [isSplitButtonDropdownOpen, setIsSplitButtonDropdownOpen] = React.useState(false);
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
 
-  const onKebabToggle = (_event: any, isOpen: boolean) => {
-    setKebabIsOpen(isOpen);
+  const onKebabToggle = () => {
+    setKebabIsOpen(!kebabIsOpen);
   };
 
-  const onResourceToggle = (_event: any, isExpanded: boolean) => {
-    setResourceIsExpanded(isExpanded);
+  const onResourceToggle = () => {
+    setResourceIsExpanded(!resourceIsExpanded);
   };
 
-  const onResourceSelect = (_event: React.ChangeEvent | React.MouseEvent, selection: string | SelectOptionObject) => {
+  const onResourceSelect = (_event: React.ChangeEvent | React.MouseEvent, selection: string) => {
     setResourceSelected(selection);
     setResourceIsExpanded(false);
   };
 
-  const onResourceSelectDropdown = (event: React.SyntheticEvent<HTMLDivElement, Event> | undefined) => {
-    setResourceSelected(event?.target);
+  const onResourceSelectDropdown = () => {
     setResourceIsExpanded(false);
   };
 
-  const onStatusToggle = (_event: any, isExpanded: boolean) => {
-    setStatusIsExpanded(isExpanded);
+  const onStatusToggle = () => {
+    setStatusIsExpanded(!statusIsExpanded);
   };
 
-  const onStatusSelect = (_event: React.ChangeEvent | React.MouseEvent, selection: string | SelectOptionObject) => {
+  const onStatusSelect = (_event: React.ChangeEvent | React.MouseEvent, selection: string) => {
     setStatusSelected(selection);
     setStatusIsExpanded(false);
   };
@@ -92,44 +80,52 @@ export const ToolbarStacked: React.FunctionComponent = () => {
     setPerPage(perPage);
   };
 
-  const onSplitButtonToggle = (_event: any, isOpen: boolean) => {
-    setSplitButtonDropdownIsOpen(isOpen);
+  const onSplitButtonToggle = () => {
+    setIsSplitButtonDropdownOpen(!isSplitButtonDropdownOpen);
   };
 
   const onSplitButtonSelect = () => {
-    setSplitButtonDropdownIsOpen(!splitButtonDropdownIsOpen);
+    setIsSplitButtonDropdownOpen(!isSplitButtonDropdownOpen);
   };
 
-  const dropdownItems = [
-    <DropdownItem key="link">Link</DropdownItem>,
-    <DropdownItem key="action" component="button">
-      Action
-    </DropdownItem>,
-    <DropdownItem key="disabled link" isDisabled>
-      Disabled Link
-    </DropdownItem>,
-    <DropdownItem key="disabled action" isDisabled component="button">
-      Disabled Action
-    </DropdownItem>,
-    <DropdownSeparator key="separator" />,
-    <DropdownItem key="separated link">Separated Link</DropdownItem>,
-    <DropdownItem key="separated action" component="button">
-      Separated Action
-    </DropdownItem>
-  ];
-
-  const splitButtonDropdownItems = [
-    <DropdownItem key="link">Link</DropdownItem>,
-    <DropdownItem key="action" component="button">
-      Action
-    </DropdownItem>,
-    <DropdownItem key="disabled link" isDisabled>
-      Disabled Link
-    </DropdownItem>,
-    <DropdownItem key="disabled action" isDisabled component="button">
-      Disabled Action
-    </DropdownItem>
-  ];
+  const dropdownItems = (
+    <>
+      <DropdownItem>Action</DropdownItem>
+      <DropdownItem
+        to="#default-link2"
+        // Prevent the default onClick functionality for example purposes
+        onClick={(ev: any) => ev.preventDefault()}
+      >
+        Link
+      </DropdownItem>
+      <DropdownItem isDisabled>Disabled Action</DropdownItem>
+      <DropdownItem isDisabled to="#default-link4">
+        Disabled Link
+      </DropdownItem>
+    </>
+  );
+  const splitButtonDropdownItems = (
+    <>
+      <DropdownItem value={0} key="action">
+        Action
+      </DropdownItem>
+      <DropdownItem
+        value={1}
+        key="link"
+        to="#default-link2"
+        // Prevent the default onClick functionality for example purposes
+        onClick={(ev: any) => ev.preventDefault()}
+      >
+        Link
+      </DropdownItem>
+      <DropdownItem value={2} isDisabled key="disabled action">
+        Disabled Action
+      </DropdownItem>
+      <DropdownItem value={3} isDisabled key="disabled link" to="#default-link4">
+        Disabled Link
+      </DropdownItem>
+    </>
+  );
 
   const toggleGroupItems = (
     <React.Fragment>
@@ -138,17 +134,33 @@ export const ToolbarStacked: React.FunctionComponent = () => {
       </ToolbarItem>
       <ToolbarItem>
         <Select
-          variant={SelectVariant.single}
-          aria-label="Select Input"
-          onToggle={onResourceToggle}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              ref={toggleRef}
+              onClick={() => onResourceToggle()}
+              isExpanded={resourceIsExpanded}
+              style={
+                {
+                  width: '150px'
+                } as React.CSSProperties
+              }
+            >
+              {resourceSelected || 'Resource'}
+            </MenuToggle>
+          )}
           onSelect={onResourceSelect}
-          selections={resourceSelected}
+          selected={resourceSelected}
+          onOpenChange={(isOpen) => setResourceIsExpanded(isOpen)}
           isOpen={resourceIsExpanded}
           aria-labelledby="stacked-example-resource-select"
         >
-          {resourceOptions.map((option, index) => (
-            <SelectOption isDisabled={option.disabled} key={index} value={option.value} />
-          ))}
+          <SelectList>
+            {resourceOptions.map((option, index) => (
+              <SelectOption key={index} value={option}>
+                {option}
+              </SelectOption>
+            ))}
+          </SelectList>
         </Select>
       </ToolbarItem>
       <ToolbarItem variant="label" id="stacked-example-status-select">
@@ -156,17 +168,32 @@ export const ToolbarStacked: React.FunctionComponent = () => {
       </ToolbarItem>
       <ToolbarItem>
         <Select
-          variant={SelectVariant.single}
-          aria-label="Select Input"
-          onToggle={onStatusToggle}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              ref={toggleRef}
+              onClick={() => onStatusToggle()}
+              isExpanded={statusIsExpanded}
+              style={
+                {
+                  width: '150px'
+                } as React.CSSProperties
+              }
+            >
+              {statusSelected || 'Status'}
+            </MenuToggle>
+          )}
           onSelect={onStatusSelect}
-          selections={statusSelected}
+          onOpenChange={(isOpen) => setStatusIsExpanded(isOpen)}
+          selected={statusSelected}
           isOpen={statusIsExpanded}
-          aria-labelledby="stacked-example-status-select"
         >
-          {statusOptions.map((option, index) => (
-            <SelectOption isDisabled={option.disabled} key={index} value={option.value} />
-          ))}
+          <SelectList>
+            {statusOptions.map((option, index) => (
+              <SelectOption key={index} value={option}>
+                {option}
+              </SelectOption>
+            ))}
+          </SelectList>
         </Select>
       </ToolbarItem>
     </React.Fragment>
@@ -194,12 +221,22 @@ export const ToolbarStacked: React.FunctionComponent = () => {
               <OverflowMenuControl hasAdditionalOptions>
                 <Dropdown
                   onSelect={onResourceSelectDropdown}
-                  toggle={<KebabToggle onToggle={onKebabToggle} />}
+                  onOpenChange={(isOpen: boolean) => setKebabIsOpen(isOpen)}
+                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                    <MenuToggle
+                      ref={toggleRef}
+                      aria-label="Kebab overflow menu"
+                      variant="plain"
+                      onClick={onKebabToggle}
+                      isExpanded={kebabIsOpen}
+                    >
+                      <EllipsisVIcon />
+                    </MenuToggle>
+                  )}
                   isOpen={kebabIsOpen}
-                  isPlain
-                  dropdownItems={dropdownItems}
-                  position={DropdownPosition.right}
-                />
+                >
+                  <DropdownList>{dropdownItems}</DropdownList>
+                </Dropdown>
               </OverflowMenuControl>
             </OverflowMenu>
           </ToolbarItem>
@@ -215,18 +252,28 @@ export const ToolbarStacked: React.FunctionComponent = () => {
           <ToolbarItem variant="bulk-select">
             <Dropdown
               onSelect={onSplitButtonSelect}
-              toggle={
-                <DropdownToggle
-                  id="stacked-example-toggle"
-                  splitButtonItems={[
-                    <DropdownToggleCheckbox id="example-checkbox-1" key="split-checkbox" aria-label="Select all" />
-                  ]}
-                  onToggle={onSplitButtonToggle}
+              isOpen={isSplitButtonDropdownOpen}
+              onOpenChange={(isOpen: boolean) => setIsSplitButtonDropdownOpen(isOpen)}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  isExpanded={isSplitButtonDropdownOpen}
+                  onClick={onSplitButtonToggle}
+                  aria-label="Toolbar stacked example split toggle"
+                  splitButtonOptions={{
+                    items: [
+                      <MenuToggleCheckbox
+                        key="toolbar-stacked-split-button-checkbox-1"
+                        id="toolbar-stacked-split-button-checkbox-1"
+                        aria-label="Select all"
+                      />
+                    ]
+                  }}
                 />
-              }
-              isOpen={splitButtonDropdownIsOpen}
-              dropdownItems={splitButtonDropdownItems}
-            />
+              )}
+            >
+              <DropdownList>{splitButtonDropdownItems}</DropdownList>
+            </Dropdown>
           </ToolbarItem>
           <ToolbarItem variant="pagination" align={{ default: 'alignRight' }}>
             <Pagination

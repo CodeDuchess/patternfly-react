@@ -78,7 +78,7 @@ export interface PaginationTitles {
 }
 
 export type OnSetPage = (
-  _evt: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+  event: React.MouseEvent | React.KeyboardEvent | MouseEvent,
   newPage: number,
   perPage?: number,
   startIdx?: number,
@@ -86,7 +86,7 @@ export type OnSetPage = (
 ) => void;
 
 export type OnPerPageSelect = (
-  _evt: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+  event: React.MouseEvent | React.KeyboardEvent | MouseEvent,
   newPerPage: number,
   newPage: number,
   startIdx?: number,
@@ -148,7 +148,7 @@ export interface PaginationProps extends React.HTMLProps<HTMLDivElement>, OUIAPr
   /** Function called when user clicks on navigate to next page. */
   onNextClick?: (event: React.SyntheticEvent<HTMLButtonElement>, page: number) => void;
   /** Function called when user inputs page number. */
-  onPageInput?: (event: React.SyntheticEvent<HTMLButtonElement>, page: number) => void;
+  onPageInput?: (event: React.KeyboardEvent<HTMLInputElement>, page: number) => void;
   /** Function called when user selects number of items per page. */
   onPerPageSelect?: OnPerPageSelect;
   /** Function called when user clicks on navigate to previous page. */
@@ -169,6 +169,8 @@ export interface PaginationProps extends React.HTMLProps<HTMLDivElement>, OUIAPr
   ouiaId?: number | string;
   /** Set the value of data-ouia-safe. Only set to true when the component is in a static state, i.e. no animations are occurring. At all other times, this value must be false. */
   ouiaSafe?: boolean;
+  /** @beta The container to append the pagination options menu to. */
+  menuAppendTo?: HTMLElement | (() => HTMLElement) | 'inline';
 }
 
 const handleInputWidth = (lastPage: number, node: HTMLDivElement) => {
@@ -210,8 +212,8 @@ export const Pagination: React.FunctionComponent<PaginationProps> = ({
     ofWord: 'of'
   },
   firstPage = 1,
-  page: pageProp = 0,
-  offset = 0,
+  page: pageProp = 1,
+  offset = null,
   isLastFullPageShown = false,
   itemsStart = null,
   itemsEnd = null,
@@ -229,9 +231,11 @@ export const Pagination: React.FunctionComponent<PaginationProps> = ({
   ouiaSafe = true,
   usePageInsets,
   inset,
+  menuAppendTo,
   ...props
 }: PaginationProps) => {
   const paginationRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const getLastPage = () =>
     // when itemCount is not known let's set lastPage as page+1 as we don't know the total count
@@ -245,11 +249,10 @@ export const Pagination: React.FunctionComponent<PaginationProps> = ({
   const dropDirection = dropDirectionProp || (variant === 'bottom' && !isStatic ? 'up' : 'down');
 
   let page = pageProp;
-  if (!page && offset) {
-    page = Math.ceil(offset / perPage);
-  }
-  if (page === 0 && !itemCount) {
-    page = 1;
+  if (offset !== null) {
+    itemsStart = offset + 1;
+    page = Math.max(Math.ceil(itemsStart / perPage), 1);
+    itemsEnd = offset + perPage;
   }
 
   const lastPage = getLastPage();
@@ -336,6 +339,8 @@ export const Pagination: React.FunctionComponent<PaginationProps> = ({
           widgetId={`${widgetId}-${variant}`}
           toggleTemplate={toggleTemplate}
           isDisabled={isDisabled}
+          containerRef={containerRef}
+          appendTo={menuAppendTo}
         />
       )}
       <Navigation

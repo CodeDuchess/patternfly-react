@@ -1,6 +1,6 @@
 {
   "name": "@patternfly/react-core",
-  "version": "5.0.0-alpha.30",
+  "version": "5.4.12",
   "description": "This library provides a set of common React components for use with the PatternFly reference implementation.",
   "main": "dist/js/index.js",
   "module": "dist/esm/index.js",
@@ -21,8 +21,7 @@
     "*.scss"
   ],
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -40,34 +39,27 @@
   "homepage": "https://github.com/patternfly/patternfly-react#readme",
   "scripts": {
     "build:umd": "rollup -c --environment IS_PRODUCTION",
-    "clean": "rimraf dist",
+    "build:single:packages": "node ../../scripts/build-single-packages.js --config single-packages.config.json",
+    "clean": "rimraf dist components layouts helpers next deprecated",
     "generate": "node scripts/copyStyles.js",
-    "subpaths": "node scripts/copySubpaths.js"
+    "subpaths": "node ../../scripts/exportSubpaths.js --config subpaths.config.json",
+    "clean:exports": "node scripts/cleanDistExports.js"
   },
   "dependencies": {
-    "@patternfly/react-icons": "^5.0.0-alpha.4",
-    "@patternfly/react-styles": "^5.0.0-alpha.4",
-    "@patternfly/react-tokens": "^5.0.0-alpha.4",
-    "focus-trap": "6.9.2",
+    "@patternfly/react-icons": "workspace:^",
+    "@patternfly/react-styles": "workspace:^",
+    "@patternfly/react-tokens": "workspace:^",
+    "focus-trap": "7.6.2",
     "react-dropzone": "^14.2.3",
-    "tslib": "^2.0.0"
+    "tslib": "^2.7.0"
   },
   "devDependencies": {
-    "@patternfly/patternfly": "5.0.0-alpha.24",
-    "@rollup/plugin-commonjs": "^24.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-replace": "^5.0.2",
-    "css": "^2.2.3",
-    "fs-extra": "^6.0.1",
-    "glob": "^7.1.2",
-    "rimraf": "^3.0.2",
-    "rollup": "^3.10.0",
-    "rollup-plugin-scss": "^4.0.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "typescript": "^4.7.4"
+    "@patternfly/patternfly": "5.4.2",
+    "css": "^3.0.0",
+    "fs-extra": "^11.2.0"
   },
   "peerDependencies": {
-    "react": "^16.8 || ^17 || ^18",
-    "react-dom": "^16.8 || ^17 || ^18"
+    "react": "^17 || ^18",
+    "react-dom": "^17 || ^18"
   }
 }

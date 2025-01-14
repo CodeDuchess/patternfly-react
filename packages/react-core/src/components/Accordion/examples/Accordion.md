@@ -1,7 +1,7 @@
 ---
 id: Accordion
 section: components
-cssPrefix: pf-c-accordion
+cssPrefix: pf-v5-c-accordion
 propComponents: ['Accordion', 'AccordionItem', 'AccordionContent', 'AccordionToggle', AccordionExpandableContentBody]
 ---
 
@@ -27,4 +27,9 @@ import ArrowRightIcon from '@patternfly/react-icons/dist/esm/icons/arrow-right-i
 ### Bordered
 
 ```ts file="./AccordionBordered.tsx"
+```
+
+### Toggle icon at start
+
+```ts file="./AccordionToggleIconAtStart.tsx"
 ```

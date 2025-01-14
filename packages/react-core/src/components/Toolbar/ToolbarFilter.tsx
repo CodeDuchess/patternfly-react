@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ToolbarItem, ToolbarItemProps } from './ToolbarItem';
-import { ChipGroup } from '../ChipGroup';
+import { ChipGroup } from '../Chip';
 import { Chip } from '../Chip';
 import { ToolbarContentContext, ToolbarContext } from './ToolbarUtils';
 import { PickOptional } from '../../helpers/typeUtils';
@@ -21,6 +21,8 @@ export interface ToolbarChip {
 }
 
 export interface ToolbarFilterProps extends ToolbarItemProps {
+  /** Flag indicating when toolbar toggle group is expanded for non-managed toolbar toggle groups. */
+  isExpanded?: boolean;
   /** An array of strings to be displayed as chips in the expandable content */
   chips?: (string | ToolbarChip)[];
   /** Callback passed by consumer used to close the entire chip group */
@@ -37,13 +39,15 @@ export interface ToolbarFilterProps extends ToolbarItemProps {
   categoryName: string | ToolbarChipGroup;
   /** Flag to show the toolbar item */
   showToolbarItem?: boolean;
+  /** Reference to a chip container created with a custom expandable content group, for non-managed multiple toolbar toggle groups. */
+  expandableChipContainerRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface ToolbarFilterState {
   isMounted: boolean;
 }
 
-export class ToolbarFilter extends React.Component<ToolbarFilterProps, ToolbarFilterState> {
+class ToolbarFilter extends React.Component<ToolbarFilterProps, ToolbarFilterState> {
   static displayName = 'ToolbarFilter';
   static contextType = ToolbarContext;
   context!: React.ContextType<typeof ToolbarContext>;
@@ -90,9 +94,12 @@ export class ToolbarFilter extends React.Component<ToolbarFilterProps, ToolbarFi
       chipGroupCollapsedText,
       categoryName,
       showToolbarItem,
+      isExpanded,
+      expandableChipContainerRef,
       ...props
     } = this.props;
-    const { isExpanded, chipGroupContentRef } = this.context;
+    const { isExpanded: managedIsExpanded, chipGroupContentRef } = this.context;
+    const _isExpanded = isExpanded !== undefined ? isExpanded : managedIsExpanded;
     const categoryKey =
       typeof categoryName !== 'string' && categoryName.hasOwnProperty('key')
         ? categoryName.key
@@ -108,7 +115,7 @@ export class ToolbarFilter extends React.Component<ToolbarFilterProps, ToolbarFi
           collapsedText={chipGroupCollapsedText}
           expandedText={chipGroupExpandedText}
         >
-          {chips.map(chip =>
+          {chips.map((chip) =>
             typeof chip === 'string' ? (
               <Chip key={chip} onClick={() => deleteChip(categoryKey, chip)}>
                 {chip}
@@ -123,11 +130,12 @@ export class ToolbarFilter extends React.Component<ToolbarFilterProps, ToolbarFi
       </ToolbarItem>
     ) : null;
 
-    if (!isExpanded && this.state.isMounted) {
+    if (!_isExpanded && this.state.isMounted) {
       return (
         <React.Fragment>
           {showToolbarItem && <ToolbarItem {...props}>{children}</ToolbarItem>}
-          {ReactDOM.createPortal(chipGroup, chipGroupContentRef.current.firstElementChild)}
+          {chipGroupContentRef?.current?.firstElementChild &&
+            ReactDOM.createPortal(chipGroup, chipGroupContentRef.current.firstElementChild)}
         </React.Fragment>
       );
     }
@@ -138,9 +146,14 @@ export class ToolbarFilter extends React.Component<ToolbarFilterProps, ToolbarFi
           <React.Fragment>
             {showToolbarItem && <ToolbarItem {...props}>{children}</ToolbarItem>}
             {chipContainerRef.current && ReactDOM.createPortal(chipGroup, chipContainerRef.current)}
+            {expandableChipContainerRef &&
+              expandableChipContainerRef.current &&
+              ReactDOM.createPortal(chipGroup, expandableChipContainerRef.current)}
           </React.Fragment>
         )}
       </ToolbarContentContext.Consumer>
     );
   }
 }
+
+export { ToolbarFilter };

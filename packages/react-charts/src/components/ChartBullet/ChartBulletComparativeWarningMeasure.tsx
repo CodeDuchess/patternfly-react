@@ -2,10 +2,10 @@ import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { DataGetterPropType, DomainPropType, NumberOrCallback, PaddingProps } from 'victory-core';
 import { VictoryBar } from 'victory-bar';
-import { ChartContainer } from '../ChartContainer';
-import { ChartThemeDefinition } from '../ChartTheme';
-import { getBulletComparativeWarningMeasureTheme } from '../ChartUtils';
 import { ChartBulletComparativeMeasure } from './ChartBulletComparativeMeasure';
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getBulletComparativeWarningMeasureTheme } from '../ChartUtils/chart-theme-types';
 
 /**
  * ChartBulletComparativeWarningMeasure renders a dataset as a comparative warning measure.
@@ -163,7 +163,9 @@ export interface ChartBulletComparativeWarningMeasureProps {
   y?: DataGetterPropType;
 }
 
-export const ChartBulletComparativeWarningMeasure: React.FunctionComponent<ChartBulletComparativeWarningMeasureProps> = ({
+export const ChartBulletComparativeWarningMeasure: React.FunctionComponent<
+  ChartBulletComparativeWarningMeasureProps
+> = ({
   allowTooltip = true,
   ariaDesc,
   ariaTitle,
@@ -201,6 +203,7 @@ export const ChartBulletComparativeWarningMeasure: React.FunctionComponent<Chart
     padding,
     standalone: false,
     theme,
+    themeColor,
     width,
     y,
     ...measureComponent.props

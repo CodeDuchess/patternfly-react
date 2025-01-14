@@ -6,6 +6,7 @@ import AngleDoubleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-do
 import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
 import AngleDoubleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-double-right-icon';
 import { Button, ButtonVariant } from '../Button';
+import { TextInput } from '../TextInput';
 import { OnSetPage } from './Pagination';
 import { pluralize, PickOptional } from '../../helpers';
 import { KeyTypes } from '../../helpers/constants';
@@ -28,7 +29,7 @@ export interface NavigationProps extends React.HTMLProps<HTMLElement> {
   /** Label for the English word "of". */
   ofWord?: string;
   /** The number of the current page. */
-  page: React.ReactText;
+  page: number;
   /** The title of a page displayed beside the page number. */
   pagesTitle?: string;
   /** The title of a page displayed beside the page number (the plural form). */
@@ -54,16 +55,16 @@ export interface NavigationProps extends React.HTMLProps<HTMLElement> {
   /** Function called when user clicks to navigate to previous page. */
   onPreviousClick?: (event: React.SyntheticEvent<HTMLButtonElement>, page: number) => void;
   /** Function called when user inputs page number. */
-  onPageInput?: (event: React.SyntheticEvent<HTMLButtonElement>, page: number) => void;
+  onPageInput?: (event: React.KeyboardEvent<HTMLInputElement>, page: number) => void;
   /** Function called when page is changed. */
   onSetPage: OnSetPage;
 }
 
 export interface NavigationState {
-  userInputPage?: React.ReactText;
+  userInputPage?: number | string;
 }
 
-export class Navigation extends React.Component<NavigationProps, NavigationState> {
+class Navigation extends React.Component<NavigationProps, NavigationState> {
   static displayName = 'Navigation';
   constructor(props: NavigationProps) {
     super(props);
@@ -92,7 +93,7 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
     onPageInput: () => undefined as any
   };
 
-  private static parseInteger(input: React.ReactText, lastPage: number): number {
+  private static parseInteger(input: number | string, lastPage: number): number {
     // eslint-disable-next-line radix
     let inputPage = Number.parseInt(input as string, 10);
     if (!Number.isNaN(inputPage)) {
@@ -102,21 +103,34 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
     return inputPage;
   }
 
-  private onChange(event: React.ChangeEvent<HTMLInputElement>, lastPage: number): void {
-    const inputPage = Navigation.parseInteger(event.target.value, lastPage);
-    this.setState({ userInputPage: Number.isNaN(inputPage as number) ? event.target.value : inputPage });
+  private onChange(event: React.FormEvent<HTMLInputElement>, lastPage: number): void {
+    const inputPage = Navigation.parseInteger(event.currentTarget.value, lastPage);
+    this.setState({ userInputPage: Number.isNaN(inputPage) ? event.currentTarget.value : inputPage });
   }
 
   private onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
-    page: number | string,
+    page: number,
     lastPage: number,
-    onPageInput: (event: React.SyntheticEvent<HTMLButtonElement>, page: number) => void
+    onPageInput: (event: React.KeyboardEvent<HTMLInputElement>, page: number) => void
   ): void {
+    const allowedKeys = [
+      'Tab',
+      'Backspace',
+      'Delete',
+      'ArrowLeft',
+      'ArrowRight',
+      'Home',
+      'End',
+      'ArrowUp',
+      'ArrowDown'
+    ];
     if (event.key === KeyTypes.Enter) {
-      const inputPage = Navigation.parseInteger(this.state.userInputPage, lastPage) as number;
-      onPageInput(event, Number.isNaN(inputPage) ? (page as number) : inputPage);
-      this.handleNewPage(event, Number.isNaN(inputPage) ? (page as number) : inputPage);
+      const inputPage = Navigation.parseInteger(this.state.userInputPage, lastPage);
+      onPageInput(event, Number.isNaN(inputPage) ? page : inputPage);
+      this.handleNewPage(event, Number.isNaN(inputPage) ? page : inputPage);
+    } else if (!/^\d*$/.test(event.key) && !allowedKeys.includes(event.key)) {
+      event.preventDefault();
     }
   }
 
@@ -176,7 +190,7 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
               isDisabled={isDisabled || page === firstPage || page === 0}
               aria-label={toFirstPageAriaLabel}
               data-action="first"
-              onClick={event => {
+              onClick={(event) => {
                 onFirstClick(event, 1);
                 this.handleNewPage(event, 1);
                 this.setState({ userInputPage: 1 });
@@ -191,8 +205,8 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
             variant={ButtonVariant.plain}
             isDisabled={isDisabled || page === firstPage || page === 0}
             data-action="previous"
-            onClick={event => {
-              const newPage = (page as number) - 1 >= 1 ? (page as number) - 1 : 1;
+            onClick={(event) => {
+              const newPage = page - 1 >= 1 ? page - 1 : 1;
               onPreviousClick(event, newPage);
               this.handleNewPage(event, newPage);
               this.setState({ userInputPage: newPage });
@@ -204,18 +218,17 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
         </div>
         {!isCompact && (
           <div className={styles.paginationNavPageSelect}>
-            <input
-              className={css(styles.formControl)}
+            <TextInput
               aria-label={currPageAriaLabel}
               type="number"
-              disabled={
+              isDisabled={
                 isDisabled || (itemCount && page === firstPage && page === lastPage && itemCount >= 0) || page === 0
               }
               min={lastPage <= 0 && firstPage <= 0 ? 0 : 1}
               max={lastPage}
               value={userInputPage}
-              onKeyDown={event => this.onKeyDown(event, page, lastPage, onPageInput)}
-              onChange={event => this.onChange(event, lastPage)}
+              onKeyDown={(event) => this.onKeyDown(event, page, lastPage, onPageInput)}
+              onChange={(event) => this.onChange(event, lastPage)}
             />
             {(itemCount || itemCount === 0) && (
               <span aria-hidden="true">
@@ -230,8 +243,8 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
             isDisabled={isDisabled || page === lastPage}
             aria-label={toNextPageAriaLabel}
             data-action="next"
-            onClick={event => {
-              const newPage = (page as number) + 1 <= lastPage ? (page as number) + 1 : lastPage;
+            onClick={(event) => {
+              const newPage = page + 1 <= lastPage ? page + 1 : lastPage;
               onNextClick(event, newPage);
               this.handleNewPage(event, newPage);
               this.setState({ userInputPage: newPage });
@@ -247,7 +260,7 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
               isDisabled={isDisabled || page === lastPage}
               aria-label={toLastPageAriaLabel}
               data-action="last"
-              onClick={event => {
+              onClick={(event) => {
                 onLastClick(event, lastPage);
                 this.handleNewPage(event, lastPage);
                 this.setState({ userInputPage: lastPage });
@@ -261,3 +274,5 @@ export class Navigation extends React.Component<NavigationProps, NavigationState
     );
   }
 }
+
+export { Navigation };

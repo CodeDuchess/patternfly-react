@@ -1,11 +1,12 @@
 import React from 'react';
 import { Modal, ModalVariant, Button, Title, TitleSizes } from '@patternfly/react-core';
 import WarningTriangleIcon from '@patternfly/react-icons/dist/esm/icons/warning-triangle-icon';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 export const ModalCustomHeaderFooter: React.FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const handleModalToggle = () => {
+  const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent) => {
     setIsModalOpen(!isModalOpen);
   };
 
@@ -14,14 +15,14 @@ export const ModalCustomHeaderFooter: React.FunctionComponent = () => {
       <Title id="modal-custom-header-label" headingLevel="h1" size={TitleSizes['2xl']}>
         Custom header/footer modal
       </Title>
-      <p className="pf-u-pt-sm">Allows for custom content in the header and/or footer by passing components.</p>
+      <p className={spacing.ptSm}>Allows for custom content in the header and/or footer by passing components.</p>
     </React.Fragment>
   );
 
   const footer = (
     <Title headingLevel="h4" size={TitleSizes.md}>
       <WarningTriangleIcon />
-      <span className="pf-u-pl-sm">Custom modal footer.</span>
+      <span className={spacing.plSm}>Custom modal footer.</span>
     </Title>
   );
 

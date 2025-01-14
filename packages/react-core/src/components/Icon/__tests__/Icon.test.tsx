@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Icon } from '../Icon';
-import { CheckIcon } from '@patternfly/react-icons';
+import CheckIcon from '@patternfly/react-icons/dist/esm/icons/check-icon';
+import styles from '@patternfly/react-styles/css/components/Icon/icon';
 
 test('renders basic icon successfully', () => {
   const { asFragment } = render(
@@ -13,15 +14,15 @@ test('renders basic icon successfully', () => {
 });
 
 test('checks basic icon structure', () => {
-  const { asFragment } = render(
+  render(
     <Icon title="icon">
       <CheckIcon />
     </Icon>
   );
   const iconContainer = screen.getByTitle('icon');
-  expect(iconContainer).toHaveClass('pf-c-icon');
-  const iconContent = iconContainer.querySelector('.pf-c-icon__content');
-  expect(iconContent).toHaveClass('pf-c-icon__content');
+  expect(iconContainer).toHaveClass(styles.icon);
+  const iconContent = iconContainer.querySelector(`.${styles.iconContent}`);
+  expect(iconContent).toHaveClass(styles.iconContent);
 });
 
 test('renders without children', () => {
@@ -40,14 +41,14 @@ test('sets additional custom class successfully', () => {
   expect(iconContainer).toHaveClass('test');
 });
 
-Object.values(['sm', 'md', 'lg', 'xl']).forEach(size => {
+Object.values(['sm', 'md', 'lg', 'xl']).forEach((size) => {
   test(`sets icon size modifier successfully - ${size}`, () => {
     render(
       <Icon iconSize={size as 'sm' | 'md' | 'lg' | 'xl'} title={`content-${size}-icon`}>
         <CheckIcon />
       </Icon>
     );
-    const iconContainer = screen.getByTitle(`content-${size}-icon`).querySelector('.pf-c-icon__content');
+    const iconContainer = screen.getByTitle(`content-${size}-icon`).querySelector(`.${styles.iconContent}`);
 
     expect(iconContainer).toHaveClass(`pf-m-${size}`);
   });
@@ -59,18 +60,18 @@ test('check icon without iconSize', () => {
       <CheckIcon />
     </Icon>
   );
-  const iconContainer = screen.getByTitle('no-icon-size').querySelector('.pf-c-icon__content');
-  expect(Array.from(iconContainer?.classList || []).some(c => /pf-m-*/.test(c))); // Check no modifier classes have been added
+  const iconContainer = screen.getByTitle('no-icon-size').querySelector(`.${styles.iconContent}`);
+  expect(Array.from(iconContainer?.classList || []).some((c) => /pf-m-*/.test(c))); // Check no modifier classes have been added
 });
 
-Object.values(['sm', 'md', 'lg', 'xl']).forEach(size => {
+Object.values(['sm', 'md', 'lg', 'xl']).forEach((size) => {
   test(`sets progress icon size modifier successfully - ${size}`, () => {
     render(
       <Icon isInProgress progressIconSize={size as 'sm' | 'md' | 'lg' | 'xl'} title={`progress-content-${size}-icon`}>
         <CheckIcon />
       </Icon>
     );
-    const iconContainer = screen.getByTitle(`progress-content-${size}-icon`).querySelector('.pf-c-icon__progress');
+    const iconContainer = screen.getByTitle(`progress-content-${size}-icon`).querySelector(`.${styles.iconProgress}`);
 
     expect(iconContainer).toHaveClass(`pf-m-${size}`);
   });
@@ -82,11 +83,11 @@ test('check icon without progress icon size', () => {
       <CheckIcon />
     </Icon>
   );
-  const iconContainer = screen.getByTitle('no-progress-icon-size').querySelector('.pf-c-icon__progress');
-  expect(Array.from(iconContainer?.classList || []).some(c => /pf-m-*/.test(c))); // Check no modifier classes have been added
+  const iconContainer = screen.getByTitle('no-progress-icon-size').querySelector(`.${styles.iconProgress}`);
+  expect(Array.from(iconContainer?.classList || []).some((c) => /pf-m-*/.test(c))); // Check no modifier classes have been added
 });
 
-Object.values(['sm', 'md', 'lg', 'xl']).forEach(size => {
+Object.values(['sm', 'md', 'lg', 'xl']).forEach((size) => {
   test(`sets size modifier successfully - ${size}`, () => {
     render(
       <Icon size={size as 'sm' | 'md' | 'lg' | 'xl'} title={`${size}-icon`}>
@@ -106,17 +107,17 @@ test('check icon without size', () => {
     </Icon>
   );
   const iconContainer = screen.getByTitle('no-size');
-  expect(Array.from(iconContainer?.classList || []).some(c => /pf-m-*/.test(c))); // Check no modifier classes have been added
+  expect(Array.from(iconContainer?.classList || []).some((c) => /pf-m-*/.test(c))); // Check no modifier classes have been added
 });
 
-Object.values(['default', 'info', 'success', 'warning', 'danger']).forEach(status => {
+Object.values(['custom', 'info', 'success', 'warning', 'danger']).forEach((status) => {
   test(`sets status modifier successfully - ${status}`, () => {
     render(
-      <Icon status={status as 'default' | 'info' | 'success' | 'warning' | 'danger'} title={`${status}-icon`}>
+      <Icon status={status as 'custom' | 'info' | 'success' | 'warning' | 'danger'} title={`${status}-icon`}>
         <CheckIcon />
       </Icon>
     );
-    const iconContent = screen.getByTitle(`${status}-icon`).querySelector('.pf-c-icon__content');
+    const iconContent = screen.getByTitle(`${status}-icon`).querySelector(`.${styles.iconContent}`);
 
     expect(iconContent).toHaveClass(`pf-m-${status}`);
   });
@@ -128,8 +129,8 @@ test('check icon without status', () => {
       <CheckIcon />
     </Icon>
   );
-  const iconContent = screen.getByTitle('no-status').querySelector('.pf-c-icon__content');
-  expect(Array.from(iconContent?.classList || []).some(c => /pf-m-*/.test(c))); // Check no modifier classes have been added
+  const iconContent = screen.getByTitle('no-status').querySelector(`.${styles.iconContent}`);
+  expect(Array.from(iconContent?.classList || []).some((c) => /pf-m-*/.test(c))); // Check no modifier classes have been added
 });
 
 test('sets isInline successfully', () => {
@@ -150,7 +151,7 @@ test('check icon without isInline', () => {
     </Icon>
   );
   const iconContainer = screen.getByTitle('no-inline');
-  expect(Array.from(iconContainer?.classList || []).some(c => /pf-m-*/.test(c))); // Check no modifier classes have been added
+  expect(Array.from(iconContainer?.classList || []).some((c) => /pf-m-*/.test(c))); // Check no modifier classes have been added
 });
 
 test('sets isInProgress successfully', () => {
@@ -162,8 +163,8 @@ test('sets isInProgress successfully', () => {
   const iconContainer = screen.getByTitle('progress-icon');
   expect(iconContainer).toHaveClass('pf-m-in-progress');
 
-  const iconContent = iconContainer.querySelector('.pf-c-icon__progress');
-  expect(iconContent).toHaveClass('pf-c-icon__progress');
+  const iconContent = iconContainer.querySelector(`.${styles.iconProgress}`);
+  expect(iconContent).toHaveClass(styles.iconProgress);
 });
 
 test('check icon without isInProgress', () => {
@@ -173,7 +174,7 @@ test('check icon without isInProgress', () => {
     </Icon>
   );
   const iconContainer = screen.getByTitle('no-in-progress');
-  expect(Array.from(iconContainer?.classList || []).some(c => /pf-m-*/.test(c))); // Check no modifier classes have been added
+  expect(Array.from(iconContainer?.classList || []).some((c) => /pf-m-*/.test(c))); // Check no modifier classes have been added
 });
 
 test('sets default progres aria-label successfully', () => {
@@ -193,4 +194,20 @@ test('renders progress icon successfully', () => {
     </Icon>
   );
   expect(asFragment()).toMatchSnapshot();
+});
+
+test('Renders with class pf-v5-m-mirror-inline-rtl on icon passed as children when shouldMirrorRTL is true', () => {
+  render(<Icon shouldMirrorRTL>Icon content</Icon>);
+
+  expect(screen.getByText('Icon content')).toHaveClass('pf-v5-m-mirror-inline-rtl');
+});
+
+test('Does not render with class pf-v5-m-mirror-inline-rtl on progressIcon when shouldMirrorRTL is true', () => {
+  render(
+    <Icon shouldMirrorRTL isInProgress progressIcon="Progress icon">
+      Icon content
+    </Icon>
+  );
+
+  expect(screen.getByText('Progress icon')).not.toHaveClass('pf-v5-m-mirror-inline-rtl');
 });

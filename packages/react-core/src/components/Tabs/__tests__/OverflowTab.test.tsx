@@ -4,13 +4,13 @@ import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { OverflowTab } from '../OverflowTab';
 import { TabsContext } from '../TabsContext';
+import styles from '@patternfly/react-styles/css/components/Tabs/tabs';
 
 jest.mock('../../../helpers', () => ({
-  Popper: ({ trigger, popper, isVisible, popperMatchesTriggerWidth, appendTo }) => (
+  Popper: ({ trigger, popper, isVisible, appendTo }) => (
     <div data-testid="popper-mock">
       <div data-testid="trigger">{trigger}</div>
       <div data-testid="popper">{isVisible && popper}</div>
-      <p>Popper matches trigger width: {`${popperMatchesTriggerWidth}`}</p>
       <p>Append to class name: {appendTo && `${appendTo.className}`}</p>
     </div>
   )
@@ -39,7 +39,7 @@ jest.mock('../../Menu', () => {
 });
 
 const tabsContextDefaultProps = {
-  variant: 'default' as 'default',
+  variant: 'default' as const,
   mountOnEnter: false,
   unmountOnExit: false,
   localActiveKey: '',
@@ -75,23 +75,23 @@ test('Renders with inherited element props spread to the component', () => {
   expect(screen.getByRole('presentation')).toHaveAccessibleName('Label');
 });
 
-test('Renders with class names pf-m-overflow and pf-c-tabs__item on the presentation element', () => {
+test(`Renders with class names pf-m-overflow and ${styles.tabsItem} on the presentation element`, () => {
   render(<OverflowTab />);
 
-  expect(screen.getByRole('presentation')).toHaveClass('pf-m-overflow');
-  expect(screen.getByRole('presentation')).toHaveClass('pf-c-tabs__item');
+  expect(screen.getByRole('presentation')).toHaveClass(styles.modifiers.overflow);
+  expect(screen.getByRole('presentation')).toHaveClass(styles.tabsItem);
 });
 
-test('Renders with class pf-c-tabs__link on the tab element', () => {
+test(`Renders with class ${styles.tabsLink} on the tab element`, () => {
   render(<OverflowTab />);
 
-  expect(screen.getByRole('tab')).toHaveClass('pf-c-tabs__link');
+  expect(screen.getByRole('tab')).toHaveClass(styles.tabsLink);
 });
 
-test("Renders with class pf-c-tabs__link-toggle-icon on the img element's container", () => {
+test(`Renders with class ${styles.tabsLinkToggleIcon} on the img element's container`, () => {
   render(<OverflowTab />);
 
-  expect(screen.getByRole('img', { hidden: true }).parentElement).toHaveClass('pf-c-tabs__link-toggle-icon');
+  expect(screen.getByRole('img', { hidden: true }).parentElement).toHaveClass(styles.tabsLinkToggleIcon);
 });
 
 test('Renders with custom class names provided via prop', () => {
@@ -206,8 +206,8 @@ test('Closes the overflowing tabs menu when a tab is selected', async () => {
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, localActiveKey: 0 }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> },
-          { title: 'Tab two', eventKey: 2, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> },
+          { title: 'Tab two', eventKey: 2, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
       />
     </TabsContext.Provider>
@@ -228,8 +228,8 @@ test('Closes the overflowing tabs menu when the user clicks outside of the menu'
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, localActiveKey: 0 }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> },
-          { title: 'Tab two', eventKey: 2, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> },
+          { title: 'Tab two', eventKey: 2, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
       />
     </TabsContext.Provider>
@@ -250,7 +250,7 @@ test('Calls the onTabClick callback provided via context when a tab is clicked',
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, handleTabClick: mockHandleTabClick }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
       />
     </TabsContext.Provider>
@@ -303,7 +303,7 @@ test('Uses the selected tab title as the overflow tab title rather than the defa
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, localActiveKey: 1 }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
       />
     </TabsContext.Provider>
@@ -323,7 +323,7 @@ test('Uses the selected tab title as the overflow tab title rather than the defa
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, localActiveKey: 1 }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
         defaultTitleText="Test"
       />
@@ -369,13 +369,6 @@ test('Renders the tab with aria-expanded set to true when the menu is opened', a
   expect(overflowTab).toHaveAttribute('aria-expanded', 'true');
 });
 
-test('Passes Popper popperMatchesTriggerWidth set to false', () => {
-  render(<OverflowTab />);
-
-  // This assertion relies on the structure of the Popper mock to verify the correct props are being sent to Popper
-  expect(screen.getByText('Popper matches trigger width: false')).toBeVisible();
-});
-
 test('Passes Popper an appendTo value of the presentation element', async () => {
   const user = userEvent.setup();
 
@@ -384,7 +377,7 @@ test('Passes Popper an appendTo value of the presentation element', async () => 
   await user.click(screen.getByRole('tab'));
 
   // This assertion relies on the structure of the Popper mock to verify the correct props are being sent to Popper
-  expect(screen.getByText('Append to class name: pf-c-tabs__item pf-m-overflow')).toBeVisible();
+  expect(screen.getByText(`Append to class name: ${styles.tabsItem} ${styles.modifiers.overflow}`)).toBeVisible();
 });
 
 test('Does not render an overflowing tab as a selected menu item by default', async () => {
@@ -394,7 +387,7 @@ test('Does not render an overflowing tab as a selected menu item by default', as
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, localActiveKey: 0 }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
       />
     </TabsContext.Provider>
@@ -413,7 +406,7 @@ test('Renders an overflowing tab as a selected menu item when its key matches th
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, localActiveKey: 1 }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
       />
     </TabsContext.Provider>
@@ -432,8 +425,8 @@ test('Matches snapshot when expanded', async () => {
     <TabsContext.Provider value={{ ...tabsContextDefaultProps, localActiveKey: 1 }}>
       <OverflowTab
         overflowingTabs={[
-          { title: 'Tab one', eventKey: 1, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> },
-          { title: 'Tab two', eventKey: 2, tabContentRef: ('fakeRef' as unknown) as React.RefObject<any> }
+          { title: 'Tab one', eventKey: 1, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> },
+          { title: 'Tab two', eventKey: 2, tabContentRef: 'fakeRef' as unknown as React.RefObject<any> }
         ]}
       />
     </TabsContext.Provider>

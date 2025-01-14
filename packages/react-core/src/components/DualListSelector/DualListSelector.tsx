@@ -59,17 +59,21 @@ export interface DualListSelectorProps {
   addSelectedAriaLabel?: string;
   /** Tooltip content for the dynamically built add selected button */
   addSelectedTooltip?: React.ReactNode;
-  /** Additonal tooltip properties for the dynamically built add selected tooltip */
+  /** Additional tooltip properties for the dynamically built add selected tooltip */
   addSelectedTooltipProps?: any;
   /** Callback fired every time dynamically built options are chosen or removed */
-  onListChange?: (newAvailableOptions: React.ReactNode[], newChosenOptions: React.ReactNode[]) => void;
+  onListChange?: (
+    event: React.MouseEvent<HTMLElement>,
+    newAvailableOptions: React.ReactNode[],
+    newChosenOptions: React.ReactNode[]
+  ) => void;
   /** Optional callback for the dynamically built add all button */
   addAll?: (newAvailableOptions: React.ReactNode[], newChosenOptions: React.ReactNode[]) => void;
   /** Accessible label for the dynamically built add all button */
   addAllAriaLabel?: string;
   /** Tooltip content for the dynamically built add all button */
   addAllTooltip?: React.ReactNode;
-  /** Additonal tooltip properties for the dynamically built add all tooltip */
+  /** Additional tooltip properties for the dynamically built add all tooltip */
   addAllTooltipProps?: any;
   /** Optional callback for the dynamically built remove selected button */
   removeSelected?: (newAvailableOptions: React.ReactNode[], newChosenOptions: React.ReactNode[]) => void;
@@ -77,7 +81,7 @@ export interface DualListSelectorProps {
   removeSelectedAriaLabel?: string;
   /** Tooltip content for the dynamically built remove selected button */
   removeSelectedTooltip?: React.ReactNode;
-  /** Additonal tooltip properties for the dynamically built remove selected tooltip  */
+  /** Additional tooltip properties for the dynamically built remove selected tooltip  */
   removeSelectedTooltipProps?: any;
   /** Optional callback for the dynamically built remove all button */
   removeAll?: (newAvailableOptions: React.ReactNode[], newChosenOptions: React.ReactNode[]) => void;
@@ -85,11 +89,11 @@ export interface DualListSelectorProps {
   removeAllAriaLabel?: string;
   /** Tooltip content for the dynamically built remove all button */
   removeAllTooltip?: React.ReactNode;
-  /** Additonal tooltip properties for the dynamically built remove all tooltip */
+  /** Additional tooltip properties for the dynamically built remove all tooltip */
   removeAllTooltipProps?: any;
   /** Optional callback fired when a dynamically built option is selected */
   onOptionSelect?: (
-    e: React.MouseEvent | React.ChangeEvent | React.KeyboardEvent,
+    event: React.MouseEvent | React.ChangeEvent | React.KeyboardEvent,
     index: number,
     isChosen: boolean,
     id: string,
@@ -98,7 +102,7 @@ export interface DualListSelectorProps {
   ) => void;
   /** Optional callback fired when a dynamically built option is checked */
   onOptionCheck?: (
-    e: React.MouseEvent | React.ChangeEvent<HTMLInputElement> | React.KeyboardEvent,
+    event: React.MouseEvent | React.ChangeEvent<HTMLInputElement> | React.KeyboardEvent,
     checked: boolean,
     checkedId: string,
     newCheckedItems: string[]
@@ -108,11 +112,11 @@ export interface DualListSelectorProps {
   /** Accessible label for the search input on the dynamically built available options pane. */
   availableOptionsSearchAriaLabel?: string;
   /** A callback for when the search input value for the dynamically built available options changes. */
-  onAvailableOptionsSearchInputChanged?: (value: string, event: React.FormEvent<HTMLInputElement>) => void;
+  onAvailableOptionsSearchInputChanged?: (event: React.FormEvent<HTMLInputElement>, value: string) => void;
   /** Accessible label for the search input on the dynamically built chosen options pane. */
   chosenOptionsSearchAriaLabel?: string;
   /** A callback for when the search input value for the dynamically built chosen options changes. */
-  onChosenOptionsSearchInputChanged?: (value: string, event: React.FormEvent<HTMLInputElement>) => void;
+  onChosenOptionsSearchInputChanged?: (event: React.FormEvent<HTMLInputElement>, value: string) => void;
   /** Optional filter function for custom filtering based on search string. Used with a dynamically built search input. */
   filterOption?: (option: React.ReactNode, input: string) => boolean;
 }
@@ -130,7 +134,7 @@ interface DualListSelectorState {
   chosenTreeFilteredOptions: string[];
 }
 
-export class DualListSelector extends React.Component<DualListSelectorProps, DualListSelectorState> {
+class DualListSelector extends React.Component<DualListSelectorProps, DualListSelectorState> {
   static displayName = 'DualListSelector';
   private addAllButtonRef = React.createRef<HTMLButtonElement>();
   private addSelectedButtonRef = React.createRef<HTMLButtonElement>();
@@ -230,7 +234,7 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
       if (isTree) {
         this.setState({
           availableTreeFilteredOptions: flattenTreeWithFolders(
-            (newFilteredOptions as unknown) as DualListSelectorTreeItemData[]
+            newFilteredOptions as unknown as DualListSelectorTreeItemData[]
           )
         });
       } else {
@@ -249,7 +253,7 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
       if (isTree) {
         this.setState({
           chosenTreeFilteredOptions: flattenTreeWithFolders(
-            (newFilteredOptions as unknown) as DualListSelectorTreeItemData[]
+            newFilteredOptions as unknown as DualListSelectorTreeItemData[]
           )
         });
       } else {
@@ -260,12 +264,12 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     }
   };
 
-  addAllVisible = () => {
-    this.setState(prevState => {
+  addAllVisible = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       const itemsToRemove = [] as React.ReactNode[];
       const newAvailable = [] as React.ReactNode[];
       const movedOptions = prevState.availableFilteredOptions || prevState.availableOptions;
-      prevState.availableOptions.forEach(value => {
+      prevState.availableOptions.forEach((value) => {
         if (movedOptions.indexOf(value) !== -1) {
           itemsToRemove.push(value);
         } else {
@@ -275,54 +279,54 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
 
       const newChosen = [...prevState.chosenOptions, ...itemsToRemove];
       this.props.addAll && this.props.addAll(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
         chosenOptions: newChosen,
         chosenFilteredOptions: newChosen,
         availableOptions: newAvailable,
         availableFilteredOptions: newAvailable,
-        chosenOptionsSelected: [],
-        availableOptionsSelected: []
+        chosenOptionsSelected: [] as number[],
+        availableOptionsSelected: [] as number[]
       };
     });
   };
 
-  addAllTreeVisible = () => {
-    this.setState(prevState => {
+  addAllTreeVisible = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       const movedOptions =
         prevState.availableTreeFilteredOptions ||
-        flattenTreeWithFolders((prevState.availableOptions as unknown) as DualListSelectorTreeItemData[]);
+        flattenTreeWithFolders(prevState.availableOptions as unknown as DualListSelectorTreeItemData[]);
       const newAvailable = prevState.availableOptions
-        .map(opt => Object.assign({}, opt))
-        .filter(item =>
-          filterRestTreeItems((item as unknown) as DualListSelectorTreeItemData, movedOptions)
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) =>
+          filterRestTreeItems(item as unknown as DualListSelectorTreeItemData, movedOptions)
         ) as React.ReactNode[];
 
-      const currChosen = flattenTree((prevState.chosenOptions as unknown) as DualListSelectorTreeItemData[]);
+      const currChosen = flattenTree(prevState.chosenOptions as unknown as DualListSelectorTreeItemData[]);
       const nextChosenOptions = currChosen.concat(movedOptions);
       const newChosen = this.createMergedCopy()
-        .map(opt => Object.assign({}, opt))
-        .filter(item =>
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) =>
           filterTreeItemsWithoutFolders(item as DualListSelectorTreeItemData, nextChosenOptions)
         ) as React.ReactNode[];
 
       this.props.addAll && this.props.addAll(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
         chosenOptions: newChosen,
         chosenFilteredOptions: newChosen,
         availableOptions: newAvailable,
         availableFilteredOptions: newAvailable,
-        availableTreeOptionsChecked: [],
-        chosenTreeOptionsChecked: []
+        availableTreeOptionsChecked: [] as string[],
+        chosenTreeOptionsChecked: [] as string[]
       };
     });
   };
 
-  addSelected = () => {
-    this.setState(prevState => {
+  addSelected = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       const itemsToRemove = [] as React.ReactNode[];
       const newAvailable = [] as React.ReactNode[];
       prevState.availableOptions.forEach((value, index) => {
@@ -335,11 +339,11 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
 
       const newChosen = [...prevState.chosenOptions, ...itemsToRemove];
       this.props.addSelected && this.props.addSelected(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
-        chosenOptionsSelected: [],
-        availableOptionsSelected: [],
+        chosenOptionsSelected: [] as number[],
+        availableOptionsSelected: [] as number[],
         chosenOptions: newChosen,
         chosenFilteredOptions: newChosen,
         availableOptions: newAvailable,
@@ -348,42 +352,42 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     });
   };
 
-  addTreeSelected = () => {
-    this.setState(prevState => {
+  addTreeSelected = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       // Remove selected available nodes from current available nodes
       const newAvailable = prevState.availableOptions
-        .map(opt => Object.assign({}, opt))
-        .filter(item =>
-          filterRestTreeItems((item as unknown) as DualListSelectorTreeItemData, prevState.availableTreeOptionsChecked)
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) =>
+          filterRestTreeItems(item as unknown as DualListSelectorTreeItemData, prevState.availableTreeOptionsChecked)
         );
 
       // Get next chosen options from current + new nodes and remap from base
-      const currChosen = flattenTree((prevState.chosenOptions as unknown) as DualListSelectorTreeItemData[]);
+      const currChosen = flattenTree(prevState.chosenOptions as unknown as DualListSelectorTreeItemData[]);
       const nextChosenOptions = currChosen.concat(prevState.availableTreeOptionsChecked);
       const newChosen = this.createMergedCopy()
-        .map(opt => Object.assign({}, opt))
-        .filter(item =>
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) =>
           filterTreeItemsWithoutFolders(item as DualListSelectorTreeItemData, nextChosenOptions)
         ) as React.ReactNode[];
 
       this.props.addSelected && this.props.addSelected(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
-        availableTreeOptionsChecked: [],
-        chosenTreeOptionsChecked: [],
+        availableTreeOptionsChecked: [] as string[],
+        chosenTreeOptionsChecked: [] as string[],
         availableOptions: newAvailable,
         chosenOptions: newChosen
       };
     });
   };
 
-  removeAllVisible = () => {
-    this.setState(prevState => {
+  removeAllVisible = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       const itemsToRemove = [] as React.ReactNode[];
       const newChosen = [] as React.ReactNode[];
       const movedOptions = prevState.chosenFilteredOptions || prevState.chosenOptions;
-      prevState.chosenOptions.forEach(value => {
+      prevState.chosenOptions.forEach((value) => {
         if (movedOptions.indexOf(value) !== -1) {
           itemsToRemove.push(value);
         } else {
@@ -393,50 +397,50 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
 
       const newAvailable = [...prevState.availableOptions, ...itemsToRemove];
       this.props.removeAll && this.props.removeAll(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
         chosenOptions: newChosen,
         chosenFilteredOptions: newChosen,
         availableOptions: newAvailable,
         availableFilteredOptions: newAvailable,
-        chosenOptionsSelected: [],
-        availableOptionsSelected: []
+        chosenOptionsSelected: [] as number[],
+        availableOptionsSelected: [] as number[]
       };
     });
   };
 
-  removeAllTreeVisible = () => {
-    this.setState(prevState => {
+  removeAllTreeVisible = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       const movedOptions =
         prevState.chosenTreeFilteredOptions ||
-        flattenTreeWithFolders((prevState.chosenOptions as unknown) as DualListSelectorTreeItemData[]);
+        flattenTreeWithFolders(prevState.chosenOptions as unknown as DualListSelectorTreeItemData[]);
 
       const newChosen = prevState.chosenOptions
-        .map(opt => Object.assign({}, opt))
-        .filter(item => filterRestTreeItems((item as unknown) as DualListSelectorTreeItemData, movedOptions));
-      const currAvailable = flattenTree((prevState.availableOptions as unknown) as DualListSelectorTreeItemData[]);
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) => filterRestTreeItems(item as unknown as DualListSelectorTreeItemData, movedOptions));
+      const currAvailable = flattenTree(prevState.availableOptions as unknown as DualListSelectorTreeItemData[]);
       const nextAvailableOptions = currAvailable.concat(movedOptions);
       const newAvailable = this.createMergedCopy()
-        .map(opt => Object.assign({}, opt))
-        .filter(item =>
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) =>
           filterTreeItemsWithoutFolders(item as DualListSelectorTreeItemData, nextAvailableOptions)
         ) as React.ReactNode[];
 
       this.props.removeAll && this.props.removeAll(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
         chosenOptions: newChosen,
         availableOptions: newAvailable,
-        availableTreeOptionsChecked: [],
-        chosenTreeOptionsChecked: []
+        availableTreeOptionsChecked: [] as string[],
+        chosenTreeOptionsChecked: [] as string[]
       };
     });
   };
 
-  removeSelected = () => {
-    this.setState(prevState => {
+  removeSelected = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       const itemsToRemove = [] as React.ReactNode[];
       const newChosen = [] as React.ReactNode[];
       prevState.chosenOptions.forEach((value, index) => {
@@ -449,11 +453,11 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
 
       const newAvailable = [...prevState.availableOptions, ...itemsToRemove];
       this.props.removeSelected && this.props.removeSelected(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
-        chosenOptionsSelected: [],
-        availableOptionsSelected: [],
+        chosenOptionsSelected: [] as number[],
+        availableOptionsSelected: [] as number[],
         chosenOptions: newChosen,
         chosenFilteredOptions: newChosen,
         availableOptions: newAvailable,
@@ -462,30 +466,30 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     });
   };
 
-  removeTreeSelected = () => {
-    this.setState(prevState => {
+  removeTreeSelected = (event: React.MouseEvent<HTMLElement>) => {
+    this.setState((prevState) => {
       // Remove selected chosen nodes from current chosen nodes
       const newChosen = prevState.chosenOptions
-        .map(opt => Object.assign({}, opt))
-        .filter(item =>
-          filterRestTreeItems((item as unknown) as DualListSelectorTreeItemData, prevState.chosenTreeOptionsChecked)
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) =>
+          filterRestTreeItems(item as unknown as DualListSelectorTreeItemData, prevState.chosenTreeOptionsChecked)
         );
 
       // Get next chosen options from current and remap from base
-      const currAvailable = flattenTree((prevState.availableOptions as unknown) as DualListSelectorTreeItemData[]);
+      const currAvailable = flattenTree(prevState.availableOptions as unknown as DualListSelectorTreeItemData[]);
       const nextAvailableOptions = currAvailable.concat(prevState.chosenTreeOptionsChecked);
       const newAvailable = this.createMergedCopy()
-        .map(opt => Object.assign({}, opt))
-        .filter(item =>
+        .map((opt) => Object.assign({}, opt))
+        .filter((item) =>
           filterTreeItemsWithoutFolders(item as DualListSelectorTreeItemData, nextAvailableOptions)
         ) as React.ReactNode[];
 
       this.props.removeSelected && this.props.removeSelected(newAvailable, newChosen);
-      this.props.onListChange && this.props.onListChange(newAvailable, newChosen);
+      this.props.onListChange && this.props.onListChange(event, newAvailable, newChosen);
 
       return {
-        availableTreeOptionsChecked: [],
-        chosenTreeOptionsChecked: [],
+        availableTreeOptionsChecked: [] as string[],
+        chosenTreeOptionsChecked: [] as string[],
         availableOptions: newAvailable,
         chosenOptions: newChosen
       };
@@ -496,18 +500,17 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     e: React.MouseEvent | React.ChangeEvent | React.KeyboardEvent,
     index: number,
     isChosen: boolean,
-    /* eslint-disable @typescript-eslint/no-unused-vars */
+
     id?: string,
     itemData?: any,
     parentData?: any
-    /* eslint-enable @typescript-eslint/no-unused-vars */
   ) => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const originalArray = isChosen ? prevState.chosenOptionsSelected : prevState.availableOptionsSelected;
 
       let updatedArray = null;
       if (originalArray.indexOf(index) !== -1) {
-        updatedArray = originalArray.filter(value => value !== index);
+        updatedArray = originalArray.filter((value) => value !== index);
       } else {
         updatedArray = [...originalArray, index];
       }
@@ -527,11 +530,11 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
       : this.state.availableTreeOptionsChecked.includes(treeItem.id);
   areAllDescendantsChecked = (treeItem: DualListSelectorTreeItemData, isChosen: boolean): boolean =>
     treeItem.children
-      ? treeItem.children.every(child => this.areAllDescendantsChecked(child, isChosen))
+      ? treeItem.children.every((child) => this.areAllDescendantsChecked(child, isChosen))
       : this.isChecked(treeItem, isChosen);
   areSomeDescendantsChecked = (treeItem: DualListSelectorTreeItemData, isChosen: boolean): boolean =>
     treeItem.children
-      ? treeItem.children.some(child => this.areSomeDescendantsChecked(child, isChosen))
+      ? treeItem.children.some((child) => this.areSomeDescendantsChecked(child, isChosen))
       : this.isChecked(treeItem, isChosen);
 
   mapChecked = (item: DualListSelectorTreeItemData, isChosen: boolean): DualListSelectorTreeItemData => {
@@ -550,7 +553,7 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     if (item.children) {
       return {
         ...item,
-        children: item.children.map(child => this.mapChecked(child, isChosen))
+        children: item.children.map((child) => this.mapChecked(child, isChosen))
       };
     }
     return item;
@@ -567,9 +570,9 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     if (isChosen) {
       if (chosenTreeFilteredOptions) {
         panelOptions = chosenOptions
-          .map(opt => Object.assign({}, opt))
-          .filter(item =>
-            filterTreeItemsWithoutFolders((item as unknown) as DualListSelectorTreeItemData, chosenTreeFilteredOptions)
+          .map((opt) => Object.assign({}, opt))
+          .filter((item) =>
+            filterTreeItemsWithoutFolders(item as unknown as DualListSelectorTreeItemData, chosenTreeFilteredOptions)
           );
       } else {
         panelOptions = chosenOptions;
@@ -577,32 +580,29 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     } else {
       if (availableTreeFilteredOptions) {
         panelOptions = availableOptions
-          .map(opt => Object.assign({}, opt))
-          .filter(item =>
-            filterTreeItemsWithoutFolders(
-              (item as unknown) as DualListSelectorTreeItemData,
-              availableTreeFilteredOptions
-            )
+          .map((opt) => Object.assign({}, opt))
+          .filter((item) =>
+            filterTreeItemsWithoutFolders(item as unknown as DualListSelectorTreeItemData, availableTreeFilteredOptions)
           );
       } else {
         panelOptions = availableOptions;
       }
     }
     const checkedOptionTree = panelOptions
-      .map(opt => Object.assign({}, opt))
-      .filter(item => filterTreeItems((item as unknown) as DualListSelectorTreeItemData, [itemData.id]));
-    const flatTree = flattenTreeWithFolders((checkedOptionTree as unknown) as DualListSelectorTreeItemData[]);
+      .map((opt) => Object.assign({}, opt))
+      .filter((item) => filterTreeItems(item as unknown as DualListSelectorTreeItemData, [itemData.id]));
+    const flatTree = flattenTreeWithFolders(checkedOptionTree as unknown as DualListSelectorTreeItemData[]);
 
     const prevChecked = isChosen ? this.state.chosenTreeOptionsChecked : this.state.availableTreeOptionsChecked;
     let updatedChecked = [] as string[];
     if (isChecked) {
-      updatedChecked = prevChecked.concat(flatTree.filter(id => !prevChecked.includes(id)));
+      updatedChecked = prevChecked.concat(flatTree.filter((id) => !prevChecked.includes(id)));
     } else {
-      updatedChecked = prevChecked.filter(id => !flatTree.includes(id));
+      updatedChecked = prevChecked.filter((id) => !flatTree.includes(id));
     }
 
     this.setState(
-      prevState => ({
+      (prevState) => ({
         availableTreeOptionsChecked: isChosen ? prevState.availableTreeOptionsChecked : updatedChecked,
         chosenTreeOptionsChecked: isChosen ? updatedChecked : prevState.chosenTreeOptionsChecked
       }),
@@ -668,29 +668,33 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
       availableOptionsStatus ||
       (isTree
         ? `${
-            filterFolders((availableOptions as unknown) as DualListSelectorTreeItemData[], availableTreeOptionsChecked)
+            filterFolders(availableOptions as unknown as DualListSelectorTreeItemData[], availableTreeOptionsChecked)
               .length
-          } of ${flattenTree((availableOptions as unknown) as DualListSelectorTreeItemData[]).length} items selected`
+          } of ${flattenTree(availableOptions as unknown as DualListSelectorTreeItemData[]).length} items selected`
         : `${availableOptionsSelected.length} of ${availableOptions.length} items selected`);
     const chosenOptionsStatusToDisplay =
       chosenOptionsStatus ||
       (isTree
         ? `${
-            filterFolders((chosenOptions as unknown) as DualListSelectorTreeItemData[], chosenTreeOptionsChecked).length
-          } of ${flattenTree((chosenOptions as unknown) as DualListSelectorTreeItemData[]).length} items selected`
+            filterFolders(chosenOptions as unknown as DualListSelectorTreeItemData[], chosenTreeOptionsChecked).length
+          } of ${flattenTree(chosenOptions as unknown as DualListSelectorTreeItemData[]).length} items selected`
         : `${chosenOptionsSelected.length} of ${chosenOptions.length} items selected`);
 
-    const available = (isTree
-      ? availableOptions.map(item => this.mapChecked((item as unknown) as DualListSelectorTreeItemData, false))
-      : availableOptions) as React.ReactNode[];
-    const chosen = (isTree
-      ? chosenOptions.map(item => this.mapChecked((item as unknown) as DualListSelectorTreeItemData, true))
-      : chosenOptions) as React.ReactNode[];
+    const available = (
+      isTree
+        ? availableOptions.map((item) => this.mapChecked(item as unknown as DualListSelectorTreeItemData, false))
+        : availableOptions
+    ) as React.ReactNode[];
+    const chosen = (
+      isTree
+        ? chosenOptions.map((item) => this.mapChecked(item as unknown as DualListSelectorTreeItemData, true))
+        : chosenOptions
+    ) as React.ReactNode[];
 
     return (
       <DualListSelectorContext.Provider value={{ isTree }}>
         <GenerateId>
-          {randomId => (
+          {(randomId) => (
             <div className={css(styles.dualListSelector, className)} id={id || randomId} {...props}>
               {children === '' ? (
                 <>
@@ -786,3 +790,5 @@ export class DualListSelector extends React.Component<DualListSelectorProps, Dua
     );
   }
 }
+
+export { DualListSelector };

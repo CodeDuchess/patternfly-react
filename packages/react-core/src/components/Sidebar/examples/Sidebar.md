@@ -1,6 +1,6 @@
 ---
 id: Sidebar
-cssPrefix: pf-c-sidebar
+cssPrefix: pf-v5-c-sidebar
 section: components
 propComponents: ['Sidebar', 'SidebarContent', 'SidebarPanel']
 ---
@@ -31,4 +31,16 @@ A `tabIndex` should be added to the `Sidebar` when there is scrollable content i
 ### Responsive panel width
 A `tabIndex` should be added to the `Sidebar` when there is scrollable content in order for the  overflow content to be accessible by keyboard.
 ```ts file="./SidebarResponsivePanel.tsx"
+```
+
+### Border
+```ts file="./SidebarBorder.tsx"
+```
+
+### Padding on panel
+```ts file="./SidebarPaddingPanel.tsx"
+```
+
+### Padding on content
+```ts file="./SidebarPaddingContent.tsx"
 ```

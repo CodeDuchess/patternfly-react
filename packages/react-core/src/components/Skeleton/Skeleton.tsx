@@ -1,6 +1,8 @@
 import * as React from 'react';
 import styles from '@patternfly/react-styles/css/components/Skeleton/skeleton';
 import { css } from '@patternfly/react-styles';
+import cssHeight from '@patternfly/react-tokens/dist/esm/c_skeleton_Height';
+import cssWidth from '@patternfly/react-tokens/dist/esm/c_skeleton_Width';
 
 export interface SkeletonProps extends React.HTMLProps<HTMLDivElement> {
   /** Additional classes added to the Skeleton */
@@ -27,7 +29,7 @@ export const Skeleton: React.FunctionComponent<SkeletonProps> = ({
   ...props
 }: SkeletonProps) => {
   const fontHeightClassName = fontSize
-    ? Object.values(styles.modifiers).find(key => key === `pf-m-text-${fontSize}`)
+    ? Object.values(styles.modifiers).find((key) => key === `pf-m-text-${fontSize}`)
     : undefined;
 
   return (
@@ -42,13 +44,13 @@ export const Skeleton: React.FunctionComponent<SkeletonProps> = ({
       )}
       {...((width || height) && {
         style: {
-          '--pf-c-skeleton--Width': width ? width : undefined,
-          '--pf-c-skeleton--Height': height ? height : undefined,
+          [cssWidth.name]: width ? width : undefined,
+          [cssHeight.name]: height ? height : undefined,
           ...props.style
         } as React.CSSProperties
       })}
     >
-      <span className="pf-u-screen-reader">{screenreaderText}</span>
+      <span className="pf-v5-screen-reader">{screenreaderText}</span>
     </div>
   );
 };

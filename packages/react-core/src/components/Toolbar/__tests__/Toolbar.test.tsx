@@ -8,8 +8,9 @@ import { ToolbarItem } from '../ToolbarItem';
 import { ToolbarContent } from '../ToolbarContent';
 import { ToolbarFilter } from '../ToolbarFilter';
 import { ToolbarGroup } from '../ToolbarGroup';
-import { Select, SelectVariant, SelectOption } from '../../Select';
-import { Button } from '../../Button';
+import { Button } from '../../Button/Button';
+
+jest.mock('../../../helpers/GenerateId/GenerateId');
 
 describe('Toolbar', () => {
   it('should render inset', () => {
@@ -59,34 +60,17 @@ describe('Toolbar', () => {
   });
 
   it('should render with custom chip content', () => {
-    const statusMenuItems = [
-      <SelectOption key="statusNew" value="New" />,
-      <SelectOption key="statusPending" value="Pending" />,
-      <SelectOption key="statusRunning" value="Running" />,
-      <SelectOption key="statusCancelled" value="Cancelled" />
-    ];
-
     const items = (
       <React.Fragment>
         <ToolbarToggleGroup toggleIcon={<React.Fragment />} breakpoint="xl">
           <ToolbarGroup variant="filter-group">
             <ToolbarFilter
               chips={['New', 'Pending']}
-              deleteChip={(category, chip) => {}}
-              deleteChipGroup={category => {}}
+              deleteChip={(_category, _chip) => {}}
+              deleteChipGroup={(_category) => {}}
               categoryName="Status"
             >
-              <Select
-                variant={SelectVariant.checkbox}
-                aria-label="Status"
-                onToggle={(isExpanded: boolean) => {}}
-                onSelect={(event, selection) => {}}
-                selections={['New', 'Pending']}
-                isOpen={true}
-                placeholderText="Status"
-              >
-                {statusMenuItems}
-              </Select>
+              test content
             </ToolbarFilter>
           </ToolbarGroup>
         </ToolbarToggleGroup>
@@ -119,9 +103,8 @@ describe('Toolbar', () => {
       </Toolbar>
     );
 
-    // Expecting 2 matches for text because the buttons also exist in hidden expandable content for mobile view
-    expect(screen.getAllByRole('button', { name: 'Save filters' }).length).toBe(2);
-    expect(screen.getAllByRole('button', { name: 'Clear all filters' }).length).toBe(2);
     expect(asFragment()).toMatchSnapshot();
+    expect(screen.getAllByRole('button', { name: 'Save filters' }).length).toBe(1);
+    expect(screen.getAllByRole('button', { name: 'Clear all filters' }).length).toBe(1);
   });
 });

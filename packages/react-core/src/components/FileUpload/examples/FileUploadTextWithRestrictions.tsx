@@ -1,5 +1,13 @@
 import React from 'react';
-import { FileUpload, Form, FormGroup } from '@patternfly/react-core';
+import {
+  FileUpload,
+  Form,
+  FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  DropEvent
+} from '@patternfly/react-core';
 
 export const TextFileUploadWithRestrictions: React.FunctionComponent = () => {
   const [value, setValue] = React.useState('');
@@ -11,7 +19,11 @@ export const TextFileUploadWithRestrictions: React.FunctionComponent = () => {
     setFilename(file.name);
   };
 
-  const handleTextOrDataChange = (value: string) => {
+  const handleTextChange = (_event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
+    setValue(value);
+  };
+
+  const handleDataChange = (_event: DropEvent, value: string) => {
     setValue(value);
   };
 
@@ -25,22 +37,17 @@ export const TextFileUploadWithRestrictions: React.FunctionComponent = () => {
     setIsRejected(true);
   };
 
-  const handleFileReadStarted = (_fileHandle: File) => {
+  const handleFileReadStarted = (_event: DropEvent, _fileHandle: File) => {
     setIsLoading(true);
   };
 
-  const handleFileReadFinished = (_fileHandle: File) => {
+  const handleFileReadFinished = (_event: DropEvent, _fileHandle: File) => {
     setIsLoading(false);
   };
 
   return (
     <Form>
-      <FormGroup
-        fieldId="text-file-with-restrictions-example"
-        helperText="Upload a CSV file"
-        helperTextInvalid="Must be a CSV file no larger than 1 KB"
-        validated={isRejected ? 'error' : 'default'}
-      >
+      <FormGroup fieldId="text-file-with-restrictions-example">
         <FileUpload
           id="text-file-with-restrictions-example"
           type="text"
@@ -48,8 +55,8 @@ export const TextFileUploadWithRestrictions: React.FunctionComponent = () => {
           filename={filename}
           filenamePlaceholder="Drag and drop a file or upload one"
           onFileInputChange={handleFileInputChange}
-          onDataChange={handleTextOrDataChange}
-          onTextChange={handleTextOrDataChange}
+          onDataChange={handleDataChange}
+          onTextChange={handleTextChange}
           onReadStarted={handleFileReadStarted}
           onReadFinished={handleFileReadFinished}
           onClearClick={handleClear}
@@ -62,6 +69,13 @@ export const TextFileUploadWithRestrictions: React.FunctionComponent = () => {
           validated={isRejected ? 'error' : 'default'}
           browseButtonText="Upload"
         />
+        <FormHelperText>
+          <HelperText>
+            <HelperTextItem variant={isRejected ? 'error' : 'default'}>
+              {isRejected ? 'Must be a CSV file no larger than 1 KB' : 'Upload a CSV file'}
+            </HelperTextItem>
+          </HelperText>
+        </FormHelperText>
       </FormGroup>
     </Form>
   );

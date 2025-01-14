@@ -2,6 +2,7 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
 
 import { Label } from '../Label';
 
@@ -108,5 +109,133 @@ describe('Label', () => {
     await user.click(button);
     expect(screen.queryByRole('button', { name: 'Something' })).toBeNull();
     expect(asFragment()).toMatchSnapshot();
+  });
+
+  test('renders with isOverflow and type is set to button ', () => {
+    const { asFragment } = render(<Label isOverflowLabel>Something</Label>);
+    expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  test('a button is not rendered when onClick is not passed', () => {
+    render(<Label>Click me</Label>);
+
+    expect(screen.queryByRole(`button`)).not.toBeInTheDocument();
+  });
+
+  test('a button is rendered when onClick is passed', () => {
+    const fn = jest.fn();
+
+    render(<Label onClick={fn}>Click me</Label>);
+
+    expect(screen.getByRole(`button`)).toBeVisible();
+  });
+
+  test('clickable label does not call the passed callback when it is not clicked', async () => {
+    const mockCallback = jest.fn();
+
+    render(<Label onClick={mockCallback}>Click me</Label>);
+
+    expect(mockCallback).not.toHaveBeenCalled();
+  });
+
+  test('clickable label calls passed callback on click', async () => {
+    const mockCallback = jest.fn();
+    const user = userEvent.setup();
+
+    render(<Label onClick={mockCallback}>Click me</Label>);
+
+    const label = screen.getByRole('button');
+
+    await user.click(label);
+
+    expect(mockCallback).toHaveBeenCalledTimes(1);
+  });
+
+  test('disabled clickable label does not call passed callback on click', async () => {
+    const mockCallback = jest.fn();
+    const user = userEvent.setup();
+
+    render(
+      <Label isDisabled onClick={mockCallback}>
+        Click me
+      </Label>
+    );
+
+    const label = screen.getByText('Click me');
+
+    await user.click(label);
+
+    expect(mockCallback).not.toHaveBeenCalled();
+  });
+
+  test('disabled clickable label is a disabled button', async () => {
+    const mockCallback = jest.fn();
+
+    render(
+      <Label isDisabled onClick={mockCallback}>
+        Click me
+      </Label>
+    );
+
+    const labelButton = screen.getByRole('button');
+
+    expect(labelButton).toHaveAttribute('disabled');
+  });
+
+  test('link label is an anchor', () => {
+    const href = '#example';
+
+    render(<Label href={href}>Click me</Label>);
+
+    const anchor = screen.getByRole('link', { name: 'Click me' });
+
+    expect(anchor).toBeInTheDocument();
+    expect(anchor).toHaveAttribute('href', href);
+  });
+
+  test('disabled link label is an anchor with aria-disabled attribute', () => {
+    const href = '#example';
+
+    render(
+      <Label isDisabled href={href}>
+        Click me
+      </Label>
+    );
+
+    const anchor = screen.getByRole('link', { name: 'Click me' });
+
+    expect(anchor).toBeInTheDocument();
+    expect(anchor).toHaveAttribute('href', href);
+    expect(anchor).toHaveAttribute('tabIndex', '-1');
+    expect(anchor).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('disabled removable clickable label has a disabled close button', async () => {
+    const mockCallback = jest.fn();
+
+    render(
+      <Label isDisabled onClick={mockCallback} onClose={mockCallback}>
+        Click me
+      </Label>
+    );
+
+    const closeButton = screen.getByLabelText('Close Click me');
+
+    expect(closeButton).toBeDisabled();
+  });
+
+  test('disabled removable link label has a disabled close button', async () => {
+    const mockCallback = jest.fn();
+
+    render(
+      <Label isDisabled href="#" onClose={mockCallback}>
+        Click me
+      </Label>
+    );
+
+    const closeButton = screen.getByLabelText('Close Click me');
+
+    expect(closeButton).toBeDisabled();
   });
 });

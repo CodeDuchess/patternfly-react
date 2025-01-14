@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragDrop, Draggable, Droppable, Split, SplitItem } from '@patternfly/react-core';
+import { DragDrop, Draggable, Droppable, Flex } from '@patternfly/react-core';
 
 interface ItemType {
   id: string;
@@ -11,10 +11,15 @@ interface SourceType {
   index: number;
 }
 
+interface MultipleListState {
+  items1: ItemType[];
+  items2: ItemType[];
+}
+
 interface DestinationType extends SourceType {}
 
 const getItems = (count: number, startIndex: number) =>
-  Array.from({ length: count }, (_, idx) => idx + startIndex).map(idx => ({
+  Array.from({ length: count }, (_, idx) => idx + startIndex).map((idx) => ({
     id: `item-${idx}`,
     content: `item ${idx} `.repeat(idx === 4 ? 20 : 1)
   }));
@@ -35,7 +40,7 @@ const move = (source: ItemType[], destination: ItemType[], sourceIndex: number, 
 };
 
 export const DragDropMultipleLists: React.FunctionComponent = () => {
-  const [items, setItems] = React.useState({
+  const [items, setItems] = React.useState<MultipleListState>({
     items1: getItems(10, 0),
     items2: getItems(5, 10)
   });
@@ -80,19 +85,19 @@ export const DragDropMultipleLists: React.FunctionComponent = () => {
 
   return (
     <DragDrop onDrop={onDrop}>
-      <Split hasGutter>
+      <Flex alignItems={{ default: 'alignItemsStretch' }} flexWrap={{ default: 'nowrap' }}>
         {Object.entries(items).map(([key, subitems]) => (
-          <SplitItem key={key} style={{ flex: 1 }}>
-            <Droppable zone="multizone" droppableId={key}>
-              {subitems.map(({ id, content }) => (
+          <Flex key={key} fullWidth={{ default: 'fullWidth' }} alignItems={{ default: 'alignItemsStretch' }}>
+            <Droppable zone="multizone" droppableId={key} style={{ flexGrow: 1 }}>
+              {(subitems as ItemType[]).map(({ id, content }) => (
                 <Draggable key={id} style={{ padding: '8px' }}>
                   {content}
                 </Draggable>
               ))}
             </Droppable>
-          </SplitItem>
+          </Flex>
         ))}
-      </Split>
+      </Flex>
     </DragDrop>
   );
 };

@@ -46,8 +46,8 @@ export interface KeyboardHandlerProps {
 export const handleArrows = (
   event: KeyboardEvent,
   navigableElements: Element[],
-  isActiveElement: (element: Element) => boolean = element => document.activeElement.contains(element),
-  getFocusableElement: (element: Element) => Element = element => element,
+  isActiveElement: (element: Element) => boolean = (element) => document.activeElement.contains(element),
+  getFocusableElement: (element: Element) => Element = (element) => element,
   validSiblingTags: string[] = ['A', 'BUTTON', 'INPUT'],
   noVerticalArrowHandling: boolean = false,
   noHorizontalArrowHandling: boolean = false,
@@ -170,7 +170,34 @@ export const setTabIndex = (options: HTMLElement[]) => {
   }
 };
 
-export class KeyboardHandler extends React.Component<KeyboardHandlerProps> {
+/**
+ * This function is used in Dropdown, Select and MenuContainer as a default toggle keydown behavior. When the toggle has focus and the menu is open, pressing the up/down arrow keys will focus a valid non-disabled menu item - the first item for the down arrow key and last item for the up arrow key.
+ *
+ * @param event Event triggered by the keyboard
+ * @param menuRef Menu reference
+ */
+export const onToggleArrowKeydownDefault = (event: KeyboardEvent, menuRef: React.RefObject<HTMLDivElement>) => {
+  if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+    return;
+  }
+
+  event.preventDefault();
+
+  const listItems = Array.from(menuRef.current?.querySelectorAll('li'));
+  const focusableElements = listItems
+    .map((li) => li.querySelector('button:not(:disabled),input:not(:disabled),a:not([aria-disabled="true"])'))
+    .filter((el) => el !== null);
+
+  let focusableElement: Element;
+  if (event.key === 'ArrowDown') {
+    focusableElement = focusableElements[0];
+  } else {
+    focusableElement = focusableElements[focusableElements.length - 1];
+  }
+  focusableElement && (focusableElement as HTMLElement).focus();
+};
+
+class KeyboardHandler extends React.Component<KeyboardHandlerProps> {
   static displayName = 'KeyboardHandler';
   static defaultProps: KeyboardHandlerProps = {
     containerRef: null,
@@ -274,3 +301,5 @@ export class KeyboardHandler extends React.Component<KeyboardHandlerProps> {
     return null as React.ReactNode;
   }
 }
+
+export { KeyboardHandler };

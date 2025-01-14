@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Table, TableHeader, TableBody, TableProps, sortable, ICell, IRow, ISortBy } from '@patternfly/react-table';
+import { sortable, ICell, IRow, ISortBy } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody, TableProps } from '@patternfly/react-table/deprecated';
 import { Checkbox } from '@patternfly/react-core';
 
 interface TableState {
@@ -49,11 +50,11 @@ export class TableFavoritesDemo extends React.Component<TableProps, TableState> 
     this.toggleFavsSort = this.toggleFavsSort.bind(this);
   }
 
-  onSelect(event: React.FormEvent, isSelected: boolean, rowId: number) {
+  onSelect(_event: React.FormEvent, isSelected: boolean, rowId: number) {
     let rows;
     if (rowId === -1) {
       // header row
-      rows = this.state.rows.map(oneRow => {
+      rows = this.state.rows.map((oneRow) => {
         oneRow.selected = isSelected;
         return oneRow;
       });
@@ -67,7 +68,7 @@ export class TableFavoritesDemo extends React.Component<TableProps, TableState> 
     });
   }
 
-  onFavorite(event: React.MouseEvent, isFavorited: boolean, rowId: number) {
+  onFavorite(_event: React.MouseEvent, isFavorited: boolean, rowId: number) {
     this.setState({
       rows: this.state.rows.map((row, index) => {
         if (index === rowId) {
@@ -83,7 +84,7 @@ export class TableFavoritesDemo extends React.Component<TableProps, TableState> 
     });
   }
 
-  onSort(_event: React.MouseEvent, index: number, direction: 'asc' | 'desc') {
+  onSort(_: React.MouseEvent, index: number, direction: 'asc' | 'desc') {
     let sortedRows;
     if (index === 1) {
       // favorites column
@@ -98,12 +99,21 @@ export class TableFavoritesDemo extends React.Component<TableProps, TableState> 
     } else {
       const userIndex = index - 2;
       sortedRows = [...this.state.rows].sort((a, b) => {
-        if (a.cells[userIndex] < b.cells[userIndex]) {
+        const aValue = a.cells?.[userIndex];
+        const bValue = b.cells?.[userIndex];
+
+        if (typeof aValue !== 'number' || typeof bValue !== 'number') {
+          return 0;
+        }
+
+        if (aValue < bValue) {
           return -1;
         }
-        if (a.cells[userIndex] > b.cells[userIndex]) {
+
+        if (aValue > bValue) {
           return 1;
         }
+
         return 0;
       });
     }

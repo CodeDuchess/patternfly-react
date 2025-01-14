@@ -14,7 +14,7 @@ import { Progress, Button, Stack, StackItem } from '@patternfly/react-core';
 ProgressStepperDemo = () => {
   const [currentValue, setCurrentValue] = React.useState(0);
 
-  const onProgressUpdate = nextValue => {
+  const onProgressUpdate = (nextValue) => {
     setCurrentValue(nextValue);
   };
 
@@ -31,7 +31,7 @@ ProgressStepperDemo = () => {
         <br />
       </StackItem>
       <StackItem>
-        <div className="pf-screen-reader" aria-live="polite">
+        <div className="pf-v5-screen-reader" aria-live="polite">
           {`Progress value is ${currentValue}%.`}
         </div>
         <Progress value={currentValue} title="Title" />
@@ -52,7 +52,7 @@ import { Progress, Button, Stack, StackItem } from '@patternfly/react-core';
 ProgressStepperDemo = () => {
   const [currentValue, setCurrentValue] = React.useState(0);
 
-  const onProgressUpdate = nextValue => {
+  const onProgressUpdate = (nextValue) => {
     if (nextValue > currentValue) {
       setCurrentValue(nextValue);
     }
@@ -71,7 +71,7 @@ ProgressStepperDemo = () => {
         <br />
       </StackItem>
       <StackItem>
-        <div className="pf-screen-reader" aria-live="polite">
+        <div className="pf-v5-screen-reader" aria-live="polite">
           {`Progress value is ${currentValue}%.`}
         </div>
         <Progress value={currentValue} title="Title" />

@@ -3,20 +3,46 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbHeading,
+  Badge,
   Dropdown,
-  BadgeToggle,
-  DropdownItem
+  DropdownList,
+  DropdownItem,
+  Icon,
+  MenuToggle,
+  MenuToggleElement
 } from '@patternfly/react-core';
 import AngleLeftIcon from '@patternfly/react-icons/dist/esm/icons/angle-left-icon';
+import CaretDownIcon from '@patternfly/react-icons/dist/esm/icons/caret-down-icon';
 
-const dropdownItems: JSX.Element[] = [
-  <DropdownItem key="edit" component="button" icon={<AngleLeftIcon />}>
+const dropdownItems = [
+  <DropdownItem
+    icon={
+      <Icon shouldMirrorRTL>
+        <AngleLeftIcon />
+      </Icon>
+    }
+    key="edit"
+  >
     Edit
   </DropdownItem>,
-  <DropdownItem key="action" component="button" icon={<AngleLeftIcon />}>
+  <DropdownItem
+    icon={
+      <Icon shouldMirrorRTL>
+        <AngleLeftIcon />
+      </Icon>
+    }
+    key="action"
+  >
     Deployment
   </DropdownItem>,
-  <DropdownItem key="apps" component="button" icon={<AngleLeftIcon />}>
+  <DropdownItem
+    icon={
+      <Icon shouldMirrorRTL>
+        <AngleLeftIcon />
+      </Icon>
+    }
+    key="apps"
+  >
     Applications
   </DropdownItem>
 ];
@@ -25,7 +51,7 @@ export const BreadcrumbDropdown: React.FunctionComponent = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const badgeToggleRef = React.useRef<HTMLButtonElement>();
 
-  const onToggle = (_event: any, isOpen: boolean) => setIsOpen(isOpen);
+  const onToggle = () => setIsOpen(!isOpen);
 
   const onSelect = () => {
     setIsOpen((prevIsOpen: boolean) => !prevIsOpen);
@@ -38,14 +64,21 @@ export const BreadcrumbDropdown: React.FunctionComponent = () => {
       <BreadcrumbItem isDropdown>
         <Dropdown
           onSelect={onSelect}
-          toggle={
-            <BadgeToggle ref={badgeToggleRef} onToggle={onToggle}>
-              {dropdownItems.length}
-            </BadgeToggle>
-          }
+          onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle ref={toggleRef} onClick={onToggle} isExpanded={isOpen} variant="plain">
+              <Badge isRead screenReaderText="additional items">
+                {dropdownItems.length}{' '}
+                <span>
+                  <CaretDownIcon />
+                </span>
+              </Badge>
+            </MenuToggle>
+          )}
           isOpen={isOpen}
-          dropdownItems={dropdownItems}
-        />
+        >
+          <DropdownList>{dropdownItems.map((dropdownItem) => dropdownItem)}</DropdownList>
+        </Dropdown>
       </BreadcrumbItem>
       <BreadcrumbHeading component="button">Section title</BreadcrumbHeading>
     </Breadcrumb>

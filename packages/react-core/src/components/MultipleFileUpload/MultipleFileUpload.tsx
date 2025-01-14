@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { DropEvent, DropzoneOptions, useDropzone } from 'react-dropzone';
+import { DropzoneOptions, useDropzone } from 'react-dropzone';
+import { DropEvent } from '../../helpers/typeUtils';
 import styles from '@patternfly/react-styles/css/components/MultipleFileUpload/multiple-file-upload';
 import { css } from '@patternfly/react-styles';
 
@@ -18,7 +19,7 @@ export interface MultipleFileUploadProps extends Omit<React.HTMLProps<HTMLDivEle
   /** Flag setting the component to horizontal styling mode */
   isHorizontal?: boolean;
   /** When files are dropped or uploaded this callback will be called with all accepted files */
-  onFileDrop?: (data: File[]) => void;
+  onFileDrop?: (event: DropEvent, data: File[]) => void;
 }
 
 export const MultipleFileUploadContext = React.createContext({
@@ -34,7 +35,7 @@ export const MultipleFileUpload: React.FunctionComponent<MultipleFileUploadProps
   ...props
 }: MultipleFileUploadProps) => {
   const onDropAccepted = (acceptedFiles: File[], event: DropEvent) => {
-    onFileDrop(acceptedFiles);
+    onFileDrop(event, acceptedFiles);
     // allow users to set a custom drop accepted handler rather than using on data change
     dropzoneProps.onDropAccepted && dropzoneProps.onDropAccepted(acceptedFiles, event);
   };
@@ -47,7 +48,7 @@ export const MultipleFileUpload: React.FunctionComponent<MultipleFileUploadProps
 
   const rootProps = getRootProps({
     ...props,
-    onClick: event => event.preventDefault() // Prevents clicking TextArea from opening file dialog
+    onClick: (event) => event.stopPropagation() // Prevents clicking TextArea from opening file dialog
   });
 
   return (

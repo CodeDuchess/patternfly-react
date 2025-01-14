@@ -1,5 +1,7 @@
 import * as React from 'react';
 import styles from '@patternfly/react-styles/css/components/Menu/menu';
+import breadcrumbStyles from '@patternfly/react-styles/css/components/Breadcrumb/breadcrumb';
+import dropdownStyles from '@patternfly/react-styles/css/components/Dropdown/dropdown';
 import { css } from '@patternfly/react-styles';
 import { getOUIAProps, OUIAProps, getDefaultOUIAId } from '../../helpers';
 import { MenuContext } from './MenuContext';
@@ -18,13 +20,6 @@ export interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'r
   selected?: any | any[];
   /** Callback called when an MenuItems's action button is clicked. You can also specify it within a MenuItemAction. */
   onActionClick?: (event?: any, itemId?: any, actionId?: any) => void;
-  /** Search input of menu */
-  hasSearchInput?: boolean;
-  /** A callback for when the input value changes. */
-  onSearchInputChange?: (
-    event: React.FormEvent<HTMLInputElement> | React.SyntheticEvent<HTMLButtonElement>,
-    value: string
-  ) => void;
   /** @beta Indicates if menu contains a flyout menu */
   containsFlyout?: boolean;
   /** @beta Indicating that the menu should have nav flyout styling */
@@ -72,7 +67,6 @@ export interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'r
 }
 
 export interface MenuState {
-  searchInputValue: string | null;
   ouiaStateId: string;
   transitionMoveTarget: HTMLElement;
   flyoutRef: React.Ref<HTMLLIElement> | null;
@@ -103,7 +97,6 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
 
   state: MenuState = {
     ouiaStateId: getDefaultOUIAId(Menu.displayName),
-    searchInputValue: '',
     transitionMoveTarget: null,
     flyoutRef: null,
     disableHover: false,
@@ -148,12 +141,11 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
 
   handleDrilldownTransition = (event: TransitionEvent) => {
     const current = this.menuRef.current;
-
     if (
       !current ||
-      (current !== (event.target as HTMLElement).closest('.pf-c-menu') &&
-        !Array.from(current.getElementsByClassName('pf-c-menu')).includes(
-          (event.target as HTMLElement).closest('.pf-c-menu')
+      (current !== (event.target as HTMLElement).closest(`.${styles.menu}`) &&
+        !Array.from(current.getElementsByClassName(styles.menu)).includes(
+          (event.target as HTMLElement).closest(`.${styles.menu}`)
         ))
     ) {
       return;
@@ -164,19 +156,20 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
       this.setState({ transitionMoveTarget: null });
     } else {
       const nextMenu = current.querySelector('#' + this.props.activeMenu) || current || null;
-      const nextMenuChildren = Array.from(nextMenu.getElementsByTagName('UL')[0].children);
-
+      const nextMenuLists = nextMenu.getElementsByTagName('UL');
+      if (nextMenuLists.length === 0) {
+        return;
+      }
+      const nextMenuChildren = Array.from(nextMenuLists[0].children);
       if (!this.state.currentDrilldownMenuId || nextMenu.id !== this.state.currentDrilldownMenuId) {
         this.setState({ currentDrilldownMenuId: nextMenu.id });
       } else {
         // if the drilldown transition ends on the same menu, do not focus the first item
         return;
       }
-
       const nextTarget = nextMenuChildren.filter(
-        el => !(el.classList.contains('pf-m-disabled') || el.classList.contains('pf-c-divider'))
+        (el) => !(el.classList.contains('pf-m-disabled') || el.classList.contains(styles.divider))
       )[0].firstChild;
-
       (nextTarget as HTMLElement).focus();
       (nextTarget as HTMLElement).tabIndex = 0;
     }
@@ -187,10 +180,10 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
     const activeElement = document.activeElement;
 
     if (
-      (event.target as HTMLElement).closest('.pf-c-menu') !== this.activeMenu &&
-      !(event.target as HTMLElement).classList.contains('pf-c-breadcrumb__link')
+      (event.target as HTMLElement).closest(`.${styles.menu}`) !== this.activeMenu &&
+      !(event.target as HTMLElement).classList.contains(breadcrumbStyles.breadcrumbLink)
     ) {
-      this.activeMenu = (event.target as HTMLElement).closest('.pf-c-menu');
+      this.activeMenu = (event.target as HTMLElement).closest(`.${styles.menu}`);
       this.setState({ disableHover: true });
     }
 
@@ -201,8 +194,8 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
     const parentMenu = this.activeMenu;
     const key = event.key;
     const isFromBreadcrumb =
-      activeElement.classList.contains('pf-c-breadcrumb__link') ||
-      activeElement.classList.contains('pf-c-dropdown__toggle');
+      activeElement.classList.contains(breadcrumbStyles.breadcrumbLink) ||
+      activeElement.classList.contains(dropdownStyles.dropdownToggle);
 
     if (key === ' ' || key === 'Enter') {
       event.preventDefault();
@@ -213,10 +206,10 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
           (parentMenu.parentElement.firstChild as HTMLElement).tabIndex = 0;
           this.setState({ transitionMoveTarget: parentMenu.parentElement.firstChild as HTMLElement });
         } else {
-          if (activeElement.nextElementSibling && activeElement.nextElementSibling.classList.contains('pf-c-menu')) {
+          if (activeElement.nextElementSibling && activeElement.nextElementSibling.classList.contains(styles.menu)) {
             const childItems = Array.from(
               activeElement.nextElementSibling.getElementsByTagName('UL')[0].children
-            ).filter(el => !(el.classList.contains('pf-m-disabled') || el.classList.contains('pf-c-divider')));
+            ).filter((el) => !(el.classList.contains('pf-m-disabled') || el.classList.contains(styles.divider)));
 
             (activeElement as HTMLElement).tabIndex = -1;
             (childItems[0].firstChild as HTMLElement).tabIndex = 0;
@@ -234,13 +227,13 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
     if (isDrilldown) {
       return this.activeMenu
         ? Array.from(this.activeMenu.getElementsByTagName('UL')[0].children).filter(
-            el => !(el.classList.contains('pf-m-disabled') || el.classList.contains('pf-c-divider'))
+            (el) => !(el.classList.contains('pf-m-disabled') || el.classList.contains(styles.divider))
           )
         : [];
     } else {
       return this.menuRef.current
         ? Array.from(this.menuRef.current.getElementsByTagName('LI')).filter(
-            el => !(el.classList.contains('pf-m-disabled') || el.classList.contains('pf-c-divider'))
+            (el) => !(el.classList.contains('pf-m-disabled') || el.classList.contains(styles.divider))
           )
         : [];
     }
@@ -293,7 +286,7 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
           onDrillOut,
           onGetMenuHeight,
           flyoutRef: this.state.flyoutRef,
-          setFlyoutRef: flyoutRef => this.setState({ flyoutRef }),
+          setFlyoutRef: (flyoutRef) => this.setState({ flyoutRef }),
           disableHover: this.state.disableHover,
           role
         }}
@@ -306,19 +299,22 @@ class MenuBase extends React.Component<MenuProps, MenuState> {
             isActiveElement={(element: Element) =>
               document.activeElement.closest('li') === element || // if element is a basic MenuItem
               document.activeElement.parentElement === element ||
-              document.activeElement.closest('.pf-c-menu__search') === element || // if element is a MenuInput
+              document.activeElement.closest(`.${styles.menuSearch}`) === element || // if element is a MenuSearch
               (document.activeElement.closest('ol') && document.activeElement.closest('ol').firstChild === element)
             }
             getFocusableElement={(navigableElement: Element) =>
-              (navigableElement.tagName === 'DIV' && navigableElement.querySelector('input')) || // for MenuInput
-              ((navigableElement.firstChild as Element).tagName === 'LABEL' &&
+              (navigableElement?.tagName === 'DIV' && navigableElement.querySelector('input')) || // for MenuSearchInput
+              ((navigableElement.firstChild as Element)?.tagName === 'LABEL' &&
                 navigableElement.querySelector('input')) || // for MenuItem checkboxes
+              ((navigableElement.firstChild as Element)?.tagName === 'DIV' &&
+                navigableElement.querySelector('a, button, input')) || // For aria-disabled element that is rendered inside a div with "display: contents" styling
               (navigableElement.firstChild as Element)
             }
             noHorizontalArrowHandling={
               document.activeElement &&
-              (document.activeElement.classList.contains('pf-c-breadcrumb__link') ||
-                document.activeElement.classList.contains('pf-c-dropdown__toggle'))
+              (document.activeElement.classList.contains(breadcrumbStyles.breadcrumbLink) ||
+                document.activeElement.classList.contains(dropdownStyles.dropdownToggle) ||
+                document.activeElement.tagName === 'INPUT')
             }
             noEnterHandling
             noSpaceHandling

@@ -9,10 +9,12 @@ import {
   DataListContent,
   DataListItemCells,
   Dropdown,
+  DropdownList,
   DropdownItem,
-  DropdownPosition,
-  KebabToggle
+  MenuToggle,
+  MenuToggleElement
 } from '@patternfly/react-core';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 import CodeBranchIcon from '@patternfly/react-icons/dist/esm/icons/code-branch-icon';
 
 export const DataListExpandable: React.FunctionComponent = () => {
@@ -21,30 +23,30 @@ export const DataListExpandable: React.FunctionComponent = () => {
   const [isOpen3, setIsOpen3] = React.useState(false);
   const [expanded, setExpanded] = React.useState(['ex-toggle1', 'ex-toggle3']);
 
-  const onToggle1 = (_event: any, isOpen1: boolean) => {
-    setIsOpen1(isOpen1);
+  const onToggle1 = () => {
+    setIsOpen1(!isOpen1);
   };
 
   const onSelect1 = () => {
     setIsOpen1(!isOpen1);
   };
 
-  const onToggle2 = (_event: any, isOpen2: boolean) => {
-    setIsOpen2(isOpen2);
+  const onToggle2 = () => {
+    setIsOpen2(!isOpen2);
   };
 
   const onSelect2 = () => {
     setIsOpen2(!isOpen2);
   };
-  const onToggle3 = (_event: any, isOpen3: boolean) => {
-    setIsOpen3(isOpen3);
+  const onToggle3 = () => {
+    setIsOpen3(!isOpen3);
   };
 
   const onSelect3 = () => {
     setIsOpen3(!isOpen3);
   };
 
-  const toggle = id => {
+  const toggle = (id) => {
     const index = expanded.indexOf(id);
     const newExpanded =
       index >= 0 ? [...expanded.slice(0, index), ...expanded.slice(index + 1, expanded.length)] : [...expanded, id];
@@ -86,21 +88,37 @@ export const DataListExpandable: React.FunctionComponent = () => {
               isPlainButtonAction
             >
               <Dropdown
-                isPlain
-                position={DropdownPosition.right}
-                isOpen={isOpen1}
+                popperProps={{ position: 'right' }}
                 onSelect={onSelect1}
-                toggle={<KebabToggle onToggle={onToggle1} />}
-                dropdownItems={[
-                  <DropdownItem key="link">Link</DropdownItem>,
-                  <DropdownItem key="action" component="button">
-                    Action
-                  </DropdownItem>,
-                  <DropdownItem key="disabled link" isDisabled>
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    isExpanded={isOpen1}
+                    onClick={onToggle1}
+                    variant="plain"
+                    aria-label="Data list exapndable example kebaby toggle 1"
+                  >
+                    <EllipsisVIcon aria-hidden="true" />
+                  </MenuToggle>
+                )}
+                isOpen={isOpen1}
+                onOpenChange={(isOpen: boolean) => setIsOpen1(isOpen)}
+              >
+                <DropdownList>
+                  <DropdownItem key="action">Action</DropdownItem>
+                  {/* Prevent default onClick functionality for example
+                  purposes */}
+                  <DropdownItem key="link" to="#" onClick={(event: any) => event.preventDefault()}>
+                    Link
+                  </DropdownItem>
+                  <DropdownItem key="disabled action" isDisabled>
+                    Disabled Action
+                  </DropdownItem>
+                  <DropdownItem key="disabled link" isDisabled to="#" onClick={(event: any) => event.preventDefault()}>
                     Disabled Link
                   </DropdownItem>
-                ]}
-              />
+                </DropdownList>
+              </Dropdown>
             </DataListAction>
           </DataListItemRow>
           <DataListContent
@@ -146,21 +164,37 @@ export const DataListExpandable: React.FunctionComponent = () => {
               isPlainButtonAction
             >
               <Dropdown
-                isPlain
-                position={DropdownPosition.right}
-                isOpen={isOpen2}
+                popperProps={{ position: 'right' }}
                 onSelect={onSelect2}
-                toggle={<KebabToggle onToggle={onToggle2} />}
-                dropdownItems={[
-                  <DropdownItem key="link">Link</DropdownItem>,
-                  <DropdownItem key="action" component="button">
-                    Action
-                  </DropdownItem>,
-                  <DropdownItem key="disabled link" isDisabled>
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    isExpanded={isOpen2}
+                    onClick={onToggle2}
+                    variant="plain"
+                    aria-label="Data list exapndable example kebaby toggle 2"
+                  >
+                    <EllipsisVIcon aria-hidden="true" />
+                  </MenuToggle>
+                )}
+                isOpen={isOpen2}
+                onOpenChange={(isOpen: boolean) => setIsOpen2(isOpen)}
+              >
+                <DropdownList>
+                  <DropdownItem key="action2">Action</DropdownItem>
+                  {/* Prevent default onClick functionality for example
+                  purposes */}
+                  <DropdownItem key="link2" to="#" onClick={(event: any) => event.preventDefault()}>
+                    Link
+                  </DropdownItem>
+                  <DropdownItem key="disabled action2" isDisabled>
+                    Disabled Action
+                  </DropdownItem>
+                  <DropdownItem key="disabled link2" isDisabled to="#" onClick={(event: any) => event.preventDefault()}>
                     Disabled Link
                   </DropdownItem>
-                ]}
-              />
+                </DropdownList>
+              </Dropdown>
             </DataListAction>
           </DataListItemRow>
           <DataListContent
@@ -206,21 +240,37 @@ export const DataListExpandable: React.FunctionComponent = () => {
               isPlainButtonAction
             >
               <Dropdown
-                isPlain
-                position={DropdownPosition.right}
-                isOpen={isOpen3}
+                popperProps={{ position: 'right' }}
                 onSelect={onSelect3}
-                toggle={<KebabToggle onToggle={onToggle3} />}
-                dropdownItems={[
-                  <DropdownItem key="link">Link</DropdownItem>,
-                  <DropdownItem key="action" component="button">
-                    Action
-                  </DropdownItem>,
-                  <DropdownItem key="disabled link" isDisabled>
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    isExpanded={isOpen3}
+                    onClick={onToggle3}
+                    variant="plain"
+                    aria-label="Data list exapndable example kebaby toggle 3"
+                  >
+                    <EllipsisVIcon aria-hidden="true" />
+                  </MenuToggle>
+                )}
+                isOpen={isOpen3}
+                onOpenChange={(isOpen: boolean) => setIsOpen3(isOpen)}
+              >
+                <DropdownList>
+                  <DropdownItem key="action3">Action</DropdownItem>
+                  {/* Prevent default onClick functionality for example
+                  purposes */}
+                  <DropdownItem key="link3" to="#" onClick={(event: any) => event.preventDefault()}>
+                    Link
+                  </DropdownItem>
+                  <DropdownItem key="disabled action3" isDisabled>
+                    Disabled Action
+                  </DropdownItem>
+                  <DropdownItem key="disabled link3" isDisabled to="#" onClick={(event: any) => event.preventDefault()}>
                     Disabled Link
                   </DropdownItem>
-                ]}
-              />
+                </DropdownList>
+              </Dropdown>
             </DataListAction>
           </DataListItemRow>
           <DataListContent

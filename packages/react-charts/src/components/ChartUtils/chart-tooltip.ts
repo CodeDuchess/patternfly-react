@@ -1,8 +1,9 @@
 /* eslint-disable camelcase */
 import chart_color_black_500 from '@patternfly/react-tokens/dist/esm/chart_color_black_500';
 import { Helpers, OrientationTypes, StringOrNumberOrCallback } from 'victory-core';
-import { ChartLegendProps } from '../ChartLegend';
-import { ChartLegendTooltipStyles, ChartThemeDefinition } from '../ChartTheme';
+import { ChartLegendProps } from '../ChartLegend/ChartLegend';
+import { ChartLegendTooltipStyles } from '../ChartTheme/ChartStyles';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
 import { getLegendDimensions } from './chart-legend';
 
 import merge from 'lodash/merge';
@@ -22,6 +23,7 @@ interface ChartLegendTooltipFlyoutInterface {
   legendData: any;
   legendOrientation?: 'horizontal' | 'vertical';
   legendProps?: any;
+  minSpacing?: number;
   text?: StringOrNumberOrCallback | string[] | number[];
   theme: ChartThemeDefinition;
 }
@@ -53,7 +55,7 @@ export const getCursorTooltipCenterOffset = ({
   offsetCursorDimensionY = false,
   theme
 }: ChartCursorTooltipCenterOffsetInterface) => {
-  const pointerLength = theme && theme.tooltip ? Helpers.evaluateProp(theme.tooltip.pointerLength) : 10;
+  const pointerLength = theme && theme.tooltip ? Helpers.evaluateProp(theme.tooltip.pointerLength, undefined) : 10;
   const offsetX = ({ center, flyoutWidth, width }: any) => {
     const offset = flyoutWidth / 2 + pointerLength;
     return width > center.x + flyoutWidth + pointerLength ? offset : -offset;
@@ -78,7 +80,7 @@ export const getCursorTooltipPoniterOrientation = ({
   horizontal = true,
   theme
 }: ChartCursorTooltipPoniterOrientationInterface): ((props: any) => OrientationTypes) => {
-  const pointerLength = theme && theme.tooltip ? Helpers.evaluateProp(theme.tooltip.pointerLength) : 10;
+  const pointerLength = theme && theme.tooltip ? Helpers.evaluateProp(theme.tooltip.pointerLength, undefined) : 10;
   const orientationX = ({ center, flyoutWidth, width }: any): OrientationTypes =>
     width > center.x + flyoutWidth + pointerLength ? 'left' : 'right';
   const orientationY = ({ center, flyoutHeight, height }: any): OrientationTypes =>
@@ -90,7 +92,7 @@ export const getCursorTooltipPoniterOrientation = ({
  * Returns props associated with legend data
  * @private
  */
-export const getLegendTooltipDataProps = (defaultProps: ChartLegendProps) =>
+export const getLegendTooltipDataProps = (props: ChartLegendProps) =>
   merge(
     {
       borderPadding: 0,
@@ -110,7 +112,7 @@ export const getLegendTooltipDataProps = (defaultProps: ChartLegendProps) =>
         }
       }
     },
-    { ...defaultProps }
+    { ...props }
   );
 
 /**
@@ -121,21 +123,26 @@ export const getLegendTooltipSize = ({
   legendData,
   legendOrientation = 'vertical',
   legendProps,
+  minSpacing = 2, // Adjust min spacing, see https://issues.redhat.com/browse/COST-5648
   text = '',
   theme
 }: ChartLegendTooltipFlyoutInterface) => {
-  const textEvaluated = Helpers.evaluateProp(text);
+  const textEvaluated = Helpers.evaluateProp(text, undefined);
   const _text = Array.isArray(textEvaluated) ? textEvaluated : [textEvaluated];
 
   // Find max char lengths
   let maxDataLength = 0;
   let maxTextLength = 0;
-  _text.map((name: string, index: number) => {
-    if (name) {
-      if (name.length > maxTextLength) {
-        maxTextLength = name.length;
+  _text.map((item, index) => {
+    if (typeof item === 'number') {
+      return;
+    }
+
+    if (item) {
+      if (item.length > maxTextLength) {
+        maxTextLength = item.length;
       }
-      const hasData = legendData && legendData[index] && legendData[index].name;
+      const hasData = legendData && legendData[index] && legendData[index].name !== undefined;
       if (hasData) {
         if (legendData[index].name.length > maxDataLength) {
           maxDataLength = legendData[index].name.length;
@@ -145,15 +152,12 @@ export const getLegendTooltipSize = ({
   });
 
   // Set length to ensure minimum spacing between label and value
-  let maxLength = maxDataLength + maxTextLength;
-  if (maxDataLength < 20) {
-    maxLength += 2;
-  }
+  const maxLength = maxDataLength + maxTextLength + minSpacing;
 
   // Get spacing to help align legend labels and text values
   const spacer = 'x';
   const getSpacing = (legendLabel: string, textLabel: string) => {
-    let spacing = '';
+    let spacing = '\u00A0';
     if (maxLength === 0) {
       return spacing;
     }
@@ -174,8 +178,12 @@ export const getLegendTooltipSize = ({
   // {name: "Dogs         1"}
   // {name: "Birds        4"}
   // {name: "Mice         3"}
-  const data = _text.map((label: string, index: number) => {
-    const hasData = legendData && legendData[index] && legendData[index].name;
+  const data = _text.map((label, index) => {
+    if (typeof label === 'number') {
+      return;
+    }
+
+    const hasData = legendData && legendData[index] && legendData[index].name !== undefined;
     const spacing = hasData ? getSpacing(legendData[index].name, label) : '';
 
     return {
@@ -184,7 +192,7 @@ export const getLegendTooltipSize = ({
   });
 
   // Replace whitespace with spacer char for consistency in width
-  const formattedData = data.map(val => ({
+  const formattedData = data.map((val) => ({
     name: val.name.replace(/ /g, spacer)
   }));
 
@@ -197,7 +205,7 @@ export const getLegendTooltipSize = ({
   });
   // This should only use text. The row gutter changes when displaying all "no data" messages
   const heightDimensions = getLegendDimensions({
-    legendData: _text.map((name: string) => ({ name })),
+    legendData: _text.map((name) => ({ name })),
     legendOrientation,
     legendProps,
     theme
@@ -222,7 +230,7 @@ export const getLegendTooltipVisibleData = ({
   textAsLegendData = false,
   theme
 }: ChartLegendTooltipVisibleDataInterface) => {
-  const textEvaluated = Helpers.evaluateProp(text);
+  const textEvaluated = Helpers.evaluateProp(text, undefined);
   const _text = Array.isArray(textEvaluated) ? textEvaluated : [textEvaluated];
   const result = [];
 
@@ -231,7 +239,7 @@ export const getLegendTooltipVisibleData = ({
     let index = -1;
     for (let i = 0; i < legendData.length; i++) {
       const data = legendData[i];
-      const activePoint = activePoints ? activePoints.find(item => item.childName === data.childName) : '';
+      const activePoint = activePoints ? activePoints.find((item) => item.childName === data.childName) : '';
       if (
         !activePoint ||
         (data.symbol && data.symbol.type === 'eyeSlash' && data.symbol.fill === chart_color_black_500.var)
@@ -267,13 +275,13 @@ export const getLegendTooltipVisibleText = ({
   legendData,
   text
 }: ChartLegendTooltipVisibleTextInterface) => {
-  const textEvaluated = Helpers.evaluateProp(text);
+  const textEvaluated = Helpers.evaluateProp(text, undefined);
   const _text = Array.isArray(textEvaluated) ? textEvaluated : [textEvaluated];
   const result = [];
   if (legendData) {
     let index = -1;
     for (const data of legendData) {
-      const activePoint = activePoints ? activePoints.find(item => item.childName === data.childName) : '';
+      const activePoint = activePoints ? activePoints.find((item) => item.childName === data.childName) : '';
       if (
         !activePoint ||
         (data.symbol && data.symbol.type === 'eyeSlash' && data.symbol.fill === chart_color_black_500.var)
@@ -285,5 +293,5 @@ export const getLegendTooltipVisibleText = ({
       }
     }
   }
-  return result;
+  return result as string[] | number[];
 };

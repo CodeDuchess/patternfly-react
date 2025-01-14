@@ -1,7 +1,7 @@
 {
   "name": "@patternfly/react-integration",
+  "version": "5.4.6",
   "private": true,
-  "version": "5.0.0-alpha.6",
   "description": "Integration testing for PF5 using demo applications",
   "main": "lib/index.js",
   "sideEffects": false,
@@ -24,18 +24,12 @@
     "clean": "rimraf cypress/videos cypress/screenshots",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "serve:integration": "cd demo-app-ts && yarn serve:demo-app",
-    "test:integration": "node --max-old-space-size=4096 ./node_modules/.bin/cypress run"
+    "serve:integration": "cd demo-app-ts && yarn preview",
+    "test:integration": "cypress run"
   },
   "devDependencies": {
-    "cypress": "^8.0.0",
+    "cypress": "^8.7.0",
     "cypress-plugin-tab": "^1.0.5",
-    "jasmine-xml2html-converter": "^0.0.2",
-    "junit-merge": "^2.0.0",
-    "monaco-editor-webpack-plugin": "^2.1.0",
-    "react-monaco-editor": "^0.51.0",
-    "ts-loader": "^8.3.0",
-    "typescript": "^4.7.4",
-    "webpack": "^4.43.0"
+    "junit-merge": "^2.0.0"
   }
 }

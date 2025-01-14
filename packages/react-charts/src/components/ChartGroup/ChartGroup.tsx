@@ -19,20 +19,11 @@ import {
   VictoryStyleInterface
 } from 'victory-core';
 import { VictoryGroup, VictoryGroupProps, VictoryGroupTTargetType } from 'victory-group';
-import { ChartContainer } from '../ChartContainer';
-import { ChartThemeDefinition } from '../ChartTheme';
-import {
-  getClassName,
-  useDefaultPatternProps,
-  getPatternDefs,
-  getTheme,
-  renderChildrenWithPatterns
-} from '../ChartUtils';
-
-export enum ChartGroupSortOrder {
-  ascending = 'ascending',
-  descending = 'descending'
-}
+import { ChartContainer } from '../ChartContainer/ChartContainer';
+import { ChartThemeDefinition } from '../ChartTheme/ChartTheme';
+import { getClassName } from '../ChartUtils/chart-helpers';
+import { useDefaultPatternProps, getPatternDefs, renderChildrenWithPatterns } from '../ChartUtils/chart-patterns';
+import { getTheme } from '../ChartUtils/chart-theme';
 
 /**
  * ChartGroup is a wrapper component that renders a given set of children with some shared props. ChartGroup reconciles
@@ -217,7 +208,6 @@ export interface ChartGroupProps extends VictoryGroupProps {
    *
    * @example hasPatterns={ true }
    * @example hasPatterns={[ true, true, false ]}
-   * @beta
    */
   hasPatterns?: boolean | boolean[];
   /**
@@ -319,7 +309,6 @@ export interface ChartGroupProps extends VictoryGroupProps {
    * Note: Not all components are supported; for example, ChartLine, ChartBullet, ChartThreshold, etc.
    *
    * @example patternScale={[ 'url("#pattern1")', 'url("#pattern2")', null ]}
-   * @beta
    */
   patternScale?: string[];
   /**
@@ -510,7 +499,8 @@ export const ChartGroup: React.FunctionComponent<ChartGroupProps> = ({
     <VictoryGroup colorScale={colorScale} containerComponent={container} theme={theme} {...rest}>
       {renderChildrenWithPatterns({
         children,
-        patternScale: defaultPatternScale
+        patternScale: defaultPatternScale,
+        themeColor
       })}
       {isPatternDefs && getPatternDefs({ patternId, colorScale: defaultColorScale })}
     </VictoryGroup>

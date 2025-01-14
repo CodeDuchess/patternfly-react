@@ -2,8 +2,7 @@
 id: Back to top
 section: components
 ---
-
-import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
 
 ## Demos
 

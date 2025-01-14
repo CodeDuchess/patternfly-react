@@ -1,9 +1,8 @@
 ---
 id: Text input group
 section: components
-cssPrefix: pf-c-text-input-group
+cssPrefix: pf-v5-c-text-input-group
 propComponents: ['TextInputGroup', 'TextInputGroupMain', 'TextInputGroupUtilities']
-beta: true
 ---
 
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';

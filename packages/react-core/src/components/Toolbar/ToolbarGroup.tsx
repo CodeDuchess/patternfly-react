@@ -32,9 +32,9 @@ export interface ToolbarGroupProps extends Omit<React.HTMLProps<HTMLDivElement>,
     '2xl'?: 'alignRight' | 'alignLeft';
   };
   /** Vertical alignment of children */
-  alignItems?: 'center' | 'baseline' | 'default';
+  alignItems?: 'start' | 'center' | 'baseline' | 'default';
   /** Vertical alignment */
-  alignSelf?: 'center' | 'baseline' | 'default';
+  alignSelf?: 'start' | 'center' | 'baseline' | 'default';
   /** Spacers at various breakpoints. */
   spacer?: {
     default?: 'spacerNone' | 'spacerSm' | 'spacerMd' | 'spacerLg';
@@ -53,6 +53,8 @@ export interface ToolbarGroupProps extends Omit<React.HTMLProps<HTMLDivElement>,
   };
   /** Content to be rendered inside the data toolbar group */
   children?: React.ReactNode;
+  /** Flag that modifies the toolbar group to hide overflow and respond to available space. Used for horizontal navigation. */
+  isOverflowContainer?: boolean;
   /** @hide Reference to pass to this group if it has .pf-m-chip-container modifier */
   innerRef?: React.RefObject<any>;
 }
@@ -69,6 +71,7 @@ class ToolbarGroupWithRef extends React.Component<ToolbarGroupProps> {
       className,
       variant,
       children,
+      isOverflowContainer,
       innerRef,
       ...props
     } = this.props;
@@ -84,10 +87,13 @@ class ToolbarGroupWithRef extends React.Component<ToolbarGroupProps> {
               formatBreakpointMods(align, styles, '', getBreakpoint(width)),
               formatBreakpointMods(spacer, styles, '', getBreakpoint(width)),
               formatBreakpointMods(spaceItems, styles, '', getBreakpoint(width)),
+              alignItems === 'start' && styles.modifiers.alignItemsStart,
               alignItems === 'center' && styles.modifiers.alignItemsCenter,
               alignItems === 'baseline' && styles.modifiers.alignItemsBaseline,
+              alignSelf === 'start' && styles.modifiers.alignSelfStart,
               alignSelf === 'center' && styles.modifiers.alignSelfCenter,
               alignSelf === 'baseline' && styles.modifiers.alignSelfBaseline,
+              isOverflowContainer && styles.modifiers.overflowContainer,
               className
             )}
             {...props}

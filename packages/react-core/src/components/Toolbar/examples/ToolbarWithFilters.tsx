@@ -1,64 +1,59 @@
 import React from 'react';
 import {
+  Button,
+  Dropdown,
+  DropdownList,
+  DropdownItem,
   Toolbar,
   ToolbarItem,
   ToolbarContent,
   ToolbarFilter,
   ToolbarToggleGroup,
   ToolbarGroup,
-  SelectOptionObject
-} from '@patternfly/react-core';
-import {
-  Button,
+  Badge,
+  MenuToggle,
+  MenuToggleElement,
+  SearchInput,
   Select,
-  SelectOption,
-  SelectVariant,
-  Dropdown,
-  DropdownItem,
-  DropdownSeparator,
-  DropdownPosition,
-  KebabToggle,
-  SearchInput
+  SelectList,
+  SelectOption
 } from '@patternfly/react-core';
 import FilterIcon from '@patternfly/react-icons/dist/esm/icons/filter-icon';
 import EditIcon from '@patternfly/react-icons/dist/esm/icons/edit-icon';
 import CloneIcon from '@patternfly/react-icons/dist/esm/icons/clone-icon';
 import SyncIcon from '@patternfly/react-icons/dist/esm/icons/sync-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 export const ToolbarWithFilters: React.FunctionComponent = () => {
   const [inputValue, setInputValue] = React.useState('');
-  const [statusIsExpanded, setStatusIsExpanded] = React.useState(false);
-  const [riskIsExpanded, setRiskIsExpanded] = React.useState(false);
+  const [isStatusExpanded, setIsStatusExpanded] = React.useState(false);
+  const [isRiskExpanded, setIsRiskExpanded] = React.useState(false);
   const [filters, setFilters] = React.useState({
     risk: ['Low'],
     status: ['New', 'Pending']
   });
-  const [kebabIsOpen, setKebabIsOpen] = React.useState(false);
+  const [isKebabOpen, setIsKebabOpen] = React.useState(false);
 
   const onInputChange = (newValue: string) => {
     setInputValue(newValue);
   };
 
-  const onSelect = (
-    type: string,
-    event: React.MouseEvent | React.ChangeEvent,
-    selection: string | SelectOptionObject
-  ) => {
+  const onSelect = (type: string, event: React.MouseEvent | React.ChangeEvent, selection: string) => {
     const checked = (event.target as HTMLInputElement).checked;
-    setFilters(prev => {
+    setFilters((prev) => {
       const prevSelections = prev[type];
       return {
         ...prev,
-        [type]: checked ? [...prevSelections, selection] : prevSelections.filter(value => value !== selection)
+        [type]: checked ? [...prevSelections, selection] : prevSelections.filter((value) => value !== selection)
       };
     });
   };
 
-  const onStatusSelect = (event: React.MouseEvent | React.ChangeEvent, selection: string | SelectOptionObject) => {
+  const onStatusSelect = (event: React.MouseEvent | React.ChangeEvent, selection: string) => {
     onSelect('status', event, selection);
   };
 
-  const onRiskSelect = (event: React.MouseEvent | React.ChangeEvent, selection: string | SelectOptionObject) => {
+  const onRiskSelect = (event: React.MouseEvent | React.ChangeEvent, selection: string) => {
     onSelect('risk', event, selection);
   };
 
@@ -80,30 +75,53 @@ export const ToolbarWithFilters: React.FunctionComponent = () => {
     }
   };
 
-  const onStatusToggle = (_event: any, isExpanded: boolean) => {
-    setStatusIsExpanded(isExpanded);
+  const onStatusToggle = () => {
+    setIsStatusExpanded(!isStatusExpanded);
   };
 
-  const onRiskToggle = (_event: any, isExpanded: boolean) => {
-    setRiskIsExpanded(isExpanded);
+  const onRiskToggle = () => {
+    setIsRiskExpanded(!isRiskExpanded);
   };
 
-  const onKebabToggle = (_event: any, isOpen: boolean) => {
-    setKebabIsOpen(isOpen);
+  const onKebabToggle = () => {
+    setIsKebabOpen(!isKebabOpen);
   };
 
-  const statusMenuItems = [
-    <SelectOption key="statusNew" value="New" />,
-    <SelectOption key="statusPending" value="Pending" />,
-    <SelectOption key="statusRunning" value="Running" />,
-    <SelectOption key="statusCancelled" value="Cancelled" />
-  ];
+  const statusMenuItems = (
+    <SelectList>
+      <SelectOption hasCheckbox key="statusNew" value="New" isSelected={filters.status.includes('New')}>
+        New
+      </SelectOption>
+      <SelectOption hasCheckbox key="statusPending" value="Pending" isSelected={filters.status.includes('Pending')}>
+        Pending
+      </SelectOption>
+      <SelectOption hasCheckbox key="statusRunning" value="Running" isSelected={filters.status.includes('Running')}>
+        Running
+      </SelectOption>
+      <SelectOption
+        hasCheckbox
+        key="statusCancelled"
+        value="Cancelled"
+        isSelected={filters.status.includes('Cancelled')}
+      >
+        Cancelled
+      </SelectOption>
+    </SelectList>
+  );
 
-  const riskMenuItems = [
-    <SelectOption key="riskLow" value="Low" />,
-    <SelectOption key="riskMedium" value="Medium" />,
-    <SelectOption key="riskHigh" value="High" />
-  ];
+  const riskMenuItems = (
+    <SelectList>
+      <SelectOption hasCheckbox key="riskLow" value="Low" isSelected={filters.risk.includes('Low')}>
+        Low
+      </SelectOption>
+      <SelectOption hasCheckbox key="riskMedium" value="Medium" isSelected={filters.risk.includes('Medium')}>
+        Medium
+      </SelectOption>
+      <SelectOption hasCheckbox key="riskHigh" value="High" isSelected={filters.risk.includes('High')}>
+        High
+      </SelectOption>
+    </SelectList>
+  );
 
   const toggleGroupItems = (
     <React.Fragment>
@@ -121,17 +139,31 @@ export const ToolbarWithFilters: React.FunctionComponent = () => {
         <ToolbarFilter
           chips={filters.status}
           deleteChip={(category, chip) => onDelete(category as string, chip as string)}
-          deleteChipGroup={category => onDeleteGroup(category as string)}
+          deleteChipGroup={(category) => onDeleteGroup(category as string)}
           categoryName="Status"
         >
           <Select
-            variant={SelectVariant.checkbox}
             aria-label="Status"
-            onToggle={onStatusToggle}
+            role="menu"
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={onStatusToggle}
+                isExpanded={isStatusExpanded}
+                style={
+                  {
+                    width: '140px'
+                  } as React.CSSProperties
+                }
+              >
+                Status
+                {filters.status.length > 0 && <Badge isRead>{filters.status.length}</Badge>}
+              </MenuToggle>
+            )}
             onSelect={onStatusSelect}
-            selections={filters.status}
-            isOpen={statusIsExpanded}
-            placeholderText="Status"
+            selected={filters.status}
+            isOpen={isStatusExpanded}
+            onOpenChange={(isOpen) => setIsStatusExpanded(isOpen)}
           >
             {statusMenuItems}
           </Select>
@@ -142,13 +174,27 @@ export const ToolbarWithFilters: React.FunctionComponent = () => {
           categoryName="Risk"
         >
           <Select
-            variant={SelectVariant.checkbox}
             aria-label="Risk"
-            onToggle={onRiskToggle}
+            role="menu"
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={onRiskToggle}
+                isExpanded={isRiskExpanded}
+                style={
+                  {
+                    width: '140px'
+                  } as React.CSSProperties
+                }
+              >
+                Risk
+                {filters.risk.length > 0 && <Badge isRead>{filters.risk.length}</Badge>}
+              </MenuToggle>
+            )}
             onSelect={onRiskSelect}
-            selections={filters.risk}
-            isOpen={riskIsExpanded}
-            placeholderText="Risk"
+            selected={filters.risk}
+            isOpen={isRiskExpanded}
+            onOpenChange={(isOpen) => setIsRiskExpanded(isOpen)}
           >
             {riskMenuItems}
           </Select>
@@ -156,24 +202,6 @@ export const ToolbarWithFilters: React.FunctionComponent = () => {
       </ToolbarGroup>
     </React.Fragment>
   );
-
-  const dropdownItems = [
-    <DropdownItem key="link">Link</DropdownItem>,
-    <DropdownItem key="action" component="button">
-      Action
-    </DropdownItem>,
-    <DropdownItem key="disabled link" isDisabled>
-      Disabled Link
-    </DropdownItem>,
-    <DropdownItem key="disabled action" isDisabled component="button">
-      Disabled Action
-    </DropdownItem>,
-    <DropdownSeparator key="separator" />,
-    <DropdownItem key="separated link">Separated Link</DropdownItem>,
-    <DropdownItem key="separated action" component="button">
-      Separated Action
-    </DropdownItem>
-  ];
 
   const toolbarItems = (
     <React.Fragment>
@@ -199,12 +227,36 @@ export const ToolbarWithFilters: React.FunctionComponent = () => {
       </ToolbarGroup>
       <ToolbarItem>
         <Dropdown
-          toggle={<KebabToggle onToggle={onKebabToggle} />}
-          isOpen={kebabIsOpen}
-          isPlain
-          dropdownItems={dropdownItems}
-          position={DropdownPosition.right}
-        />
+          popperProps={{ position: 'right' }}
+          isOpen={isKebabOpen}
+          onOpenChange={(isOpen: boolean) => setIsKebabOpen(isOpen)}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              ref={toggleRef}
+              isExpanded={isKebabOpen}
+              onClick={onKebabToggle}
+              variant="plain"
+              aria-label="Toolbar with filters example kebab toggle"
+            >
+              <EllipsisVIcon aria-hidden="true" />
+            </MenuToggle>
+          )}
+        >
+          <DropdownList>
+            <DropdownItem>Action</DropdownItem>
+            <DropdownItem
+              to="#default-link2"
+              // Prevent the default onClick functionality for example purposes
+              onClick={(ev: any) => ev.preventDefault()}
+            >
+              Link
+            </DropdownItem>
+            <DropdownItem isDisabled>Disabled Action</DropdownItem>
+            <DropdownItem isDisabled to="#default-link4">
+              Disabled Link
+            </DropdownItem>
+          </DropdownList>
+        </Dropdown>
       </ToolbarItem>
     </React.Fragment>
   );

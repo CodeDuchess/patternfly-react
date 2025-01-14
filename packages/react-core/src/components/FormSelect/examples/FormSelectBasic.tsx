@@ -4,7 +4,7 @@ import { FormSelect, FormSelectOption } from '@patternfly/react-core';
 export const FormSelectBasic: React.FunctionComponent = () => {
   const [formSelectValue, setFormSelectValue] = React.useState('mrs');
 
-  const onChange = (value: string) => {
+  const onChange = (_event: React.FormEvent<HTMLSelectElement>, value: string) => {
     setFormSelectValue(value);
   };
 
@@ -19,7 +19,7 @@ export const FormSelectBasic: React.FunctionComponent = () => {
   ];
 
   return (
-    <FormSelect value={formSelectValue} onChange={onChange} aria-label="FormSelect Input">
+    <FormSelect value={formSelectValue} onChange={onChange} aria-label="FormSelect Input" ouiaId="BasicFormSelect">
       {options.map((option, index) => (
         <FormSelectOption isDisabled={option.disabled} key={index} value={option.value} label={option.label} />
       ))}

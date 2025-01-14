@@ -2,6 +2,7 @@ import React, { RefObject } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { BackToTop } from '../BackToTop';
 import userEvent from '@testing-library/user-event';
+import styles from '@patternfly/react-styles/css/components/BackToTop/back-to-top';
 
 jest.mock('../../Button');
 
@@ -18,7 +19,7 @@ test('Renders BackToTop', () => {
 test('Renders with the default class', () => {
   render(<BackToTop />);
 
-  expect(screen.getByRole(`button`).parentElement).toHaveClass('pf-c-back-to-top');
+  expect(screen.getByRole(`button`).parentElement).toHaveClass(styles.backToTop);
 });
 
 test('BackToTop is not yet visible', () => {
@@ -114,10 +115,11 @@ test('Clicking backToTop scrolls back to top of the element passed via scrollabl
   const user = userEvent.setup();
   const wrapper = document.getElementById('backToTopWrapper');
   fireEvent.scroll(wrapper as HTMLElement, { target: { scrollY: 401 } });
+
   wrapper!.scrollTo = jest.fn();
   await user.click(screen.getByRole(`button`).parentElement as Element);
 
-  expect(wrapper?.scrollTo).toBeCalledTimes(1);
+  expect(wrapper?.scrollTo).toHaveBeenCalledTimes(1);
 });
 
 test('Passes correct text content to button child component', () => {
@@ -135,7 +137,7 @@ test('Passes correct variant to button child component', () => {
 test('Passes correct iconPosition to button child component', () => {
   render(<BackToTop />);
 
-  expect(screen.getByText('iconPosition: right')).toBeVisible();
+  expect(screen.getByText('iconPosition: end')).toBeVisible();
 });
 
 test('Passes correct icon to button child component', () => {

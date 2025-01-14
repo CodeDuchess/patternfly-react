@@ -11,7 +11,8 @@ import {
   Divider,
   MenuItemAction,
   MenuContent,
-  MenuInput,
+  MenuSearch,
+  MenuSearchInput,
   MenuFooter,
   Button,
   Spinner,
@@ -24,6 +25,7 @@ import BellIcon from '@patternfly/react-icons/dist/esm/icons/bell-icon';
 import BarsIcon from '@patternfly/react-icons/dist/esm/icons/bars-icon';
 import ClipboardIcon from '@patternfly/react-icons/dist/esm/icons/clipboard-icon';
 import TableIcon from '@patternfly/react-icons/dist/esm/icons/table-icon';
+import styles from '@patternfly/react-styles/css/components/Menu/menu';
 
 export class MenuDemo extends Component {
   state = {
@@ -46,7 +48,7 @@ export class MenuDemo extends Component {
       itemId={1}
       to="#default-link2"
       // just for demo so that navigation is not triggered
-      onClick={event => event.preventDefault()}
+      onClick={(event) => event.preventDefault()}
     >
       Link
     </MenuItem>,
@@ -87,14 +89,18 @@ export class MenuDemo extends Component {
     });
   };
 
-  onSimpleSelect = (event: React.MouseEvent, itemId: string) => {
+  onSimpleSelect = (_event?: React.MouseEvent, itemId?: string | number) => {
     this.setState({ activeItem: itemId });
   };
 
-  onActionSelect = (event: any, itemId: number) => {
+  onActionSelect = (_event?: React.MouseEvent, itemId?: string | number) => {
+    if (typeof itemId !== 'number') {
+      return;
+    }
+
     if (this.state.selectedItems.indexOf(itemId) !== -1) {
       this.setState({
-        selectedItems: this.state.selectedItems.filter(id => id !== itemId)
+        selectedItems: this.state.selectedItems.filter((id) => id !== itemId)
       });
     } else {
       this.setState({
@@ -103,12 +109,12 @@ export class MenuDemo extends Component {
     }
   };
 
-  onFavorite = (event: any, itemId: string, actionId: string) => {
+  onFavorite = (_event: any, itemId: string, actionId: string) => {
     if (actionId === 'fav') {
       const isFavorite = this.state.favorites.includes(itemId);
       if (isFavorite) {
         this.setState({
-          favorites: this.state.favorites.filter(fav => fav !== itemId)
+          favorites: this.state.favorites.filter((fav) => fav !== itemId)
         });
       } else {
         this.setState({
@@ -118,17 +124,21 @@ export class MenuDemo extends Component {
     }
   };
 
-  onSingleOptionSelect = (event: any, itemId: number) => {
+  onSingleOptionSelect = (_event?: React.MouseEvent, itemId?: string | number) => {
     this.setState({
       activeItem: itemId,
       selectedItem: itemId
     });
   };
 
-  onMultiOptionSelect = (event: any, itemId: number) => {
+  onMultiOptionSelect = (_event?: React.MouseEvent, itemId?: string | number) => {
+    if (typeof itemId !== 'number') {
+      return;
+    }
+
     if (this.state.selectedItems.indexOf(itemId) !== -1) {
       this.setState({
-        selectedItems: this.state.selectedItems.filter(id => id !== itemId)
+        selectedItems: this.state.selectedItems.filter((id) => id !== itemId)
       });
     } else {
       this.setState({
@@ -141,7 +151,7 @@ export class MenuDemo extends Component {
     window.scrollTo(0, 0);
   }
 
-  onChange = (event: React.FormEvent, value: string) => {
+  onChange = (_event: React.FormEvent, value: string) => {
     this.setState({
       input: value
     });
@@ -237,7 +247,7 @@ export class MenuDemo extends Component {
     const menuListItemsText = ['Action 1', 'Action 2', 'Action 3'];
 
     const menuListItems = menuListItemsText
-      .filter(item => !input || item.toLowerCase().includes(input.toLowerCase()))
+      .filter((item) => !input || item.toLowerCase().includes(input.toLowerCase()))
       .map((currentValue, index) => (
         <MenuItem id={`filtered-items-${index}`} key={currentValue} itemId={index}>
           {currentValue}
@@ -257,14 +267,15 @@ export class MenuDemo extends Component {
           Filterable Menu
         </Title>
         <Menu onSelect={this.onSimpleSelect} activeItemId={activeItem} id="filterable-menu">
-          <MenuInput>
-            <SearchInput
-              value={input}
-              aria-label="filterable-example-with-text-input"
-              type="search"
-              onChange={(_event, value) => this.handleTextInputChange(value, 'input')}
-            />
-          </MenuInput>
+          <MenuSearch>
+            <MenuSearchInput>
+              <SearchInput
+                value={input}
+                aria-label="filterable-example-with-text-input"
+                onChange={(_event, value) => this.handleTextInputChange(value, 'input')}
+              />
+            </MenuSearchInput>
+          </MenuSearch>
           <Divider />
           <MenuContent>
             <MenuList>{menuListItems}</MenuList>
@@ -365,7 +376,7 @@ export class MenuDemo extends Component {
             id="group-3"
             label={
               <div>
-                <h1 className="pf-c-menu__group-title">Group 3</h1>
+                <h1 className={styles.menuGroupTitle}>Group 3</h1>
               </div>
             }
           >
@@ -435,7 +446,7 @@ export class MenuDemo extends Component {
         <Menu
           onSelect={this.onActionSelect}
           // eslint-disable-next-line no-console
-          onActionClick={(event, itemId, actionId) => console.log(`clicked on ${itemId} - ${actionId}`)}
+          onActionClick={(_event, itemId, actionId) => console.log(`clicked on ${itemId} - ${actionId}`)}
           activeItemId={activeItem}
           id="menu-with-actions"
         >
@@ -528,13 +539,13 @@ export class MenuDemo extends Component {
           activeItemId={activeItem}
         >
           {favorites.length > 0 && (
-            <React.Fragment>
+            <>
               <MenuGroup label="Favorites">
                 <MenuList>
                   {items
                     // map the items into the favorites group that have been favorited
-                    .filter(item => favorites.includes(item.itemId))
-                    .map(item => {
+                    .filter((item) => favorites.includes(item.itemId))
+                    .map((item) => {
                       const { text, description, itemId, action, actionId } = item;
                       return (
                         <MenuItem
@@ -551,11 +562,11 @@ export class MenuDemo extends Component {
                 </MenuList>
               </MenuGroup>
               <Divider />
-            </React.Fragment>
+            </>
           )}
           <MenuGroup label="All actions">
             <MenuList>
-              {items.map(item => {
+              {items.map((item) => {
                 const { text, description, itemId, action, actionId } = item;
                 const isFavorited = favorites.includes(item.itemId);
                 return (

@@ -1,7 +1,7 @@
 ---
 id: Backdrop
 section: components
-cssPrefix: pf-c-backdrop
+cssPrefix: pf-v5-c-backdrop
 propComponents: ['Backdrop']
 ---
 
@@ -10,9 +10,4 @@ propComponents: ['Backdrop']
 ### Basic
 
 ```ts isFullscreen file="./BackdropBasic.tsx"
-```
-
-### With spinner
-
-```ts isFullscreen file="./BackdropSpinner.tsx"
 ```

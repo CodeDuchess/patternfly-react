@@ -10,17 +10,16 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  ContextSelector,
-  ContextSelectorItem,
   Dropdown,
-  DropdownToggle,
-  KebabToggle,
-  DropdownSeparator,
-  DropdownItem
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  Divider
 } from '@patternfly/react-core';
-import imgBrand from '@patternfly/react-core/src/demos/examples/pfColorLogo.svg';
-import BarsIcon from '@patternfly/react-icons/dist/js/icons/bars-icon';
-import CaretDownIcon from '@patternfly/react-icons/dist/js/icons/caret-down-icon';
+import { ContextSelector, ContextSelectorItem } from '@patternfly/react-core/deprecated';
+import imgBrand from '@patternfly/react-core/src/demos/assets/pf-logo.svg';
+import BarsIcon from '@patternfly/react-icons/dist/esm/icons/bars-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 export class MastheadDemo extends React.Component {
   displayName = 'MastheadDemo';
@@ -46,25 +45,25 @@ export class MastheadDemo extends React.Component {
     filteredItems: this.items
   };
 
-  onToggle = (event: any, isOpen: boolean) => {
+  onToggle = (_event: any, isOpen: boolean) => {
     this.setState({
       isOpen
     });
   };
 
-  onDropdownToggle = (_event: any, isDropdownOpen: boolean) => {
+  onDropdownToggle = () => {
     this.setState({
-      isDropdownOpen
+      isDropdownOpen: !this.state.isDropdownOpen
     });
   };
 
-  onKebabToggle = (_event: any, isKebabOpen: boolean) => {
+  onKebabToggle = () => {
     this.setState({
-      isKebabOpen
+      isKebabOpen: !this.state.isKebabOpen
     });
   };
 
-  onSelect = (event: any, value: string) => {
+  onSelect = (_event: any, value: React.ReactNode) => {
     this.setState({
       selected: value,
       isOpen: !this.state.isOpen
@@ -73,17 +72,17 @@ export class MastheadDemo extends React.Component {
 
   onDropdownSelect = () => {
     this.setState({
-      isDropdownOpen: !this.state.isDropdownOpen
+      isDropdownOpen: false
     });
   };
 
   onKebabSelect = () => {
     this.setState({
-      isKebabOpen: !this.state.isKebabOpen
+      isKebabOpen: false
     });
   };
 
-  onSearchInputChange = (value: string) => {
+  onSearchInputChange = (_event: any, value: string) => {
     this.setState({ searchValue: value });
   };
 
@@ -91,7 +90,7 @@ export class MastheadDemo extends React.Component {
     const filtered =
       this.state.searchValue === ''
         ? this.items
-        : this.items.filter(str => str.toLowerCase().indexOf(this.state.searchValue.toLowerCase()) !== -1);
+        : this.items.filter((str) => str.toLowerCase().indexOf(this.state.searchValue.toLowerCase()) !== -1);
 
     this.setState({ filteredItems: filtered || [] });
   };
@@ -101,26 +100,16 @@ export class MastheadDemo extends React.Component {
 
     const dropdownItems = [
       <DropdownItem key="link">Link</DropdownItem>,
-      <DropdownItem key="action" component="button">
-        Action
-      </DropdownItem>,
-      <DropdownItem key="disabled link" isDisabled href="www.google.com">
+      <DropdownItem key="action">Action</DropdownItem>,
+      <DropdownItem key="disabled link" isDisabled to="www.google.com">
         Disabled Link
       </DropdownItem>,
-      <DropdownItem
-        key="disabled action"
-        isAriaDisabled
-        component="button"
-        tooltip="Tooltip for disabled item"
-        tooltipProps={{ position: 'top' }}
-      >
+      <DropdownItem key="disabled action" isDisabled>
         Disabled Action
       </DropdownItem>,
-      <DropdownSeparator key="separator" />,
+      <Divider component="li" key="separator" />,
       <DropdownItem key="separated link">Separated Link</DropdownItem>,
-      <DropdownItem key="separated action" component="button">
-        Separated Action
-      </DropdownItem>
+      <DropdownItem key="separated action">Separated Action</DropdownItem>
     ];
 
     return (
@@ -159,24 +148,39 @@ export class MastheadDemo extends React.Component {
                 <ToolbarItem visibility={{ default: 'hidden', lg: 'visible' }}>
                   <Dropdown
                     onSelect={this.onDropdownSelect}
-                    toggle={
-                      <DropdownToggle id="toggle-id" onToggle={this.onDropdownToggle} toggleIndicator={CaretDownIcon}>
-                        Dropdown
-                      </DropdownToggle>
-                    }
                     isOpen={isDropdownOpen}
-                    dropdownItems={dropdownItems}
-                    isFullHeight
-                  />
+                    toggle={(toggleRef) => (
+                      <MenuToggle
+                        isFullHeight
+                        ref={toggleRef}
+                        isExpanded={isDropdownOpen}
+                        onClick={this.onDropdownToggle}
+                      >
+                        Dropdown
+                      </MenuToggle>
+                    )}
+                  >
+                    <DropdownList>{dropdownItems}</DropdownList>
+                  </Dropdown>
                 </ToolbarItem>
                 <ToolbarItem>
                   <Dropdown
                     onSelect={this.onKebabSelect}
-                    toggle={<KebabToggle onToggle={this.onKebabToggle} id="toggle-id-kebab" />}
                     isOpen={isKebabOpen}
-                    isPlain
-                    dropdownItems={dropdownItems}
-                  />
+                    toggle={(toggleRef) => (
+                      <MenuToggle
+                        ref={toggleRef}
+                        isExpanded={isKebabOpen}
+                        onClick={this.onKebabToggle}
+                        id="toggle-id-kebab"
+                        variant="plain"
+                      >
+                        <EllipsisVIcon />
+                      </MenuToggle>
+                    )}
+                  >
+                    <DropdownList>{dropdownItems}</DropdownList>
+                  </Dropdown>
                 </ToolbarItem>
               </ToolbarGroup>
             </ToolbarContent>

@@ -1,22 +1,22 @@
 import * as React from 'react';
 import { css } from '@patternfly/react-styles';
 import styles from '@patternfly/react-styles/css/components/CodeEditor/code-editor';
+import fileUploadStyles from '@patternfly/react-styles/css/components/FileUpload/file-upload';
+import { Button, ButtonVariant } from '@patternfly/react-core/dist/esm/components/Button';
 import {
-  Button,
-  ButtonVariant,
   EmptyState,
+  EmptyStateActions,
   EmptyStateBody,
+  EmptyStateFooter,
+  EmptyStateHeader,
   EmptyStateIcon,
-  EmptyStateSecondaryActions,
-  EmptyStateVariant,
-  getResizeObserver,
-  Popover,
-  PopoverProps,
-  Title,
-  TooltipPosition
-} from '@patternfly/react-core';
-import MonacoEditor, { ChangeHandler, EditorDidMount } from 'react-monaco-editor';
-import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
+  EmptyStateVariant
+} from '@patternfly/react-core/dist/esm/components/EmptyState';
+import { Popover, PopoverProps } from '@patternfly/react-core/dist/esm/components/Popover';
+import { TooltipPosition } from '@patternfly/react-core/dist/esm/components/Tooltip';
+import { getResizeObserver } from '@patternfly/react-core/dist/esm/helpers/resizeObserver';
+import Editor, { EditorProps, Monaco } from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 import CopyIcon from '@patternfly/react-icons/dist/esm/icons/copy-icon';
 import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 import DownloadIcon from '@patternfly/react-icons/dist/esm/icons/download-icon';
@@ -25,6 +25,9 @@ import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 import Dropzone, { FileRejection } from 'react-dropzone';
 import { CodeEditorContext } from './CodeEditorUtils';
 import { CodeEditorControl } from './CodeEditorControl';
+
+export type ChangeHandler = (value: string, event: editor.IModelContentChangedEvent) => void;
+export type EditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => void;
 
 export interface Shortcut {
   description: string;
@@ -132,6 +135,8 @@ export interface CodeEditorProps extends Omit<React.HTMLProps<HTMLDivElement>, '
   downloadButtonToolTipText?: string;
   /** Name of the file if user downloads code to local file. */
   downloadFileName?: string;
+  /** Additional props to pass to the monaco editor. */
+  editorProps?: EditorProps;
   /** Content to display in space of the code editor when there is no code to display. */
   emptyState?: React.ReactNode;
   /** Override default empty state body text. */
@@ -229,7 +234,7 @@ interface CodeEditorState {
   copied: boolean;
 }
 
-export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState> {
+class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState> {
   static displayName = 'CodeEditor';
   private editor: editor.IStandaloneCodeEditor | null = null;
   private wrapperRef = React.createRef<HTMLDivElement>();
@@ -382,7 +387,7 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
   editorDidMount: EditorDidMount = (editor, monaco) => {
     // eslint-disable-next-line no-bitwise
     editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Tab, () => this.wrapperRef.current.focus());
-    Array.from(document.getElementsByClassName('monaco-editor')).forEach(editorElement =>
+    Array.from(document.getElementsByClassName('monaco-editor')).forEach((editorElement) =>
       editorElement.removeAttribute('role')
     );
     this.props.onEditorDidMount(editor, monaco);
@@ -418,7 +423,7 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
       this.handleFileChange('', fileHandle.name); // Show the filename while reading
       this.handleFileReadStarted();
       this.readFile(fileHandle)
-        .then(data => {
+        .then((data) => {
           this.handleFileReadFinished();
           this.toggleEmptyState();
           this.handleFileChange(data, fileHandle.name);
@@ -494,7 +499,9 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
       shortcutsPopoverProps: shortcutsPopoverPropsProp,
       showEditor,
       options: optionsProp,
-      overrideServices
+      overrideServices,
+      loading,
+      editorProps
     } = this.props;
     const shortcutsPopoverProps: PopoverProps = {
       ...CodeEditor.defaultProps.shortcutsPopoverProps,
@@ -518,30 +525,44 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
           const emptyState =
             providedEmptyState ||
             (isUploadEnabled ? (
-              <EmptyState variant={EmptyStateVariant.small}>
-                <EmptyStateIcon icon={CodeIcon} />
-                <Title headingLevel="h4" size="lg">
-                  {emptyStateTitle}
-                </Title>
+              <EmptyState variant={EmptyStateVariant.sm}>
+                <EmptyStateHeader
+                  titleText={emptyStateTitle}
+                  icon={<EmptyStateIcon icon={CodeIcon} />}
+                  headingLevel="h4"
+                />
                 <EmptyStateBody>{emptyStateBody}</EmptyStateBody>
-                <Button variant="primary" onClick={open}>
-                  {emptyStateButton}
-                </Button>
-                <EmptyStateSecondaryActions>
-                  <Button variant="link" onClick={this.toggleEmptyState}>
-                    {emptyStateLink}
-                  </Button>
-                </EmptyStateSecondaryActions>
+                {!isReadOnly && (
+                  <EmptyStateFooter>
+                    <EmptyStateActions>
+                      <Button variant="primary" onClick={open}>
+                        {emptyStateButton}
+                      </Button>
+                    </EmptyStateActions>
+                    <EmptyStateActions>
+                      <Button variant="link" onClick={this.toggleEmptyState}>
+                        {emptyStateLink}
+                      </Button>
+                    </EmptyStateActions>
+                  </EmptyStateFooter>
+                )}
               </EmptyState>
             ) : (
-              <EmptyState variant={EmptyStateVariant.small}>
-                <EmptyStateIcon icon={CodeIcon} />
-                <Title headingLevel="h4" size="lg">
-                  {emptyStateTitle}
-                </Title>
-                <Button variant="primary" onClick={this.toggleEmptyState}>
-                  {emptyStateLink}
-                </Button>
+              <EmptyState variant={EmptyStateVariant.sm}>
+                <EmptyStateHeader
+                  titleText={emptyStateTitle}
+                  icon={<EmptyStateIcon icon={CodeIcon} />}
+                  headingLevel="h4"
+                />
+                {!isReadOnly && (
+                  <EmptyStateFooter>
+                    <EmptyStateActions>
+                      <Button variant="primary" onClick={this.toggleEmptyState}>
+                        {emptyStateLink}
+                      </Button>
+                    </EmptyStateActions>
+                  </EmptyStateFooter>
+                )}
               </EmptyState>
             ));
 
@@ -594,7 +615,7 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
               }
               {<div className={css(styles.codeEditorHeaderMain)}>{headerMainContent}</div>}
               {!!shortcutsPopoverProps.bodyContent && (
-                <div className="pf-c-code-editor__keyboard-shortcuts">
+                <div className={`${styles.codeEditor}__keyboard-shortcuts`}>
                   <Popover {...shortcutsPopoverProps}>
                     <Button variant={ButtonVariant.link} icon={<HelpIcon />}>
                       {shortcutsPopoverButtonText}
@@ -614,8 +635,8 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
           );
 
           const editor = (
-            <div className={css(styles.codeEditorCode)} ref={this.wrapperRef} tabIndex={0}>
-              <MonacoEditor
+            <div className={css(styles.codeEditorCode)} ref={this.wrapperRef} tabIndex={0} dir="ltr">
+              <Editor
                 height={height}
                 width={width}
                 language={language}
@@ -623,8 +644,10 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
                 options={options}
                 overrideServices={overrideServices}
                 onChange={this.onChange}
-                editorDidMount={this.editorDidMount}
+                onMount={this.editorDidMount}
                 theme={isDarkTheme ? 'vs-dark' : 'vs-light'}
+                loading={loading}
+                {...editorProps}
               />
             </div>
           );
@@ -634,9 +657,11 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
               {isUploadEnabled || providedEmptyState ? (
                 <div
                   {...getRootProps({
-                    onClick: event => event.preventDefault() // Prevents clicking TextArea from opening file dialog
+                    onClick: (event) => event.stopPropagation() // Prevents clicking TextArea from opening file dialog
                   })}
-                  className={`pf-c-file-upload ${isDragActive && 'pf-m-drag-hover'} ${isLoading && 'pf-m-loading'}`}
+                  className={`${fileUploadStyles.fileUpload} ${isDragActive && fileUploadStyles.modifiers.dragHover} ${
+                    isLoading && fileUploadStyles.modifiers.loading
+                  }`}
                 >
                   {editorHeader}
                   <div className={css(styles.codeEditorMain)}>
@@ -657,3 +682,5 @@ export class CodeEditor extends React.Component<CodeEditorProps, CodeEditorState
     );
   }
 }
+
+export { CodeEditor };

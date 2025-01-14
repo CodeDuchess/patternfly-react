@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardWrapper from '@patternfly/react-core/src/demos/examples/DashboardWrapper';
+import { DashboardWrapper } from '@patternfly/react-core/dist/js/demos/DashboardWrapper';
 import {
   PageSection,
   TextContent,
@@ -90,7 +90,7 @@ export const ModalTabs: React.FunctionComponent = () => {
         </PageSection>
         <PageSection isFilled>
           <Gallery hasGutter aria-label="Selectable card container">
-            {products.map(product => (
+            {products.map((product) => (
               <Card
                 isSelectable
                 isSelectableRaised

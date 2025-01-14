@@ -6,7 +6,7 @@ import styles from '@patternfly/react-styles/css/components/Backdrop/backdrop';
 import { ModalContent } from './ModalContent';
 import { OUIAProps, getDefaultOUIAId } from '../../helpers';
 
-export interface ModalProps extends React.HTMLProps<HTMLDivElement>, OUIAProps {
+export interface ModalProps extends Omit<React.HTMLProps<HTMLDivElement>, 'title'>, OUIAProps {
   /** Action buttons to add to the standard modal footer. Ignored if the footer property
    * is passed in.
    */
@@ -37,6 +37,10 @@ export interface ModalProps extends React.HTMLProps<HTMLDivElement>, OUIAProps {
   description?: React.ReactNode;
   /** Flag to disable focus trap. */
   disableFocusTrap?: boolean;
+  /** The element to focus when the modal opens. By default the first
+   * focusable element will receive focus.
+   */
+  elementToFocus?: HTMLElement | SVGElement | string;
   /** Custom footer. */
   footer?: React.ReactNode;
   /** Flag indicating if modal content should be placed in a modal box body wrapper. */
@@ -50,28 +54,30 @@ export interface ModalProps extends React.HTMLProps<HTMLDivElement>, OUIAProps {
   /** Flag to show the modal. */
   isOpen?: boolean;
   /** A callback for when the close button is clicked. */
-  onClose?: () => void;
+  onClose?: (event: KeyboardEvent | React.MouseEvent) => void;
   /** Modal handles pressing of the escape key and closes the modal. If you want to handle
    * this yourself you can use this callback function. */
   onEscapePress?: (event: KeyboardEvent) => void;
-  /** Alternate position of the modal. */
-  position?: 'top';
+  /** Position of the modal. By default a modal will be positioned vertically and horizontally centered. */
+  position?: 'default' | 'top';
   /** Offset from alternate position. Can be any valid CSS length/percentage. */
   positionOffset?: string;
   /** Flag to show the close button in the header area of the modal. */
   showClose?: boolean;
-  /** Simple text content of the modal header. Also used for the aria-label on the body. */
-  title?: string;
+  /** Text content of the modal header. */
+  title?: React.ReactNode;
   /** Optional alert icon (or other) to show before the title of the modal header. When the
    * predefined alert types are used the default styling will be automatically applied.
    */
-  titleIconVariant?: 'success' | 'danger' | 'warning' | 'info' | 'default' | React.ComponentType<any>;
+  titleIconVariant?: 'success' | 'danger' | 'warning' | 'info' | 'custom' | React.ComponentType<any>;
   /** Optional title label text for screen readers. */
   titleLabel?: string;
   /** Variant of the modal. */
   variant?: 'small' | 'medium' | 'large' | 'default';
   /** Default width of the modal. */
   width?: number | string;
+  /** Maximum width of the modal. */
+  maxWidth?: number | string;
   /** Value to overwrite the randomly generated data-ouia-component-id.*/
   ouiaId?: number | string;
   /** Set the value of data-ouia-safe. Only set to true when the component is in a static state, i.e. no animations are occurring. At all other times, this value must be false. */
@@ -86,16 +92,16 @@ export enum ModalVariant {
 }
 
 interface ModalState {
-  container: HTMLElement;
   ouiaStateId: string;
 }
 
-export class Modal extends React.Component<ModalProps, ModalState> {
+class Modal extends React.Component<ModalProps, ModalState> {
   static displayName = 'Modal';
   static currentId = 0;
   boxId = '';
   labelId = '';
   descriptorId = '';
+  backdropId = '';
 
   static defaultProps: PickOptional<ModalProps> = {
     className: '',
@@ -113,7 +119,8 @@ export class Modal extends React.Component<ModalProps, ModalState> {
     variant: 'default',
     hasNoBodyWrapper: false,
     appendTo: () => document.body,
-    ouiaSafe: true
+    ouiaSafe: true,
+    position: 'default'
   };
 
   constructor(props: ModalProps) {
@@ -121,12 +128,13 @@ export class Modal extends React.Component<ModalProps, ModalState> {
     const boxIdNum = Modal.currentId++;
     const labelIdNum = boxIdNum + 1;
     const descriptorIdNum = boxIdNum + 2;
+    const backdropIdNum = boxIdNum + 3;
     this.boxId = props.id || `pf-modal-part-${boxIdNum}`;
     this.labelId = `pf-modal-part-${labelIdNum}`;
     this.descriptorId = `pf-modal-part-${descriptorIdNum}`;
+    this.backdropId = `pf-modal-part-${backdropIdNum}`;
 
     this.state = {
-      container: undefined,
       ouiaStateId: getDefaultOUIAId(Modal.displayName, props.variant)
     };
   }
@@ -134,7 +142,7 @@ export class Modal extends React.Component<ModalProps, ModalState> {
   handleEscKeyClick = (event: KeyboardEvent): void => {
     const { onEscapePress } = this.props;
     if (event.key === KeyTypes.Escape && this.props.isOpen) {
-      onEscapePress ? onEscapePress(event) : this.props.onClose?.();
+      onEscapePress ? onEscapePress(event) : this.props.onClose?.(event);
     }
   };
 
@@ -150,7 +158,7 @@ export class Modal extends React.Component<ModalProps, ModalState> {
     const target: HTMLElement = this.getElement(appendTo);
     const bodyChildren = target.children;
     for (const child of Array.from(bodyChildren)) {
-      if (child !== this.state.container) {
+      if (child.id !== this.backdropId) {
         hide ? child.setAttribute('aria-hidden', '' + hide) : child.removeAttribute('aria-hidden');
       }
     }
@@ -168,18 +176,14 @@ export class Modal extends React.Component<ModalProps, ModalState> {
       header
     } = this.props;
     const target: HTMLElement = this.getElement(appendTo);
-    const container = document.createElement('div');
-    this.setState({ container });
-    target.appendChild(container);
     target.addEventListener('keydown', this.handleEscKeyClick, false);
 
     if (this.props.isOpen) {
       target.classList.add(css(styles.backdropOpen));
-    } else {
-      target.classList.remove(css(styles.backdropOpen));
+      this.toggleSiblingsFromScreenReaders(true);
     }
 
-    if (this.isEmpty(title) && this.isEmpty(ariaLabel) && this.isEmpty(ariaLabelledby)) {
+    if (!title && this.isEmpty(ariaLabel) && this.isEmpty(ariaLabelledby)) {
       // eslint-disable-next-line no-console
       console.error('Modal: Specify at least one of: title, aria-label, aria-labelledby.');
     }
@@ -192,31 +196,31 @@ export class Modal extends React.Component<ModalProps, ModalState> {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: ModalProps) {
     const { appendTo } = this.props;
     const target: HTMLElement = this.getElement(appendTo);
     if (this.props.isOpen) {
       target.classList.add(css(styles.backdropOpen));
       this.toggleSiblingsFromScreenReaders(true);
     } else {
-      target.classList.remove(css(styles.backdropOpen));
-      this.toggleSiblingsFromScreenReaders(false);
+      if (prevProps.isOpen !== this.props.isOpen) {
+        target.classList.remove(css(styles.backdropOpen));
+        this.toggleSiblingsFromScreenReaders(false);
+      }
     }
   }
 
   componentWillUnmount() {
     const { appendTo } = this.props;
     const target: HTMLElement = this.getElement(appendTo);
-    if (this.state.container) {
-      target.removeChild(this.state.container);
-    }
+
     target.removeEventListener('keydown', this.handleEscKeyClick, false);
     target.classList.remove(css(styles.backdropOpen));
+    this.toggleSiblingsFromScreenReaders(false);
   }
 
   render() {
     const {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       appendTo,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onEscapePress,
@@ -230,11 +234,12 @@ export class Modal extends React.Component<ModalProps, ModalState> {
       titleLabel,
       ouiaId,
       ouiaSafe,
+      position,
+      elementToFocus,
       ...props
     } = this.props;
-    const { container } = this.state;
 
-    if (!canUseDOM || !container) {
+    if (!canUseDOM || !this.getElement(appendTo)) {
       return null;
     }
 
@@ -244,6 +249,7 @@ export class Modal extends React.Component<ModalProps, ModalState> {
         boxId={this.boxId}
         labelId={this.labelId}
         descriptorId={this.descriptorId}
+        backdropId={this.backdropId}
         title={title}
         titleIconVariant={titleIconVariant}
         titleLabel={titleLabel}
@@ -254,8 +260,12 @@ export class Modal extends React.Component<ModalProps, ModalState> {
         bodyAriaRole={bodyAriaRole}
         ouiaId={ouiaId !== undefined ? ouiaId : this.state.ouiaStateId}
         ouiaSafe={ouiaSafe}
+        position={position}
+        elementToFocus={elementToFocus}
       />,
-      container
+      this.getElement(appendTo)
     ) as React.ReactElement;
   }
 }
+
+export { Modal };

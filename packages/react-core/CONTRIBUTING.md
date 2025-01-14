@@ -53,7 +53,7 @@ $ git checkout -b my-branch -t upstream/main
  yarn generate
 ```
 
-- When you select the option to generate a PatternFly 4 component, a structure resembling the following is generated
+- When you select the option to generate a PatternFly component, a structure resembling the following is generated
   ```text
   packages/react-core/src/[type]/[ComponentName]/
     index.js - Barrel File exporting public exports
@@ -65,8 +65,6 @@ $ git checkout -b my-branch -t upstream/main
 4. Develop your component. 
 
 While developing, you can run the patternfly-react workspace to view the component docs with live examples.
-
-**Note:** Be sure you are using node version >= 18.0.0
 
 ```bash
 # Start up the workspace locally on port 8002
@@ -113,7 +111,7 @@ $ git push origin my-branch
 
 8.  Create a pull request
 
-    - A link to the PatternFly 4 demo documentation will be automatically generated and posted as a comment after the pull request build is complete.
+    - A link to the PatternFly demo documentation will be automatically generated and posted as a comment after the pull request build is complete.
 
 ## Additional information
 

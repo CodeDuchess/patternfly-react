@@ -1,13 +1,14 @@
 import * as React from 'react';
-import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/next/components';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/esm/components/Dropdown';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button';
 import { Divider } from '@patternfly/react-core/dist/esm/components/Divider';
 import { MenuToggle } from '@patternfly/react-core/dist/esm/components/MenuToggle';
 import { IAction, IExtraData, IRowData } from './TableTypes';
 import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
+import { Tooltip } from '@patternfly/react-core/dist/esm/components/Tooltip';
 
 export interface CustomActionsToggleProps {
-  onToggle: (event: React.MouseEvent) => void;
+  onToggle: (event: React.MouseEvent | React.KeyboardEvent) => void;
   isOpen: boolean;
   isDisabled: boolean;
   toggleRef: React.Ref<any>;
@@ -27,6 +28,10 @@ export interface ActionsColumnProps extends Omit<React.HTMLProps<HTMLElement>, '
   popperProps?: any;
   /** @hide Forwarded ref */
   innerRef?: React.Ref<any>;
+  /** Ref to forward to the first item in the popup menu */
+  firstActionItemRef?: React.Ref<HTMLButtonElement>;
+  /** Flag indicating that the dropdown's onOpenChange callback should not be called. */
+  isOnOpenChangeDisabled?: boolean;
 }
 
 const ActionsColumnBase: React.FunctionComponent<ActionsColumnProps> = ({
@@ -36,10 +41,12 @@ const ActionsColumnBase: React.FunctionComponent<ActionsColumnProps> = ({
   extraData,
   actionsToggle,
   popperProps = {
-    position: 'right',
-    direction: 'down',
-    popperMatchesTriggerWidth: false
+    position: 'end',
+    direction: 'down'
   },
+  innerRef,
+  firstActionItemRef,
+  isOnOpenChangeDisabled = false,
   ...props
 }: ActionsColumnProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -65,12 +72,14 @@ const ActionsColumnBase: React.FunctionComponent<ActionsColumnProps> = ({
   return (
     <React.Fragment>
       {items
-        .filter(item => item.isOutsideDropdown)
+        .filter((item) => item.isOutsideDropdown)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .map(({ title, itemKey, onClick, isOutsideDropdown, ...props }, key) =>
           typeof title === 'string' ? (
             <Button
-              onClick={event => onActionClick(event, onClick)}
+              onClick={(event: MouseEvent | React.MouseEvent<any, MouseEvent> | React.KeyboardEvent<Element>) =>
+                onActionClick(event, onClick)
+              }
               {...(props as any)}
               isDisabled={isDisabled}
               key={itemKey || `outside_dropdown_${key}`}
@@ -85,8 +94,8 @@ const ActionsColumnBase: React.FunctionComponent<ActionsColumnProps> = ({
 
       <Dropdown
         isOpen={isOpen}
-        onOpenChange={isOpen => setIsOpen(isOpen)}
-        toggle={toggleRef =>
+        onOpenChange={!isOnOpenChangeDisabled ? (isOpen: boolean) => setIsOpen(isOpen) : undefined}
+        toggle={(toggleRef: any) =>
           actionsToggle ? (
             actionsToggle({ onToggle, isOpen, isDisabled, toggleRef })
           ) : (
@@ -103,28 +112,43 @@ const ActionsColumnBase: React.FunctionComponent<ActionsColumnProps> = ({
           )
         }
         {...(rowData && rowData.actionProps)}
+        ref={innerRef}
         {...props}
         popperProps={popperProps}
       >
         <DropdownList>
           {items
-            .filter(item => !item.isOutsideDropdown)
-            .map(({ title, itemKey, onClick, isSeparator, ...props }, key) =>
-              isSeparator ? (
-                <Divider key={itemKey || key} data-key={itemKey || key} />
-              ) : (
-                <DropdownItem
-                  onClick={event => {
-                    onActionClick(event, onClick);
-                    onToggle();
-                  }}
-                  {...props}
-                  key={itemKey || key}
-                  data-key={itemKey || key}
-                >
-                  {title}
-                </DropdownItem>
-              )
+            .filter((item) => !item.isOutsideDropdown)
+            .map(
+              ({ title, itemKey, onClick, tooltipProps, isSeparator, shouldCloseOnClick = true, ...props }, index) => {
+                if (isSeparator) {
+                  return <Divider key={itemKey || index} data-key={itemKey || index} />;
+                }
+                const item = (
+                  <DropdownItem
+                    onClick={(event: any) => {
+                      onActionClick(event, onClick);
+                      shouldCloseOnClick && onToggle();
+                    }}
+                    {...props}
+                    key={itemKey || index}
+                    data-key={itemKey || index}
+                    ref={index === 0 ? firstActionItemRef : undefined}
+                  >
+                    {title}
+                  </DropdownItem>
+                );
+
+                if (tooltipProps?.content) {
+                  return (
+                    <Tooltip key={itemKey || index} {...tooltipProps}>
+                      {item}
+                    </Tooltip>
+                  );
+                } else {
+                  return item;
+                }
+              }
             )}
         </DropdownList>
       </Dropdown>

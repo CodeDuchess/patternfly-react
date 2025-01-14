@@ -3,22 +3,22 @@
 exports[`ChartBulletComparativeMeasure 1`] = `
 <DocumentFragment>
   <div
-    class="pf-c-chart"
-    style="pointer-events: none; position: relative; width: 100%; height: 100%;"
+    class="pf-v5-c-chart"
+    style="pointer-events: none; position: relative;"
   >
     <svg
       height="140"
       role="img"
-      style="pointer-events: all; width: 100%; height: 100%;"
+      style="width: 100%; height: 100%; pointer-events: all;"
       viewBox="0 0 450 140"
       width="450"
     />
     <div
-      style="z-index: 99; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"
+      style="width: 100%; height: 100%; z-index: 99; position: absolute; top: 0px; left: 0px;"
     >
       <svg
         height="140"
-        style="overflow: visible; width: 100%; height: 100%;"
+        style="width: 100%; height: 100%; overflow: visible;"
         viewBox="0 0 450 140"
         width="450"
       />
@@ -30,22 +30,22 @@ exports[`ChartBulletComparativeMeasure 1`] = `
 exports[`ChartBulletComparativeMeasure 2`] = `
 <DocumentFragment>
   <div
-    class="pf-c-chart"
-    style="pointer-events: none; position: relative; width: 100%; height: 100%;"
+    class="pf-v5-c-chart"
+    style="pointer-events: none; position: relative;"
   >
     <svg
       height="140"
       role="img"
-      style="pointer-events: all; width: 100%; height: 100%;"
+      style="width: 100%; height: 100%; pointer-events: all;"
       viewBox="0 0 450 140"
       width="450"
     />
     <div
-      style="z-index: 99; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"
+      style="width: 100%; height: 100%; z-index: 99; position: absolute; top: 0px; left: 0px;"
     >
       <svg
         height="140"
-        style="overflow: visible; width: 100%; height: 100%;"
+        style="width: 100%; height: 100%; overflow: visible;"
         viewBox="0 0 450 140"
         width="450"
       />
@@ -57,13 +57,13 @@ exports[`ChartBulletComparativeMeasure 2`] = `
 exports[`renders component data 1`] = `
 <DocumentFragment>
   <div
-    class="pf-c-chart"
-    style="pointer-events: none; position: relative; width: 100%; height: 100%;"
+    class="pf-v5-c-chart"
+    style="pointer-events: none; position: relative;"
   >
     <svg
       height="140"
       role="img"
-      style="pointer-events: all; width: 100%; height: 100%;"
+      style="width: 100%; height: 100%; pointer-events: all;"
       viewBox="0 0 450 140"
       width="450"
     >
@@ -83,16 +83,16 @@ A 0 0 0 0 1, 225, 104.8
           index="0"
           role="presentation"
           shape-rendering="auto"
-          style="fill: var(--pf-chart-bullet--comparative-measure--Fill--Color, #4f5255); stroke: var(--pf-chart-bullet--comparative-measure--stroke--Color, #4f5255); padding: 8px; stroke-width: 1;"
+          style="fill: var(--pf-v5-chart-bullet--comparative-measure--Fill--Color, #4f5255); stroke: var(--pf-v5-chart-bullet--comparative-measure--stroke--Color, #4f5255); padding: 8px; stroke-width: 1;"
         />
       </g>
     </svg>
     <div
-      style="z-index: 99; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"
+      style="width: 100%; height: 100%; z-index: 99; position: absolute; top: 0px; left: 0px;"
     >
       <svg
         height="140"
-        style="overflow: visible; width: 100%; height: 100%;"
+        style="width: 100%; height: 100%; overflow: visible;"
         viewBox="0 0 450 140"
         width="450"
       />

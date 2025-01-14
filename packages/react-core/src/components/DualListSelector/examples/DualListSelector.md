@@ -1,7 +1,7 @@
 ---
 id: Dual list selector
 section: components
-cssPrefix: 'pf-c-dual-list-selector'
+cssPrefix: 'pf-v5-c-dual-list-selector'
 propComponents:
   [
     'DualListSelector',
@@ -11,7 +11,7 @@ propComponents:
     'DualListSelectorControlsWrapper',
     'DualListSelectorControl',
     'DualListSelectorTree',
-    'DualListSelectorTreeItemData',
+    'DualListSelectorTreeItemData'
   ]
 ---
 
@@ -21,32 +21,38 @@ import AngleDoubleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-d
 import AngleRightIcon from '@patternfly/react-icons/dist/esm/icons/angle-right-icon';
 import PficonSortCommonAscIcon from '@patternfly/react-icons/dist/esm/icons/pficon-sort-common-asc-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 ## Examples
 
 ### Basic
 
 ```ts file="./DualListSelectorBasic.tsx"
+
 ```
 
 ### Basic with tooltips
 
 ```ts file="./DualListSelectorBasicTooltips.tsx"
+
 ```
 
 ### Basic with search
 
 ```ts file="./DualListSelectorBasicSearch.tsx"
+
 ```
 
 ### Using more complex options with actions
 
 ```ts file="./DualListSelectorComplexOptionsActions.tsx"
+
 ```
 
 ### With tree
 
 ```ts file="./DualListSelectorTreeExample.tsx"
+
 ```
 
 ## Composable structure
@@ -76,9 +82,12 @@ The dual list selector can also be built in a composable manner to make customiz
 ### Composable dual list selector
 
 ```ts file="./DualListSelectorComposable.tsx"
+
 ```
 
 ### Composable with drag and drop
+
+Note: There is a new recommended drag and drop implementation with full keyboard functionality, which replaces this implementation. To adhere to our new recommendations, refer to the [drag and drop demos](/components/drag-and-drop/react-next-demos).
 
 This example only allows reordering the contents of the "chosen" pane with drag and drop. To make a pane able to be reordered:
 
@@ -92,12 +101,14 @@ This example only allows reordering the contents of the "chosen" pane with drag 
   - define an `onDrag` callback which ensures that the drag event will not cross hairs with the `onOptionSelect` click
     event set on the option. Note: the `ignoreNextOptionSelect` state value is used to prevent selection while dragging.
 
-Note: Keyboard accessibility and screen reader accessibility for the `DragDrop` component are still in development.
+Keyboard and screen reader accessibility for the `<DragDrop>` component is still in development.
 
 ```ts file="DualListSelectorComposableDragDrop.tsx"
+
 ```
 
 ### Composable with tree
 
 ```ts file="DualListSelectorComposableTree.tsx"
+
 ```

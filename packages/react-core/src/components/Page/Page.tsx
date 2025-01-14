@@ -19,7 +19,7 @@ export interface PageProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
   /** Additional classes added to the page layout */
   className?: string;
-  /** Header component (e.g. <PageHeader />) */
+  /** Header component (e.g. <Masthead />) */
   header?: React.ReactNode;
   /** Sidebar component for a side nav (e.g. <PageSidebar />) */
   sidebar?: React.ReactNode;
@@ -27,10 +27,16 @@ export interface PageProps extends React.HTMLProps<HTMLDivElement> {
   notificationDrawer?: React.ReactNode;
   /** Flag indicating Notification drawer in expanded */
   isNotificationDrawerExpanded?: boolean;
+  /** Sets default drawer size */
+  drawerDefaultSize?: string;
+  /** Sets the minimum drawer size*/
+  drawerMinSize?: string;
+  /** Sets the maximum drawer size */
+  drawerMaxSize?: string;
   /** Flag indicating if breadcrumb width should be limited */
   isBreadcrumbWidthLimited?: boolean;
   /** Callback when notification drawer panel is finished expanding. */
-  onNotificationDrawerExpand?: () => void;
+  onNotificationDrawerExpand?: (event: KeyboardEvent | React.MouseEvent | React.TransitionEvent) => void;
   /** Skip to content component for the page */
   skipToContent?: React.ReactElement;
   /** Sets the value for role on the <main> element */
@@ -40,8 +46,8 @@ export interface PageProps extends React.HTMLProps<HTMLDivElement> {
   /** tabIndex to use for the [role="main"] element, null to unset it */
   mainTabIndex?: number | null;
   /**
-   * If true, manages the sidebar open/close state and there is no need to pass the isNavOpen boolean into
-   * the sidebar component or add a callback onNavToggle function into the PageHeader component
+   * If true, manages the sidebar open/close state and there is no need to pass the isSidebarOpen boolean into
+   * the sidebar component or add a callback onSidebarToggle function into the Masthead component
    */
   isManagedSidebar?: boolean;
   /** Flag indicating if tertiary nav width should be limited */
@@ -51,10 +57,10 @@ export interface PageProps extends React.HTMLProps<HTMLDivElement> {
    */
   defaultManagedSidebarIsOpen?: boolean;
   /**
-   * Can add callback to be notified when resize occurs, for example to set the sidebar isNav prop to false for a width < 768px
+   * Can add callback to be notified when resize occurs, for example to set the sidebar isSidebarOpen prop to false for a width < 768px
    * Returns object { mobileView: boolean, windowSize: number }
    */
-  onPageResize?: ((object: any) => void) | null;
+  onPageResize?: ((event: MouseEvent | TouchEvent | React.KeyboardEvent, object: any) => void) | null;
   /**
    * The page resize observer uses the breakpoints returned from this function when adding the pf-m-breakpoint-[default|sm|md|lg|xl|2xl] class
    * You can override the default getBreakpoint function to return breakpoints at different sizes than the default
@@ -81,6 +87,8 @@ export interface PageProps extends React.HTMLProps<HTMLDivElement> {
   isBreadcrumbGrouped?: boolean;
   /** Additional content of the group */
   additionalGroupedContent?: React.ReactNode;
+  /** HTML component used as main component of the page. Defaults to 'main', only pass in 'div' if another 'main' element already exists. */
+  mainComponent?: 'main' | 'div';
   /** Additional props of the group */
   groupProps?: PageGroupProps;
   /** Additional props of the breadcrumb */
@@ -88,14 +96,14 @@ export interface PageProps extends React.HTMLProps<HTMLDivElement> {
 }
 
 export interface PageState {
-  desktopIsNavOpen: boolean;
-  mobileIsNavOpen: boolean;
+  desktopIsSidebarOpen: boolean;
+  mobileIsSidebarOpen: boolean;
   mobileView: boolean;
   width: number;
   height: number;
 }
 
-export class Page extends React.Component<PageProps, PageState> {
+class Page extends React.Component<PageProps, PageState> {
   static displayName = 'Page';
   static defaultProps: PageProps = {
     isManagedSidebar: false,
@@ -104,6 +112,7 @@ export class Page extends React.Component<PageProps, PageState> {
     mainTabIndex: -1,
     isNotificationDrawerExpanded: false,
     onNotificationDrawerExpand: () => null,
+    mainComponent: 'main',
     getBreakpoint,
     getVerticalBreakpoint
   };
@@ -117,8 +126,8 @@ export class Page extends React.Component<PageProps, PageState> {
     const { isManagedSidebar, defaultManagedSidebarIsOpen } = props;
     const managedSidebarOpen = !isManagedSidebar ? true : defaultManagedSidebarIsOpen;
     this.state = {
-      desktopIsNavOpen: managedSidebarOpen,
-      mobileIsNavOpen: false,
+      desktopIsSidebarOpen: managedSidebarOpen,
+      mobileIsSidebarOpen: false,
       mobileView: false,
       width: null,
       height: null
@@ -163,11 +172,11 @@ export class Page extends React.Component<PageProps, PageState> {
     // eslint-disable-next-line radix
     this.getWindowWidth() < Number.parseInt(globalBreakpointXl.value, 10);
 
-  resize = () => {
+  resize = (_event?: MouseEvent | TouchEvent | React.KeyboardEvent<Element>) => {
     const { onPageResize } = this.props;
     const mobileView = this.isMobile();
     if (onPageResize) {
-      onPageResize({ mobileView, windowSize: this.getWindowWidth() });
+      onPageResize(_event, { mobileView, windowSize: this.getWindowWidth() });
     }
     if (mobileView !== this.state.mobileView) {
       this.setState({ mobileView });
@@ -188,20 +197,20 @@ export class Page extends React.Component<PageProps, PageState> {
   handleResize = debounce(this.resize, 250);
 
   handleMainClick = () => {
-    if (this.isMobile() && this.state.mobileIsNavOpen && this.mainRef.current) {
-      this.setState({ mobileIsNavOpen: false });
+    if (this.isMobile() && this.state.mobileIsSidebarOpen && this.mainRef.current) {
+      this.setState({ mobileIsSidebarOpen: false });
     }
   };
 
-  onNavToggleMobile = () => {
-    this.setState(prevState => ({
-      mobileIsNavOpen: !prevState.mobileIsNavOpen
+  onSidebarToggleMobile = () => {
+    this.setState((prevState) => ({
+      mobileIsSidebarOpen: !prevState.mobileIsSidebarOpen
     }));
   };
 
-  onNavToggleDesktop = () => {
-    this.setState(prevState => ({
-      desktopIsNavOpen: !prevState.desktopIsNavOpen
+  onSidebarToggleDesktop = () => {
+    this.setState((prevState) => ({
+      desktopIsSidebarOpen: !prevState.desktopIsSidebarOpen
     }));
   };
 
@@ -216,6 +225,9 @@ export class Page extends React.Component<PageProps, PageState> {
       notificationDrawer,
       isNotificationDrawerExpanded,
       onNotificationDrawerExpand,
+      drawerDefaultSize,
+      drawerMinSize,
+      drawerMaxSize,
       isTertiaryNavWidthLimited,
       skipToContent,
       role,
@@ -229,6 +241,7 @@ export class Page extends React.Component<PageProps, PageState> {
       getVerticalBreakpoint,
       mainAriaLabel,
       mainTabIndex,
+      mainComponent,
       tertiaryNav,
       isTertiaryNavGrouped,
       isBreadcrumbGrouped,
@@ -237,12 +250,12 @@ export class Page extends React.Component<PageProps, PageState> {
       breadcrumbProps,
       ...rest
     } = this.props;
-    const { mobileView, mobileIsNavOpen, desktopIsNavOpen, width, height } = this.state;
+    const { mobileView, mobileIsSidebarOpen, desktopIsSidebarOpen, width, height } = this.state;
 
     const context = {
       isManagedSidebar,
-      onNavToggle: mobileView ? this.onNavToggleMobile : this.onNavToggleDesktop,
-      isNavOpen: mobileView ? mobileIsNavOpen : desktopIsNavOpen,
+      onSidebarToggle: mobileView ? this.onSidebarToggleMobile : this.onSidebarToggleDesktop,
+      isSidebarOpen: mobileView ? mobileIsSidebarOpen : desktopIsSidebarOpen,
       width,
       height,
       getBreakpoint,
@@ -288,8 +301,10 @@ export class Page extends React.Component<PageProps, PageState> {
       </PageGroup>
     ) : null;
 
+    const Component: keyof JSX.IntrinsicElements = mainComponent;
+
     const main = (
-      <main
+      <Component
         ref={this.mainRef}
         role={role}
         id={mainContainerId}
@@ -301,10 +316,14 @@ export class Page extends React.Component<PageProps, PageState> {
         {!isTertiaryNavGrouped && nav}
         {!isBreadcrumbGrouped && crumb}
         {children}
-      </main>
+      </Component>
     );
 
-    const panelContent = <DrawerPanelContent>{notificationDrawer}</DrawerPanelContent>;
+    const panelContent = (
+      <DrawerPanelContent defaultSize={drawerDefaultSize} minSize={drawerMinSize} maxSize={drawerMaxSize}>
+        {notificationDrawer}
+      </DrawerPanelContent>
+    );
 
     return (
       <PageContextProvider value={context}>
@@ -324,7 +343,7 @@ export class Page extends React.Component<PageProps, PageState> {
           {sidebar}
           {notificationDrawer && (
             <div className={css(styles.pageDrawer)}>
-              <Drawer isExpanded={isNotificationDrawerExpanded} onExpand={onNotificationDrawerExpand}>
+              <Drawer isExpanded={isNotificationDrawerExpanded} onExpand={(event) => onNotificationDrawerExpand(event)}>
                 <DrawerContent panelContent={panelContent}>
                   <DrawerContentBody>{main}</DrawerContentBody>
                 </DrawerContent>
@@ -337,3 +356,5 @@ export class Page extends React.Component<PageProps, PageState> {
     );
   }
 }
+
+export { Page };

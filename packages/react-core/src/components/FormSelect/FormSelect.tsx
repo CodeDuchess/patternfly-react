@@ -3,7 +3,9 @@ import styles from '@patternfly/react-styles/css/components/FormControl/form-con
 import { css } from '@patternfly/react-styles';
 import { PickOptional } from '../../helpers/typeUtils';
 import { ValidatedOptions } from '../../helpers/constants';
+import { FormControlIcon } from '../FormControl/FormControlIcon';
 import { getOUIAProps, OUIAProps, getDefaultOUIAId } from '../../helpers';
+import CaretDownIcon from '@patternfly/react-icons/dist/esm/icons/caret-down-icon';
 
 export interface FormSelectProps
   extends Omit<React.HTMLProps<HTMLSelectElement>, 'onChange' | 'onBlur' | 'onFocus' | 'disabled'>,
@@ -23,14 +25,12 @@ export interface FormSelectProps
   isDisabled?: boolean;
   /** Sets the FormSelect required. */
   isRequired?: boolean;
-  /** Use the external file instead of a data URI */
-  isIconSprite?: boolean;
   /** Optional callback for updating when selection loses focus */
   onBlur?: (event: React.FormEvent<HTMLSelectElement>) => void;
   /** Optional callback for updating when selection gets focus */
   onFocus?: (event: React.FormEvent<HTMLSelectElement>) => void;
   /** Optional callback for updating when selection changes */
-  onChange?: (value: string, event: React.FormEvent<HTMLSelectElement>) => void;
+  onChange?: (event: React.FormEvent<HTMLSelectElement>, value: string) => void;
   /** Custom flag to show that the FormSelect requires an associated id or aria-label. */
   'aria-label'?: string;
   /** Value to overwrite the randomly generated data-ouia-component-id.*/
@@ -39,7 +39,7 @@ export interface FormSelectProps
   ouiaSafe?: boolean;
 }
 
-export class FormSelect extends React.Component<FormSelectProps, { ouiaStateId: string }> {
+class FormSelect extends React.Component<FormSelectProps, { ouiaStateId: string }> {
   static displayName = 'FormSelect';
   constructor(props: FormSelectProps) {
     super(props);
@@ -58,7 +58,6 @@ export class FormSelect extends React.Component<FormSelectProps, { ouiaStateId: 
     validated: 'default',
     isDisabled: false,
     isRequired: false,
-    isIconSprite: false,
     onBlur: (): any => undefined,
     onFocus: (): any => undefined,
     onChange: (): any => undefined,
@@ -66,45 +65,46 @@ export class FormSelect extends React.Component<FormSelectProps, { ouiaStateId: 
   };
 
   handleChange = (event: any) => {
-    this.props.onChange(event.currentTarget.value, event);
+    this.props.onChange(event, event.currentTarget.value);
   };
 
   render() {
-    const {
-      children,
-      className,
-      value,
-      validated,
-      isDisabled,
-      isRequired,
-      isIconSprite,
-      ouiaId,
-      ouiaSafe,
-      ...props
-    } = this.props;
+    const { children, className, value, validated, isDisabled, isRequired, ouiaId, ouiaSafe, ...props } = this.props;
     /* find selected option and get placeholder flag */
     const selectedOption = React.Children.toArray(children).find((option: any) => option.props.value === value) as any;
     const isSelectedPlaceholder = selectedOption && selectedOption.props.isPlaceholder;
+    const hasStatusIcon = ['success', 'error', 'warning'].includes(validated);
+
     return (
-      <select
-        {...props}
+      <span
         className={css(
           styles.formControl,
-          isIconSprite && styles.modifiers.iconSprite,
-          className,
-          validated === ValidatedOptions.success && styles.modifiers.success,
-          validated === ValidatedOptions.warning && styles.modifiers.warning,
-          isSelectedPlaceholder && styles.modifiers.placeholder
+          isDisabled && styles.modifiers.disabled,
+          isSelectedPlaceholder && styles.modifiers.placeholder,
+          hasStatusIcon && styles.modifiers[validated as 'success' | 'warning' | 'error'],
+          className
         )}
-        aria-invalid={validated === ValidatedOptions.error}
-        {...getOUIAProps(FormSelect.displayName, ouiaId !== undefined ? ouiaId : this.state.ouiaStateId, ouiaSafe)}
-        onChange={this.handleChange}
-        disabled={isDisabled}
-        required={isRequired}
-        value={value}
       >
-        {children}
-      </select>
+        <select
+          {...props}
+          aria-invalid={validated === ValidatedOptions.error}
+          {...getOUIAProps(FormSelect.displayName, ouiaId !== undefined ? ouiaId : this.state.ouiaStateId, ouiaSafe)}
+          onChange={this.handleChange}
+          disabled={isDisabled}
+          required={isRequired}
+          value={value}
+        >
+          {children}
+        </select>
+        <span className={css(styles.formControlUtilities)}>
+          {hasStatusIcon && <FormControlIcon status={validated as 'success' | 'error' | 'warning'} />}
+          <span className={css(styles.formControlToggleIcon)}>
+            <CaretDownIcon />
+          </span>
+        </span>
+      </span>
     );
   }
 }
+
+export { FormSelect };

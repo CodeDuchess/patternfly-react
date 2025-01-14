@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from '@patternfly/react-styles/css/components/FileUpload/file-upload';
 import { css } from '@patternfly/react-styles';
-import { InputGroup } from '../InputGroup';
+import { InputGroup, InputGroupItem } from '../InputGroup';
 import { TextInput } from '../TextInput';
 import { Button, ButtonVariant } from '../Button';
 import { TextArea, TextAreResizeOrientation } from '../TextArea';
@@ -37,6 +37,8 @@ export interface FileUploadFieldProps extends Omit<React.HTMLProps<HTMLDivElemen
   hideDefaultPreview?: boolean;
   /** Unique id for the text area. Also used to generate ids for accessible labels. */
   id: string;
+  /** Name property for the text input. */
+  name?: string;
   /** Flag to disable the clear button. */
   isClearButtonDisabled?: boolean;
   /** Flag to show if the field is disabled. */
@@ -77,13 +79,14 @@ export interface FileUploadFieldProps extends Omit<React.HTMLProps<HTMLDivElemen
    * of the file upload component. */
   onTextAreaClick?: (event: React.MouseEvent<HTMLTextAreaElement, MouseEvent>) => void;
   /** Text area text changed. */
-  onTextChange?: (text: string) => void;
+  onTextChange?: (event: React.ChangeEvent<HTMLTextAreaElement>, text: string) => void;
   /** Placeholder string to display in the empty text area field. */
   textAreaPlaceholder?: string;
 }
 
 export const FileUploadField: React.FunctionComponent<FileUploadFieldProps> = ({
   id,
+  name,
   type,
   value = '',
   filename = '',
@@ -114,8 +117,8 @@ export const FileUploadField: React.FunctionComponent<FileUploadFieldProps> = ({
 
   ...props
 }: FileUploadFieldProps) => {
-  const onTextAreaChange = (newValue: string) => {
-    onTextChange?.(newValue);
+  const onTextAreaChange = (event: React.ChangeEvent<HTMLTextAreaElement>, newValue: string) => {
+    onTextChange?.(event, newValue);
   };
   return (
     <div
@@ -130,31 +133,37 @@ export const FileUploadField: React.FunctionComponent<FileUploadFieldProps> = ({
     >
       <div className={styles.fileUploadFileSelect}>
         <InputGroup>
-          <TextInput
-            isReadOnly // Always read-only regardless of isReadOnly prop (which is just for the TextArea)
-            isDisabled={isDisabled}
-            id={`${id}-filename`}
-            name={`${id}-filename`}
-            aria-label={filenameAriaLabel}
-            placeholder={filenamePlaceholder}
-            aria-describedby={`${id}-browse-button`}
-            value={filename}
-          />
-          <Button
-            id={`${id}-browse-button`}
-            variant={ButtonVariant.control}
-            onClick={onBrowseButtonClick}
-            isDisabled={isDisabled}
-          >
-            {browseButtonText}
-          </Button>
-          <Button
-            variant={ButtonVariant.control}
-            isDisabled={isDisabled || isClearButtonDisabled}
-            onClick={onClearButtonClick}
-          >
-            {clearButtonText}
-          </Button>
+          <InputGroupItem isFill>
+            <TextInput
+              readOnlyVariant="default" // Always read-only regardless of isReadOnly prop (which is just for the TextArea)
+              isDisabled={isDisabled}
+              id={`${id}-filename`}
+              name={name || `${id}-filename`}
+              aria-label={filenameAriaLabel}
+              placeholder={filenamePlaceholder}
+              aria-describedby={`${id}-browse-button`}
+              value={filename}
+            />
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button
+              id={`${id}-browse-button`}
+              variant={ButtonVariant.control}
+              onClick={onBrowseButtonClick}
+              isDisabled={isDisabled}
+            >
+              {browseButtonText}
+            </Button>
+          </InputGroupItem>
+          <InputGroupItem>
+            <Button
+              variant={ButtonVariant.control}
+              isDisabled={isDisabled || isClearButtonDisabled}
+              onClick={onClearButtonClick}
+            >
+              {clearButtonText}
+            </Button>
+          </InputGroupItem>
         </InputGroup>
       </div>
       <div className={styles.fileUploadFileDetails}>
@@ -166,7 +175,6 @@ export const FileUploadField: React.FunctionComponent<FileUploadFieldProps> = ({
             resizeOrientation={TextAreResizeOrientation.vertical}
             validated={validated}
             id={id}
-            name={id}
             aria-label={ariaLabel}
             value={value as string}
             onChange={onTextAreaChange}

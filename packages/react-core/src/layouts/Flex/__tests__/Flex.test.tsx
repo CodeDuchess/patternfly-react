@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 
 import { Flex } from '../Flex';
 import { FlexItem } from '../FlexItem';
+import layout from '@patternfly/react-styles/css/layouts/Flex/flex';
 
 describe('Flex', () => {
   test('Simple flex with single item', () => {
@@ -85,16 +86,40 @@ describe('Flex', () => {
     ],
     display: ['inlineFlex'],
     fullWidth: ['fullWidth'],
-    flexWrap: ['wrap', 'wrapReverse', 'nowrap']
+    flexWrap: ['wrap', 'wrapReverse', 'nowrap'],
+    gap: ['gapNone', 'gapXs', 'gapSm', 'gapMd', 'gapLg', 'gapXl', 'gap2xl', 'gap3xl', 'gap4xl'],
+    rowGap: [
+      'rowGapNone',
+      'rowGapXs',
+      'rowGapSm',
+      'rowGapMd',
+      'rowGapLg',
+      'rowGapXl',
+      'rowGap2xl',
+      'rowGap3xl',
+      'rowGap4xl'
+    ],
+    columnGap: [
+      'columnGapNone',
+      'columnGapXs',
+      'columnGapSm',
+      'columnGapMd',
+      'columnGapLg',
+      'columnGapXl',
+      'columnGap2xl',
+      'columnGap3xl',
+      'columnGap4xl'
+    ]
   };
 
   describe('flex modifiers', () => {
     Object.entries(flexModifiers)
       .map(([mod, values]) =>
-        values.map(value => ({
+        values.map((value) => ({
           [mod]: {
             default: value,
             sm: value,
+            md: value,
             lg: value,
             xl: value,
             '2xl': value
@@ -102,7 +127,7 @@ describe('Flex', () => {
         }))
       )
       .reduce((acc, val) => acc.concat(val), [])
-      .forEach(props =>
+      .forEach((props) =>
         test(`${JSON.stringify(props)} add valid classes to Flex`, () => {
           render(
             <Flex {...props} data-testid="test-id">
@@ -110,11 +135,7 @@ describe('Flex', () => {
             </Flex>
           );
 
-          const className = screen
-            .getByTestId('test-id')
-            .className.replace('pf-l-flex', '')
-            .trim();
-
+          const className = screen.getByTestId('test-id').className.replace(layout.flex, '').trim();
           expect(className).not.toBe("''");
           expect(className).not.toBe('');
         })
@@ -134,7 +155,7 @@ describe('Flex', () => {
   describe('flexItem modifiers', () => {
     Object.entries(flexItemModifiers)
       .map(([mod, values]) =>
-        values.map(value => ({
+        values.map((value) => ({
           [mod]: {
             default: value,
             sm: value,
@@ -145,7 +166,7 @@ describe('Flex', () => {
         }))
       )
       .reduce((acc, val) => acc.concat(val), [])
-      .forEach(props =>
+      .forEach((props) =>
         test(`${JSON.stringify(props)} add valid classes to FlexItem`, () => {
           render(
             <FlexItem {...props} data-testid="test-id">

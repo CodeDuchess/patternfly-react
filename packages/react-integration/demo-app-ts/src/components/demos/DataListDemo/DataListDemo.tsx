@@ -10,9 +10,10 @@ import {
   DataListWrapModifier,
   Dropdown,
   DropdownItem,
-  DropdownPosition,
-  KebabToggle
+  DropdownList,
+  MenuToggle
 } from '@patternfly/react-core';
+import EllipsisVIcon from '@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon';
 
 interface DataListState {
   selectedDataListItemId: string;
@@ -33,14 +34,16 @@ export class DataListDemo extends React.Component<DataListProps, DataListState> 
     this.setState({ selectedDataListItemId: id });
   };
 
-  onToggle = (_event: any, isOpen: boolean) => {
-    this.setState({ isOpen });
-  };
-
-  onSelect = () => {
+  onToggle = () => {
     this.setState((prevState) => ({
       isOpen: !prevState.isOpen
     }));
+  };
+
+  onSelect = () => {
+    this.setState({
+      isOpen: false
+    });
   };
 
   render() {
@@ -69,22 +72,24 @@ export class DataListDemo extends React.Component<DataListProps, DataListState> 
               isPlainButtonAction
             >
               <Dropdown
-                isPlain
-                position={DropdownPosition.right}
+                id="dropdown"
                 isOpen={this.state.isOpen}
                 onSelect={this.onSelect}
-                toggle={<KebabToggle id="toggle-id" onToggle={this.onToggle} />}
-                dropdownItems={[
-                  <DropdownItem key="link">Link</DropdownItem>,
-                  <DropdownItem key="action" component="button">
-                    Action
-                  </DropdownItem>,
+                onOpenChange={(isOpen) => this.setState({ isOpen })}
+                toggle={(toggleRef) => (
+                  <MenuToggle variant="plain" ref={toggleRef} isExpanded={this.state.isOpen} onClick={this.onToggle}>
+                    <EllipsisVIcon />
+                  </MenuToggle>
+                )}
+              >
+                <DropdownList>
+                  <DropdownItem key="link">Link</DropdownItem>
+                  <DropdownItem key="action">Action</DropdownItem>
                   <DropdownItem key="disabled link" isDisabled>
                     Disabled Link
                   </DropdownItem>
-                ]}
-                id="dropdown"
-              />
+                </DropdownList>
+              </Dropdown>
             </DataListAction>
           </DataListItemRow>
         </DataListItem>

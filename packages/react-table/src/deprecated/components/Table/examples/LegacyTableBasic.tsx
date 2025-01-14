@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableHeader, TableBody, TableProps } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody, TableProps } from '@patternfly/react-table/deprecated';
 import { ToggleGroup, ToggleGroupItem, ToggleGroupItemProps } from '@patternfly/react-core';
 interface Repository {
   name: string;
@@ -37,15 +37,15 @@ export const LegacyTableBasic: React.FunctionComponent = () => {
     }
   ];
 
-  // This state is just for the ToggleGroup in this example and isn't necessary for TableComposable usage.
+  // This state is just for the ToggleGroup in this example and isn't necessary for table usage.
   const [exampleChoice, setExampleChoice] = React.useState<ExampleType>('default');
-  const onExampleTypeChange: ToggleGroupItemProps['onChange'] = (_isSelected, event) => {
+  const onExampleTypeChange: ToggleGroupItemProps['onChange'] = (event, _isSelected) => {
     const id = event.currentTarget.id;
     setExampleChoice(id as ExampleType);
   };
 
   const columns: TableProps['cells'] = ['Repositories', 'Branches', 'Pull requests', 'Workspaces', 'Last commit'];
-  const rows: TableProps['rows'] = repositories.map(repo => [
+  const rows: TableProps['rows'] = repositories.map((repo) => [
     repo.name,
     repo.branches,
     repo.prs,
